@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gerçek Lig İsimleri</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #090D14;
+      color: #19E98B;
+      padding: 20px;
+      line-height: 1.8;
+    }
+    .match {
+      background: #171E29;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #293241;
+    }
+    .league-id {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+    .league-name {
+      color: #19E98B;
+      font-size: 1.2em;
+    }
+    button {
+      background: #19E98B;
+      color: #090D14;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    .code {
+      background: #0D1117;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 10px 0;
+      overflow-x: auto;
+      max-height: 600px;
+      border: 1px solid #293241;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 API'den Gelen Gerçek Lig İsimleri</h1>
+  <p>Bu sayfa API'den gelen ham verileri gösterir.</p>
+  
+  <button onclick="showMatches()">📋 Maçları Göster</button>
+  <button onclick="showCode()">💾 Kod Üret</button>
+  <button onclick="copyCode()">📋 Kopyala</button>
+  
+  <div id="output"></div>
+
+  <script>
+    let allMatches = [];
+    let generatedCode = '';
+
+    async function loadData() {
+      const response = await fetch('/api/matches');
+      const data = await response.json();
+      allMatches = data.matches || [];
+      return allMatches;
+    }
+
+    async function showMatches() {
+      const output = document.getElementById('output');
+      output.innerHTML = '<p>⏳ Veriler yükleniyor...</p>';
+      
+      const matches = await loadData();
+      
+      let html = `<h2>Toplam ${matches.length} maç bulundu</h2>`;
+      html += '<h3>İlk 20 Maç (API Raw Data):</h3>';
+      
+      matches.slice(0, 20).forEach((match, i) => {
+        html += `<div class="match">`;
+        html += `<strong>Maç ${i + 1}:</strong> ${match.home.name} vs ${match.away.name}<br>`;
+        html += `<span class="league-id">League ID: ${match.leagueId}</span><br>`;
+        html += `<span class="league-name">League Name: ${match.leagueName || 'UNDEFINED'}</span><br>`;
+        html += `Time: ${match.time}<br>`;
+        html += `Raw: <code>${JSON.stringify({leagueId: match.leagueId, leagueName: match.leagueName, league: match.league})}</code>`;
+        html += `</div>`;
+      });
+      
+      output.innerHTML = html;
+    }
+
+    async function showCode() {
+      const output = document.getElementById('output');
+      output.innerHTML = '<p>⏳ Kod üretiliyor...</p>';
+      
+      const matches = await loadData();
+      
+      // Ligleri topla
+      const leaguesMap = new Map();
+      
+      matches.forEach(match => {
+        const leagueId = match.leagueId;
+        const leagueName = match.leagueName || match.league || null;
+        
+        if (!leaguesMap.has(leagueId)) {
+          leaguesMap.set(leagueId, {
+            id: leagueId,
+            names: new Set(),
+            count: 0,
+            sampleMatch: `${match.home.name} vs ${match.away.name}`
+          });
+        }
+        
+        if (leagueName) {
+          leaguesMap.get(leagueId).names.add(leagueName);
+        }
+        leaguesMap.get(leagueId).count++;
+      });
+      
+      // Sırala
+      const sortedLeagues = Array.from(leaguesMap.values()).sort((a, b) => b.count - a.count);
+      
+      let code = '// API\'den gelen GERÇEK lig isimleri:\n\n';
+      
+      sortedLeagues.forEach(league => {
+        const namesArray = Array.from(league.names);
+        const hasRealName = namesArray.length > 0 && namesArray[0] !== 'undefined';
+        
+        if (hasRealName) {
+          code += `${league.id}: '${namesArray[0]}', // ${league.count} maç\n`;
+        } else {
+          code += `${league.id}: 'UNDEFINED', // ${league.count} maç - Örnek: ${league.sampleMatch}\n`;
+        }
+      });
+      
+      generatedCode = code;
+      
+      // İstatistikler
+      const withNames = sortedLeagues.filter(l => l.names.size > 0 && !Array.from(l.names)[0].includes('undefined')).length;
+      const withoutNames = sortedLeagues.length - withNames;
+      
+      let html = `<h2>📊 İstatistikler</h2>`;
+      html += `<p>✅ İsmi olan ligler: <strong>${withNames}</strong></p>`;
+      html += `<p>❌ İsmi olmayan ligler: <strong>${withoutNames}</strong></p>`;
+      html += `<p>📊 Toplam: <strong>${sortedLeagues.length}</strong></p>`;
+      html += `<div class="code">${code.replace(/\n/g, '<br>')}</div>`;
+      
+      output.innerHTML = html;
+    }
+
+    function copyCode() {
+      if (!generatedCode) {
+        alert('⚠️ Önce "Kod Üret" butonuna tıkla!');
+        return;
+      }
+      navigator.clipboard.writeText(generatedCode);
+      alert('✅ Kod kopyalandı!');
+    }
+
+    // Otomatik yükle
+    showMatches();
+  </script>
+</body>
+</html>

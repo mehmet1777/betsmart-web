@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>League ID Mapper</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #090D14;
+      color: #19E98B;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .code {
+      background: #0D1117;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 10px 0;
+      overflow-x: auto;
+      max-height: 600px;
+      border: 1px solid #293241;
+    }
+    button {
+      background: #19E98B;
+      color: #090D14;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #15d17d;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 League ID → Name Mapper</h1>
+  <p>Bu sayfada tüm lig ID'leri ve gerçek isimleri listelenir.</p>
+  
+  <button onclick="copyCode()">📋 Kopyala</button>
+  <button onclick="analyze()">🔄 Yenile</button>
+  
+  <div id="output"></div>
+
+  <script>
+    let generatedCode = '';
+
+    function getFlag(leagueName) {
+      const nameLower = (leagueName || '').toLowerCase();
+      
+      if (nameLower.includes('brazil') || nameLower.includes('brasileiro') || nameLower.includes('serie a') && nameLower.includes('bra')) return '🇧🇷';
+      if (nameLower.includes('argentin')) return '🇦🇷';
+      if (nameLower.includes('portugal') || nameLower.includes('portug')) return '🇵🇹';
+      if (nameLower.includes('spain') || nameLower.includes('españa') || nameLower.includes('spanish')) return '🇪🇸';
+      if (nameLower.includes('england') || nameLower.includes('premier league') || nameLower.includes('efl') || nameLower.includes('championship')) return '🏴󠁧󠁢󠁥󠁮󠁧󠁿';
+      if (nameLower.includes('italy') || nameLower.includes('italian') || nameLower.includes('serie a') || nameLower.includes('serie b') || nameLower.includes('serie c')) return '🇮🇹';
+      if (nameLower.includes('germany') || nameLower.includes('bundesliga') || nameLower.includes('german')) return '🇩🇪';
+      if (nameLower.includes('france') || nameLower.includes('ligue') || nameLower.includes('french')) return '🇫🇷';
+      if (nameLower.includes('netherlands') || nameLower.includes('eredivisie') || nameLower.includes('dutch')) return '🇳🇱';
+      if (nameLower.includes('belgium') || nameLower.includes('belgian')) return '🇧🇪';
+      if (nameLower.includes('turkey') || nameLower.includes('türk') || nameLower.includes('super lig')) return '🇹🇷';
+      if (nameLower.includes('mexico') || nameLower.includes('liga mx')) return '🇲🇽';
+      if (nameLower.includes('usa') || nameLower.includes('mls') || nameLower.includes('usl')) return '🇺🇸';
+      if (nameLower.includes('chile') || nameLower.includes('chilean')) return '🇨🇱';
+      if (nameLower.includes('colombia') || nameLower.includes('colombian')) return '🇨🇴';
+      if (nameLower.includes('uruguay') || nameLower.includes('uruguayan')) return '🇺🇾';
+      if (nameLower.includes('peru') || nameLower.includes('peruvian')) return '🇵🇪';
+      if (nameLower.includes('ecuador') || nameLower.includes('ecuadorian')) return '🇪🇨';
+      if (nameLower.includes('paraguay')) return '🇵🇾';
+      if (nameLower.includes('bolivia')) return '🇧🇴';
+      if (nameLower.includes('venezuela')) return '🇻🇪';
+      if (nameLower.includes('greece') || nameLower.includes('greek')) return '🇬🇷';
+      if (nameLower.includes('croatia') || nameLower.includes('croatian')) return '🇭🇷';
+      if (nameLower.includes('serbia') || nameLower.includes('serbian')) return '🇷🇸';
+      if (nameLower.includes('romania') || nameLower.includes('romanian')) return '🇷🇴';
+      if (nameLower.includes('poland') || nameLower.includes('polish') || nameLower.includes('ekstraklasa')) return '🇵🇱';
+      if (nameLower.includes('czech')) return '🇨🇿';
+      if (nameLower.includes('austria') || nameLower.includes('austrian')) return '🇦🇹';
+      if (nameLower.includes('switzerland') || nameLower.includes('swiss')) return '🇨🇭';
+      if (nameLower.includes('sweden') || nameLower.includes('swedish') || nameLower.includes('allsvenskan')) return '🇸🇪';
+      if (nameLower.includes('norway') || nameLower.includes('norwegian') || nameLower.includes('eliteserien')) return '🇳🇴';
+      if (nameLower.includes('denmark') || nameLower.includes('danish') || nameLower.includes('superliga')) return '🇩🇰';
+      if (nameLower.includes('finland') || nameLower.includes('finnish') || nameLower.includes('veikkausliiga')) return '🇫🇮';
+      if (nameLower.includes('scotland') || nameLower.includes('scottish')) return '🏴󠁧󠁢󠁳󠁣󠁴󠁿';
+      if (nameLower.includes('wales') || nameLower.includes('welsh')) return '🏴󠁧󠁢󠁷󠁬󠁳󠁿';
+      if (nameLower.includes('ireland') || nameLower.includes('irish')) return '🇮🇪';
+      if (nameLower.includes('australia') || nameLower.includes('a-league')) return '🇦🇺';
+      if (nameLower.includes('japan') || nameLower.includes('j-league') || nameLower.includes('j1') || nameLower.includes('j2')) return '🇯🇵';
+      if (nameLower.includes('korea') || nameLower.includes('k league')) return '🇰🇷';
+      if (nameLower.includes('china') || nameLower.includes('chinese')) return '🇨🇳';
+      if (nameLower.includes('india') || nameLower.includes('isl')) return '🇮🇳';
+      if (nameLower.includes('saudi') || nameLower.includes('spl')) return '🇸🇦';
+      if (nameLower.includes('uae') || nameLower.includes('emirates')) return '🇦🇪';
+      if (nameLower.includes('qatar')) return '🇶🇦';
+      if (nameLower.includes('egypt') || nameLower.includes('egyptian')) return '🇪🇬';
+      if (nameLower.includes('morocco') || nameLower.includes('moroccan')) return '🇲🇦';
+      if (nameLower.includes('tunisia') || nameLower.includes('tunisian')) return '🇹🇳';
+      if (nameLower.includes('algeria') || nameLower.includes('algerian')) return '🇩🇿';
+      if (nameLower.includes('south africa')) return '🇿🇦';
+      if (nameLower.includes('hungary') || nameLower.includes('hungarian')) return '🇭🇺';
+      if (nameLower.includes('bulgaria') || nameLower.includes('bulgarian')) return '🇧🇬';
+      if (nameLower.includes('israel')) return '🇮🇱';
+      if (nameLower.includes('slovakia') || nameLower.includes('slovak')) return '🇸🇰';
+      if (nameLower.includes('slovenia') || nameLower.includes('slovenian')) return '🇸🇮';
+      if (nameLower.includes('bosnia')) return '🇧🇦';
+      if (nameLower.includes('albania') || nameLower.includes('albanian')) return '🇦🇱';
+      if (nameLower.includes('macedonia')) return '🇲🇰';
+      if (nameLower.includes('montenegro')) return '🇲🇪';
+      if (nameLower.includes('cyprus')) return '🇨🇾';
+      if (nameLower.includes('malta')) return '🇲🇹';
+      if (nameLower.includes('iceland')) return '🇮🇸';
+      if (nameLower.includes('ukraine') || nameLower.includes('ukrainian')) return '🇺🇦';
+      if (nameLower.includes('russia') || nameLower.includes('russian')) return '🇷🇺';
+      if (nameLower.includes('belarus')) return '🇧🇾';
+      if (nameLower.includes('kazakhstan')) return '🇰🇿';
+      if (nameLower.includes('uzbekistan')) return '🇺🇿';
+      if (nameLower.includes('champions') || nameLower.includes('uefa') || nameLower.includes('europa')) return '🏆';
+      if (nameLower.includes('women') || nameLower.includes('kadın') || nameLower.includes('female')) return '👩';
+      if (nameLower.includes('youth') || nameLower.includes('u19') || nameLower.includes('u21') || nameLower.includes('u17') || nameLower.includes('u20')) return '👦';
+      if (nameLower.includes('cup') || nameLower.includes('kupa') || nameLower.includes('copa')) return '🏆';
+      
+      return '⚽';
+    }
+
+    function cleanName(name) {
+      if (!name || name === 'Unknown') return null;
+      
+      return name
+        .replace(/^[^a-zA-ZÀ-ž0-9]+/, '') // Başındaki garip karakterler
+        .replace(/\s+/g, ' ') // Çoklu boşlukları tek boşluğa
+        .trim();
+    }
+
+    async function analyze() {
+      const output = document.getElementById('output');
+      output.innerHTML = '<p>⏳ API verisi alınıyor...</p>';
+
+      try {
+        const response = await fetch('/api/matches');
+        const data = await response.json();
+        const matches = data.matches || [];
+
+        const leaguesMap = new Map();
+
+        matches.forEach(match => {
+          const leagueId = match.leagueId;
+          const leagueName = match.leagueName;
+
+          if (!leaguesMap.has(leagueId)) {
+            leaguesMap.set(leagueId, {
+              id: leagueId,
+              rawName: leagueName,
+              cleanName: cleanName(leagueName),
+              count: 0
+            });
+          }
+          leaguesMap.get(leagueId).count++;
+        });
+
+        // ID'ye göre sırala
+        const sortedLeagues = Array.from(leaguesMap.values()).sort((a, b) => a.id - b.id);
+
+        let code = '// Eksik ligler - types/index.ts LEAGUE_NAMES içine ekle:\n\n';
+
+        sortedLeagues.forEach(league => {
+          const name = league.cleanName || `Lig ${league.id}`;
+          const flag = getFlag(name);
+          
+          code += `  ${league.id}: '${flag} ${name}', // ${league.count} maç${league.rawName && league.rawName !== name ? ' (raw: ' + league.rawName + ')' : ''}\n`;
+        });
+
+        generatedCode = code;
+
+        output.innerHTML = `
+          <p>✅ ${matches.length} maç, ${sortedLeagues.length} farklı lig bulundu</p>
+          <div class="code">${code.replace(/\n/g, '<br>')}</div>
+        `;
+
+      } catch (error) {
+        output.innerHTML = `<p style="color: #ff6b6b">❌ Hata: ${error.message}</p>`;
+      }
+    }
+
+    function copyCode() {
+      navigator.clipboard.writeText(generatedCode);
+      alert('✅ Kod kopyalandı!');
+    }
+
+    analyze();
+  </script>
+</body>
+</html>

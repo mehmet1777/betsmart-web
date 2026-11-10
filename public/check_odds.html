@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Oranları Kontrol Et</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #090D14;
+      color: #19E98B;
+      padding: 20px;
+      line-height: 1.8;
+    }
+    .match {
+      background: #171E29;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #293241;
+    }
+    .has-odds {
+      border-left: 4px solid #19E98B;
+    }
+    .no-odds {
+      border-left: 4px solid #ff6b6b;
+    }
+    pre {
+      background: #0D1117;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 0.85em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎲 Oran Kontrolü</h1>
+  <p>API'den gelen ilk 10 maçın oran verilerini gösterir.</p>
+  
+  <div id="output"></div>
+
+  <script>
+    async function checkOdds() {
+      const output = document.getElementById('output');
+      output.innerHTML = '<p>⏳ API verisi alınıyor...</p>';
+      
+      try {
+        const response = await fetch('/api/matches');
+        const data = await response.json();
+        const matches = data.matches || [];
+        
+        let html = `<h2>Toplam ${matches.length} maç</h2>`;
+        html += '<h3>İlk 10 Maç - Oran Verisi:</h3>';
+        
+        let withOdds = 0;
+        let withoutOdds = 0;
+        
+        matches.slice(0, 10).forEach((match, i) => {
+          const hasOdds = match.odds && (match.odds.home || match.odds.draw || match.odds.away);
+          
+          if (hasOdds) withOdds++;
+          else withoutOdds++;
+          
+          html += `<div class="match ${hasOdds ? 'has-odds' : 'no-odds'}">`;
+          html += `<strong>Maç ${i + 1}:</strong> ${match.home.name} vs ${match.away.name}<br>`;
+          html += `<strong>Lig ID:</strong> ${match.leagueId}<br>`;
+          html += `<strong>Saat:</strong> ${match.time}<br>`;
+          
+          if (hasOdds) {
+            html += `<strong style="color: #19E98B">✅ ORANLAR VAR:</strong><br>`;
+            html += `<pre>${JSON.stringify(match.odds, null, 2)}</pre>`;
+          } else {
+            html += `<strong style="color: #ff6b6b">❌ ORAN YOK</strong><br>`;
+          }
+          
+          html += `<details><summary>Full Match Object</summary><pre>${JSON.stringify(match, null, 2)}</pre></details>`;
+          html += `</div>`;
+        });
+        
+        html = `
+          <div style="background: #171E29; padding: 15px; margin-bottom: 20px; border-radius: 8px;">
+            <h2>📊 Özet</h2>
+            <p>✅ Oranlı Maçlar: <strong>${withOdds}</strong></p>
+            <p>❌ Oransız Maçlar: <strong>${withoutOdds}</strong></p>
+            <p style="color: ${withOdds > 0 ? '#19E98B' : '#ff6b6b'}">
+              ${withOdds > 0 
+                ? '✅ API gerçek oran veriyor!' 
+                : '❌ API oran vermiyor, mock data kullanılıyor'}
+            </p>
+          </div>
+        ` + html;
+        
+        output.innerHTML = html;
+        
+      } catch (error) {
+        output.innerHTML = `<p style="color: #ff6b6b">❌ Hata: ${error.message}</p>`;
+      }
+    }
+    
+    checkOdds();
+  </script>
+</body>
+</html>

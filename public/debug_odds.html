@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Oran Debug</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #090D14;
+      color: #19E98B;
+      padding: 20px;
+    }
+    pre {
+      background: #0D1117;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 0.9em;
+      border: 1px solid #293241;
+    }
+    .highlight {
+      background: #19E98B;
+      color: #090D14;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Oran Format Debug</h1>
+  
+  <div id="output"></div>
+
+  <script>
+    async function debugOdds() {
+      const output = document.getElementById('output');
+      output.innerHTML = '<p>⏳ Loading...</p>';
+      
+      try {
+        const response = await fetch('/api/matches');
+        const data = await response.json();
+        const matches = data.matches || [];
+        
+        let html = '<h2>İlk 3 Maç - RAW Odds Data:</h2>';
+        
+        matches.slice(0, 3).forEach((match, i) => {
+          html += `<h3>Maç ${i + 1}: ${match.home.name} vs ${match.away.name}</h3>`;
+          html += `<p><strong>match.odds tam objesi:</strong></p>`;
+          html += `<pre>${JSON.stringify(match.odds, null, 2)}</pre>`;
+          
+          // Tüm keys göster
+          if (match.odds) {
+            html += `<p><strong>Keys:</strong> <span class="highlight">${Object.keys(match.odds).join(', ')}</span></p>`;
+          }
+        });
+        
+        output.innerHTML = html;
+        
+      } catch (error) {
+        output.innerHTML = `<p style="color: #ff6b6b">❌ Error: ${error.message}</p>`;
+      }
+    }
+    
+    debugOdds();
+  </script>
+</body>
+</html>
