@@ -33,7 +33,8 @@ const MAJOR_LEAGUES = [
 
 function extractFlag(leagueName: string): string {
   // Bayrak veya emoji çıkar (ilk 2 karakter genelde emoji)
-  const match = leagueName.match(/^([\u{1F1E6}-\u{1F1FF}]{2}|[\u{1F3C6}\u{26BD}\u{1F451}\u{1F476}])/u);
+  const emojiRegex = /^[\u{1F1E6}-\u{1F1FF}]{2}|^[\u{1F3C6}\u{26BD}\u{1F451}\u{1F476}]/u;
+  const match = leagueName.match(emojiRegex);
   return match ? match[0] : '⚽';
 }
 
