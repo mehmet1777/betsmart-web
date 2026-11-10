@@ -32,18 +32,39 @@ const MAJOR_LEAGUES = [
 ];
 
 function extractFlag(leagueName: string): string {
-  // Bayrak veya emoji çıkar (ilk 2 karakter genelde emoji)
-  const emojiRegex = /^[\u{1F1E6}-\u{1F1FF}]{2}|^[\u{1F3C6}\u{26BD}\u{1F451}\u{1F476}]/u;
-  const match = leagueName.match(emojiRegex);
-  return match ? match[0] : '⚽';
+  // Bayrak veya emoji çıkar - basit string işleme kullan
+  if (leagueName.length >= 2) {
+    const firstTwo = leagueName.substring(0, 2);
+    // Bayrak emoji kontrolü (surrogate pair)
+    const code = firstTwo.charCodeAt(0);
+    if (code >= 0xD800 && code <= 0xDBFF) {
+      return firstTwo;
+    }
+  }
+  // Tek karakter emoji kontrolü
+  const firstChar = leagueName.charAt(0);
+  if (['⚽', '🏆', '👶', '👑'].includes(firstChar)) {
+    return firstChar;
+  }
+  return '⚽';
 }
 
 function extractName(leagueName: string): string {
-  // Emoji ve boşlukları temizle, sadece lig ismini al
-  return leagueName
-    .replace(/^[\u{1F1E6}-\u{1F1FF}]{2}\s*/u, '')  // Bayrak kaldır
-    .replace(/^[\u{1F3C6}\u{26BD}\u{1F451}\u{1F476}]\s*/u, '') // Diğer emojiler
-    .trim();
+  // Emoji ve boşlukları temizle
+  let name = leagueName;
+  
+  // İlk 2 karakter emoji ise kaldır
+  if (name.length >= 2) {
+    const code = name.charCodeAt(0);
+    if (code >= 0xD800 && code <= 0xDBFF) {
+      name = name.substring(2);
+    }
+  }
+  
+  // Tek karakter emojileri kaldır
+  name = name.replace(/^[⚽🏆👶👑]\s*/, '');
+  
+  return name.trim();
 }
 
 export default function LeagueFilters({ selectedLeague, onSelectLeague, leagues, matches = [], onModalStateChange, onFilterModeChange }: LeagueFiltersProps) {
