@@ -153,7 +153,7 @@ export const LEAGUE_NAMES: Record<number, string> = {
   325: '🇧🇷 Brasileirão',
   326: '🇧🇷 Brezilya 2. Lig',
   1000001212: '🇧🇷 Brezilya 3. Lig',
-  332: '🇦🇷 Arjantin Ligi',
+  334: '🇦🇷 Arjantin Ligi',
   1000001591: '🇦🇷 Arjantin 2. Lig',
   341: '🇲🇽 Meksika Ligi',
   10342: '🇺🇾 Uruguay Ligi',
