@@ -153,6 +153,7 @@ export default function MatchList({ onSelectMatch, selectedMatches }: MatchListP
                     <MatchCard
                       key={match.id}
                       match={match}
+                      leagueName={leagueName}
                       onSelect={onSelectMatch}
                       selectedPrediction={selection?.prediction}
                     />
