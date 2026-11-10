@@ -136,32 +136,35 @@ export default function MatchList({ onSelectMatch, selectedMatches }: MatchListP
         </div>
       ) : (
         <div className="space-y-10">
-          {Object.entries(groupedMatches).map(([leagueId, leagueMatches]) => (
-            <div key={leagueId}>
-              {/* League Header */}
-              <div className="mb-4">
-                <h2 className="text-text-secondary font-bold uppercase tracking-wide text-xs px-1">
-                  {LEAGUE_NAMES[Number(leagueId)] || `Lig ${leagueId}`}
-                </h2>
-              </div>
+          {Object.entries(groupedMatches).map(([leagueId, leagueMatches]) => {
+            const leagueName = LEAGUE_NAMES[Number(leagueId)] || `Lig ${leagueId}`;
+            return (
+              <div key={leagueId}>
+                {/* League Header */}
+                <div className="mb-4">
+                  <h2 className="text-text-secondary font-bold uppercase tracking-wide text-xs px-1">
+                    {leagueName}
+                  </h2>
+                </div>
 
-              {/* Matches */}
-              <div className="space-y-3">
-                {leagueMatches.map(match => {
-                  const selection = selectedMatches.find(s => s.matchId === match.id);
-                  return (
-                    <MatchCard
-                      key={match.id}
-                      match={match}
-                      leagueName={leagueName}
-                      onSelect={onSelectMatch}
-                      selectedPrediction={selection?.prediction}
-                    />
-                  );
-                })}
+                {/* Matches */}
+                <div className="space-y-3">
+                  {leagueMatches.map(match => {
+                    const selection = selectedMatches.find(s => s.matchId === match.id);
+                    return (
+                      <MatchCard
+                        key={match.id}
+                        match={match}
+                        leagueName={leagueName}
+                        onSelect={onSelectMatch}
+                        selectedPrediction={selection?.prediction}
+                      />
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
