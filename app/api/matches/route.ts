@@ -12,10 +12,13 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function parseDateTime(dateTimeStr: string): Date {
-  // "10/11/2026 21:00" formatını parse et
+  // "10/11/2026 21:00" veya "10.11.2026 21:00" formatını parse et
   try {
     const [datePart, timePart] = dateTimeStr.split(' ');
-    const [day, month, year] = datePart.split('/');
+    
+    // Slash veya nokta ile ayrılmış olabilir
+    const separator = datePart.includes('/') ? '/' : '.';
+    const [day, month, year] = datePart.split(separator);
     const [hours, minutes] = timePart.split(':');
     
     return new Date(
@@ -26,6 +29,7 @@ function parseDateTime(dateTimeStr: string): Date {
       parseInt(minutes)
     );
   } catch (e) {
+    console.error('Date parse error:', dateTimeStr, e);
     return new Date();
   }
 }
