@@ -119,6 +119,10 @@ export async function GET() {
       matches: formattedMatches,
       count: formattedMatches.length,
       source: 'supabase-cloud'
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0'
+      }
     });
     
   } catch (error: any) {
