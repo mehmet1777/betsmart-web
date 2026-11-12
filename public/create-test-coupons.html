@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Kuponları Oluştur - BetSmart</title>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0A0E13 0%, #0D1117 100%);
+            color: #fff;
+            padding: 40px 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #19E98B;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #19E98B 0%, #14C975 100%);
+            color: #0A0E13;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: scale(1.02);
+        }
+        .btn-clear {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .info {
+            background: rgba(25, 233, 139, 0.1);
+            border: 1px solid rgba(25, 233, 139, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 30px;
+            line-height: 1.6;
+        }
+        .success {
+            background: rgba(25, 233, 139, 0.2);
+            border: 2px solid #19E98B;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎫 Test Kuponları Oluştur</h1>
+        
+        <button class="btn" onclick="createTestCoupons()">
+            Test Kuponları Oluştur
+        </button>
+        
+        <button class="btn btn-clear" onclick="clearCoupons()">
+            Tüm Kuponları Temizle
+        </button>
+        
+        <div class="info">
+            <h3 style="margin-top: 0; color: #19E98B;">📋 Bilgi</h3>
+            <p>Bu sayfa, BetSmart uygulamanızda test amaçlı örnek kuponlar oluşturur.</p>
+            <ul>
+                <li><strong>3 Kazanan Kupon</strong> - Farklı tutarlarda</li>
+                <li><strong>2 Bekleyen Kupon</strong> - Aktif bahisler</li>
+                <li><strong>2 Kaybeden Kupon</strong> - Tutmayan kuponlar</li>
+            </ul>
+            <p><strong>Not:</strong> Kuponlar localStorage'a kaydedilir. Sayfayı yenileyip "Kuponlarım" sekmesine giderek sonuçları görebilirsiniz.</p>
+        </div>
+        
+        <div class="success" id="success">
+            ✅ Test kuponları başarıyla oluşturuldu!
+        </div>
+    </div>
+
+    <script>
+        function createTestCoupons() {
+            const testCoupons = [
+                // Kazanan Kuponlar
+                {
+                    id: '1731450000001',
+                    name: 'Şampiyonlar Ligi Kombinesi',
+                    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'won',
+                    betAmount: 250,
+                    totalOdds: 4.77,
+                    potentialWin: 1192.50,
+                    actualWin: 1192.50,
+                    selections: [
+                        {
+                            matchId: 1001,
+                            prediction: '1',
+                            match: {
+                                home: { name: 'Barcelona' },
+                                away: { name: 'Real Madrid' },
+                                time: '28.11.2024 21:45',
+                                odds: { home: '1.85', draw: '3.40', away: '4.20' }
+                            }
+                        },
+                        {
+                            matchId: 1002,
+                            prediction: '1',
+                            match: {
+                                home: { name: 'Galatasaray' },
+                                away: { name: 'Fenerbahçe' },
+                                time: '28.11.2024 19:00',
+                                odds: { home: '1.70', draw: '3.60', away: '5.00' }
+                            }
+                        },
+                        {
+                            matchId: 1003,
+                            prediction: '2',
+                            match: {
+                                home: { name: 'Anadolu Efes' },
+                                away: { name: 'Beşiktaş' },
+                                time: '28.11.2024 20:00',
+                                odds: { home: '2.10', draw: '3.20', away: '1.40' }
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: '1731453600001',
+                    name: 'Premier Lig İkili',
+                    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'won',
+                    betAmount: 500,
+                    totalOdds: 2.15,
+                    potentialWin: 1075.00,
+                    actualWin: 1075.00,
+                    selections: [
+                        {
+                            matchId: 2001,
+                            prediction: '1',
+                            match: {
+                                home: { name: 'Beşiktaş' },
+                                away: { name: 'Kasımpaşa' },
+                                time: '28.11.2024 20:12',
+                                odds: { home: '2.15', draw: '3.30', away: '3.50' }
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: '1731457200001',
+                    name: 'Hafta Sonu Özel',
+                    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'won',
+                    betAmount: 150,
+                    totalOdds: 6.80,
+                    potentialWin: 1020.00,
+                    actualWin: 1020.00,
+                    selections: [
+                        {
+                            matchId: 3001,
+                            prediction: '1',
+                            match: {
+                                home: { name: 'Manchester City' },
+                                away: { name: 'Liverpool' },
+                                time: '24.11.2024 17:30',
+                                odds: { home: '1.90', draw: '3.50', away: '3.80' }
+                            }
+                        },
+                        {
+                            matchId: 3002,
+                            prediction: 'X',
+                            match: {
+                                home: { name: 'Bayern München' },
+                                away: { name: 'Borussia Dortmund' },
+                                time: '24.11.2024 18:30',
+                                odds: { home: '1.75', draw: '3.60', away: '4.50' }
+                            }
+                        }
+                    ]
+                },
+                // Bekleyen Kuponlar
+                {
+                    id: '1731460800001',
+                    name: 'Bugünün Maçları',
+                    date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+                    status: 'pending',
+                    betAmount: 200,
+                    totalOdds: 5.44,
+                    potentialWin: 1088.00,
+                    selections: [
+                        {
+                            matchId: 4001,
+                            prediction: '1',
+                            match: {
+                                home: { name: 'Trabzonspor' },
+                                away: { name: 'Sivasspor' },
+                                time: '13.11.2026 20:00',
+                                odds: { home: '1.60', draw: '3.80', away: '5.20' }
+                            }
+                        },
+                        {
+                            matchId: 4002,
+                            prediction: '2',
+                            match: {
+                                home: { name: 'Arsenal' },
+                                away: { name: 'Chelsea' },
+                                time: '13.11.2026 21:00',
+                                odds: { home: '2.20', draw: '3.40', away: '3.40' }
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: '1731464400001',
+                    name: 'Yüksek Oranlar',
+                    date: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+                    status: 'pending',
+                    betAmount: 100,
+                    totalOdds: 12.50,
+                    potentialWin: 1250.00,
+                    selections: [
+                        {
+                            matchId: 5001,
+                            prediction: '2',
+                            match: {
+                                home: { name: 'Real Madrid' },
+                                away: { name: 'Paris Saint-Germain' },
+                                time: '14.11.2026 22:00',
+                                odds: { home: '1.80', draw: '3.60', away: '4.20' }
+                            }
+                        },
+                        {
+                            matchId: 5002,
+                            prediction: '1',
+                            match: {
+                                home: { name: 'Inter' },
+                                away: { name: 'Milan' },
+                                time: '14.11.2026 20:45',
+                                odds: { home: '2.10', draw: '3.30', away: '3.60' }
+                            }
+                        },
+                        {
+                            matchId: 5003,
+                            prediction: 'X',
+                            match: {
+                                home: { name: 'Atletico Madrid' },
+                                away: { name: 'Sevilla' },
+                                time: '14.11.2026 19:30',
+                                odds: { home: '1.95', draw: '3.50', away: '3.80' }
+                            }
+                        }
+                    ]
+                },
+                // Kaybeden Kuponlar
+                {
+                    id: '1731468000001',
+                    name: 'Kaybeden İkili',
+                    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'lost',
+                    betAmount: 300,
+                    totalOdds: 1.90,
+                    potentialWin: 570.00,
+                    selections: [
+                        {
+                            matchId: 6001,
+                            prediction: '1',
+                            match: {
+                                home: { name: 'Trabzonspor' },
+                                away: { name: 'Sivasspor' },
+                                time: '27.11.2024 19:30',
+                                odds: { home: '1.90', draw: '3.40', away: '4.00' }
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: '1731471600001',
+                    name: 'Şanssız Kombin',
+                    date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'lost',
+                    betAmount: 400,
+                    totalOdds: 8.40,
+                    potentialWin: 3360.00,
+                    selections: [
+                        {
+                            matchId: 7001,
+                            prediction: '1',
+                            match: {
+                                home: { name: 'Juventus' },
+                                away: { name: 'Napoli' },
+                                time: '03.11.2024 21:00',
+                                odds: { home: '2.00', draw: '3.40', away: '3.60' }
+                            }
+                        },
+                        {
+                            matchId: 7002,
+                            prediction: '2',
+                            match: {
+                                home: { name: 'Porto' },
+                                away: { name: 'Benfica' },
+                                time: '03.11.2024 20:00',
+                                odds: { home: '2.30', draw: '3.30', away: '2.90' }
+                            }
+                        },
+                        {
+                            matchId: 7003,
+                            prediction: '1',
+                            match: {
+                                home: { name: 'Ajax' },
+                                away: { name: 'PSV' },
+                                time: '03.11.2024 18:45',
+                                odds: { home: '1.95', draw: '3.50', away: '3.70' }
+                            }
+                        }
+                    ]
+                }
+            ];
+
+            // LocalStorage'a kaydet
+            localStorage.setItem('savedCoupons', JSON.stringify(testCoupons));
+            
+            // Başarı mesajını göster
+            const successEl = document.getElementById('success');
+            successEl.style.display = 'block';
+            
+            setTimeout(() => {
+                successEl.style.display = 'none';
+            }, 3000);
+            
+            console.log('✅ Test kuponları oluşturuldu:', testCoupons.length);
+        }
+
+        function clearCoupons() {
+            if (confirm('Tüm kuponları silmek istediğinize emin misiniz?')) {
+                localStorage.removeItem('savedCoupons');
+                alert('✅ Tüm kuponlar temizlendi!');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -9,6 +9,7 @@ import CouponBar from '@/components/CouponBar';
 import CouponSheet from '@/components/CouponSheet';
 import BottomNav from '@/components/BottomNav';
 import Sidebar from '@/components/Sidebar';
+import SavedCoupons from '@/components/SavedCoupons';
 import { BetSelection, Match, getLeagueName } from '@/types';
 
 const LEAGUE_ICONS: Record<number, string> = {
@@ -269,10 +270,15 @@ export default function Home() {
         onMobileClose={() => setIsSidebarOpen(false)}
       />
 
-      {/* Main Content */}
-      <main className="pt-16">
-        {/* League Filters */}
-        <LeagueFilters
+      {/* Kuponlarım Sekmesi */}
+      {activeTab === 'coupons' ? (
+        <SavedCoupons />
+      ) : (
+        <>
+          {/* Main Content */}
+          <main className="pt-16">
+            {/* League Filters */}
+            <LeagueFilters
           selectedLeague={selectedLeague}
           onSelectLeague={(leagueId, leagueIds) => {
             setSelectedLeague(leagueId);
@@ -420,6 +426,8 @@ export default function Home() {
         onRemove={removeFromBetSlip}
         onClear={clearBetSlip}
       />
+      </>
+      )}
 
       {/* Bottom Navigation */}
       {!isLeagueModalOpen && <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />}
