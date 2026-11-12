@@ -43,6 +43,9 @@ export default function MatchList({ onSelectMatch, selectedMatches }: MatchListP
     return matchesLeague && matchesSearch;
   });
 
+  // Benzersiz league ID'leri al
+  const uniqueLeagues = Array.from(new Set(matches.map(m => m.leagueId)));
+  
   // Lig isimlerine göre grupla (benzersiz lig isimleri için)
   const leagueGroups = uniqueLeagues.reduce((acc, leagueId) => {
     const leagueName = LEAGUE_NAMES[leagueId] || `Lig ${leagueId}`;
