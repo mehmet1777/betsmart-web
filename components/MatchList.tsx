@@ -43,7 +43,23 @@ export default function MatchList({ onSelectMatch, selectedMatches }: MatchListP
     return matchesLeague && matchesSearch;
   });
 
-  const uniqueLeagues = Array.from(new Set(matches.map(m => m.leagueId)));
+  // Lig isimlerine göre grupla (benzersiz lig isimleri için)
+  const leagueGroups = uniqueLeagues.reduce((acc, leagueId) => {
+    const leagueName = LEAGUE_NAMES[leagueId] || `Lig ${leagueId}`;
+    if (!acc[leagueName]) {
+      acc[leagueName] = [];
+    }
+    acc[leagueName].push(leagueId);
+    return acc;
+  }, {} as Record<string, number[]>);
+
+  // Benzersiz lig isimleri ve maç sayıları
+  const uniqueLeagueNames = Object.entries(leagueGroups).map(([name, ids]) => {
+    const matchCount = ids.reduce((sum, id) => 
+      sum + matches.filter(m => m.leagueId === id).length, 0
+    );
+    return { name, ids, matchCount };
+  });
 
   const groupedMatches = filteredMatches.reduce((acc, match) => {
     if (!acc[match.leagueId]) {
@@ -99,19 +115,22 @@ export default function MatchList({ onSelectMatch, selectedMatches }: MatchListP
                 : 'bg-bg-tertiary text-text-secondary editorial-border'
             }`}
           >
-            Tümü
+            Tümü ({filteredMatches.length})
           </button>
-          {uniqueLeagues.map(leagueId => (
+          {uniqueLeagueNames.map(({ name, ids, matchCount }) => (
             <button
-              key={leagueId}
-              onClick={() => setSelectedLeague(leagueId)}
+              key={name}
+              onClick={() => {
+                // İlk ID'yi seç (aynı lig ismindeki tüm ID'ler için)
+                setSelectedLeague(ids[0]);
+              }}
               className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium premium-hover whitespace-nowrap ${
-                selectedLeague === leagueId
+                ids.includes(selectedLeague as number)
                   ? 'bg-active-overlay text-accent-primary border border-border-accent'
                   : 'bg-bg-tertiary text-text-secondary editorial-border'
               }`}
             >
-              {LEAGUE_NAMES[leagueId] || `Lig ${leagueId}`}
+              {name} ({matchCount})
             </button>
           ))}
         </div>

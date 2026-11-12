@@ -25,6 +25,7 @@ export default function Home() {
   const [allMatches, setAllMatches] = useState<Match[]>([]); // Tüm maçları sakla
   const [betSlip, setBetSlip] = useState<BetSelection[]>([]);
   const [selectedLeague, setSelectedLeague] = useState<number | 'all'>('all');
+  const [selectedLeagueIds, setSelectedLeagueIds] = useState<number[]>([]); // Aynı lig adına ait tüm ID'ler
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const today = new Date();
     const year = today.getFullYear();
@@ -156,7 +157,14 @@ export default function Home() {
         }
         return false;
       })
-    : matches.filter(m => m.leagueId === selectedLeague);
+    : matches.filter(m => {
+        // Eğer selectedLeagueIds varsa, onları kullan (aynı lig adına sahip tüm ID'ler)
+        // Yoksa sadece selectedLeague'yi kullan (geriye dönük uyumluluk)
+        if (selectedLeagueIds.length > 0) {
+          return selectedLeagueIds.includes(m.leagueId);
+        }
+        return m.leagueId === selectedLeague;
+      });
   
   console.log('🔍 Filter mode:', filterMode);
   console.log('📊 Total matches:', matches.length);
@@ -266,8 +274,9 @@ export default function Home() {
         {/* League Filters */}
         <LeagueFilters
           selectedLeague={selectedLeague}
-          onSelectLeague={(leagueId) => {
+          onSelectLeague={(leagueId, leagueIds) => {
             setSelectedLeague(leagueId);
+            setSelectedLeagueIds(leagueIds || []); // Aynı lig adına sahip tüm ID'leri sakla
             setFilterMode('single');
           }}
           leagues={uniqueLeagues}

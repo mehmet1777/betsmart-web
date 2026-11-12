@@ -10,7 +10,7 @@ import { POPULAR_LEAGUES } from '@/config/leagues';
 
 interface LeagueFiltersProps {
   selectedLeague: number | 'all';
-  onSelectLeague: (leagueId: number | 'all') => void;
+  onSelectLeague: (leagueId: number | 'all', leagueIds?: number[]) => void;
   leagues: number[];
   matches?: any[];  // Match objeleri - gerçek lig kodları için
   onModalStateChange?: (isOpen: boolean) => void;
@@ -140,8 +140,12 @@ export default function LeagueFilters({ selectedLeague, onSelectLeague, leagues,
     return extractName(fullName);
   };
 
-  const handleSelect = (leagueId: number | 'all') => {
-    onSelectLeague(leagueId);
+  const handleSelect = (leagueId: number | 'all', leagueIds?: number[]) => {
+    if (leagueId === 'all') {
+      onSelectLeague('all', []);
+    } else {
+      onSelectLeague(leagueId, leagueIds);
+    }
     setIsOpen(false);
   };
 
@@ -236,29 +240,45 @@ export default function LeagueFilters({ selectedLeague, onSelectLeague, leagues,
             </button>
 
             {/* Ligler */}
-            {sortedLeagues.map(leagueId => {
-              const displayName = getLeagueDisplayName(leagueId);
-              const fullName = getLeagueName(leagueId);
-              const flag = extractFlag(fullName);
-              
-              return (
-                <button
-                  key={leagueId}
-                  onClick={() => handleSelect(leagueId)}
-                  className={`w-full px-4 py-3 flex items-center justify-between hover:bg-bg-card transition-colors ${
-                    selectedLeague === leagueId ? 'bg-accent-primary/5' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-base">{flag}</span>
-                    <span className="text-sm font-semibold text-text-primary">{displayName}</span>
-                  </div>
-                  {selectedLeague === leagueId && (
-                    <Check className="w-5 h-5 text-accent-primary" />
-                  )}
-                </button>
-              );
-            })}
+            {(() => {
+              // Ligleri display name'e göre grupla
+              const leagueGroups = new Map<string, number[]>();
+              sortedLeagues.forEach(leagueId => {
+                const displayName = getLeagueDisplayName(leagueId);
+                if (!leagueGroups.has(displayName)) {
+                  leagueGroups.set(displayName, []);
+                }
+                leagueGroups.get(displayName)!.push(leagueId);
+              });
+
+              // Her grup için bir button oluştur
+              return Array.from(leagueGroups.entries()).map(([displayName, leagueIds]) => {
+                const firstLeagueId = leagueIds[0];
+                const fullName = getLeagueName(firstLeagueId);
+                const flag = extractFlag(fullName);
+                const matchCount = matches.filter(m => leagueIds.includes(m.leagueId)).length;
+                
+                return (
+                  <button
+                    key={displayName}
+                    onClick={() => handleSelect(firstLeagueId, leagueIds)}
+                    className={`w-full px-4 py-3 flex items-center justify-between hover:bg-bg-card transition-colors ${
+                      leagueIds.includes(selectedLeague as number) ? 'bg-accent-primary/5' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-base">{flag}</span>
+                      <span className="text-sm font-semibold text-text-primary">
+                        {displayName} ({matchCount} maç)
+                      </span>
+                    </div>
+                    {leagueIds.includes(selectedLeague as number) && (
+                      <Check className="w-5 h-5 text-accent-primary" />
+                    )}
+                  </button>
+                );
+              });
+            })()}
           </div>
 
           {/* Tüm Ligleri Gör Footer */}
