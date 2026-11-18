@@ -1,6 +1,6 @@
 # 🎯 BetSmart - Akıllı Bahis Analiz Sistemi
 
-Next.js tabanlı modern bahis analiz platformu.
+Next.js tabanlı modern bahis analiz platformu. 393,000+ tarihi maç verisi ile akıllı kupon önerileri.
 
 ## Getting Started
 
