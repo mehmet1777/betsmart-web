@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎯 BetSmart - Akıllı Bahis Analiz Sistemi
+
+Next.js tabanlı modern bahis analiz platformu.
 
 ## Getting Started
 
