@@ -1,0 +1,199 @@
+//@version=6
+indicator(title="İndicPro [İndicSigs] Modern", shorttitle="İndicPro_DT_v3", overlay=false)
+
+// Main Parameters
+var g_main = "Main Settings"
+n1 = input.int(10, "Channel Length", minval=1, maxval=100, group=g_main)
+n2 = input.int(21, "Average Length", minval=1, maxval=100, group=g_main)
+
+// Level Settings
+var g_levels = "Level Settings"
+obLevel1 = input.int(75, "Over Bought Level", minval=0, maxval=100, group=g_levels)
+osLevel1 = input.int(-75, "Over Sold Level", minval=-100, maxval=0, group=g_levels)
+
+// Visual Settings
+var g_visual = "Visual Settings"
+mainLineColor = input.color(#00bcd4, "Main Line Color", group=g_visual)
+signalLineColor = input.color(#ff6384, "Signal Line Color", group=g_visual)
+
+// Tepki Ayarları
+var g_reaction = "Tepki Ayarları"
+lookbackPeriod = input.int(10000, "Geçmiş Bar Sayısı", minval=1000, maxval=10000, group=g_reaction)
+reactionBars = input.int(5, "Tepki Kontrol Bar Sayısı", minval=1, maxval=20, group=g_reaction)
+
+// Calculations
+ap = hlc3
+esa = ta.ema(ap, n1)
+d = ta.ema(math.abs(ap - esa), n1)
+ci = (ap - esa) / (0.015 * d)
+tci = ta.ema(ci, n2)
+
+indicPro1 = tci
+indicPro2 = ta.sma(indicPro1, 4)
+
+// Get 1-minute values
+mainLine1m = request.security(syminfo.tickerid, "1", indicPro1)
+
+// 5 dakikalık veriler
+mainLine5m = request.security(syminfo.tickerid, "5", indicPro1)
+var float firstTouch5m = na
+var int hourBars5m = 12 // 5 dakikalık zaman diliminde 1 saat için 12 bar
+
+if mainLine5m <= -75
+    for i = 0 to hourBars5m - 1
+        if request.security(syminfo.tickerid, "5", mainLine5m[i]) <= -75
+            firstTouch5m := mainLine5m[i]
+            break
+
+// 15 dakikalık veriler
+mainLine15m = request.security(syminfo.tickerid, "15", indicPro1)
+var float firstTouch15m = na
+var int hourBars15m = 4 // 15 dakikalık zaman diliminde 1 saat için 4 bar
+
+if mainLine15m <= -75
+    for i = 0 to hourBars15m - 1
+        if request.security(syminfo.tickerid, "15", mainLine15m[i]) <= -75
+            firstTouch15m := mainLine15m[i]
+            break
+
+// Signal Logic
+var bool inLongZone = false
+var bool inShortZone = false
+var int countBarsBelow = 0
+var int countBarsAbove = 0
+var bool startCountingLong = false
+var bool startCountingShort = false
+var float prevBarLong = 0.0
+var float prevBarShort = 0.0
+
+// İlk temas kontrolü
+if not na(firstTouch5m)
+    longCondition5m = true
+else
+    longCondition5m = countBarsBelow == 5 and mainLine5m <= -75 and not inLongZone and mainLine5m < prevBarLong and reactionUp5m > 0
+
+if not na(firstTouch15m)
+    longCondition15m = true
+else
+    longCondition15m = countBarsBelow == 5 and mainLine15m <= -75 and not inLongZone and mainLine15m < prevBarLong and reactionUp15m > 0
+
+// Tepki Hesaplama
+float lowPoint = ta.lowest(low, reactionBars)
+float highPoint = ta.highest(high, reactionBars)
+float currentLow = low
+float currentHigh = high
+
+// -75 altı tepki hesaplama
+float reactionUp = 0.0
+if mainLine1m <= -75
+    reactionUp := ((highPoint - lowPoint) / lowPoint) * 100
+
+// +75 üstü tepki hesaplama
+float reactionDown = 0.0
+if mainLine1m >= 75
+    reactionDown := ((highPoint - lowPoint) / highPoint) * 100
+
+// 5 dakikalık ve 15 dakikalık zaman dilimleri için reactionUp ve reactionDown değişkenlerini tanımlıyorum
+float lowPoint5m = ta.lowest(low, reactionBars)
+float highPoint5m = ta.highest(high, reactionBars)
+float reactionUp5m = 0.0
+if mainLine5m <= -75
+    reactionUp5m := ((highPoint5m - lowPoint5m) / (0.015 * ta.ema(math.abs(mainLine5m - ta.ema(hlc3, n1)), n1)))
+
+float lowPoint15m = ta.lowest(low, reactionBars)
+float highPoint15m = ta.highest(high, reactionBars)
+float reactionUp15m = 0.0
+if mainLine15m <= -75
+    reactionUp15m := ((highPoint15m - lowPoint15m) / (0.015 * ta.ema(math.abs(mainLine15m - ta.ema(hlc3, n1)), n1)))
+
+float reactionDown5m = 0.0
+if mainLine5m >= 75
+    reactionDown5m := ((highPoint5m - lowPoint5m) / highPoint5m) * 100
+
+float reactionDown15m = 0.0
+if mainLine15m >= 75
+    reactionDown15m := ((highPoint15m - lowPoint15m) / highPoint15m) * 100
+
+// Bar sayma mantığı
+if mainLine1m <= -75 and not startCountingLong
+    startCountingLong := true
+    countBarsBelow := 0
+
+if mainLine1m >= 75 and not startCountingShort
+    startCountingShort := true
+    countBarsAbove := 0
+
+if startCountingLong
+    if mainLine1m <= -75
+        countBarsBelow := countBarsBelow + 1
+        if countBarsBelow == 4
+            prevBarLong := mainLine1m
+    else
+        startCountingLong := false
+        countBarsBelow := 0
+
+if startCountingShort
+    if mainLine1m >= 75
+        countBarsAbove := countBarsAbove + 1
+        if countBarsAbove == 4
+            prevBarShort := mainLine1m
+    else
+        startCountingShort := false
+        countBarsAbove := 0
+
+// Signal conditions
+longCondition = countBarsBelow == 5 and mainLine1m <= -75 and not inLongZone and mainLine1m < prevBarLong and reactionUp > 0
+shortCondition = countBarsAbove == 5 and mainLine1m >= 75 and not inShortZone and mainLine1m > prevBarShort and reactionDown > 0
+
+longCondition5m = countBarsBelow == 5 and mainLine5m <= -75 and not inLongZone and mainLine5m < prevBarLong and reactionUp5m > 0
+longCondition15m = countBarsBelow == 5 and mainLine15m <= -75 and not inLongZone and mainLine15m < prevBarLong and reactionUp15m > 0
+
+shortCondition5m = countBarsAbove == 5 and mainLine5m >= 75 and not inShortZone and mainLine5m > prevBarShort and reactionDown5m > 0
+shortCondition15m = countBarsAbove == 5 and mainLine15m >= 75 and not inShortZone and mainLine15m > prevBarShort and reactionDown15m > 0
+
+// Update zones
+if longCondition
+    inLongZone := true
+    startCountingLong := false
+    countBarsBelow := 0
+
+if shortCondition
+    inShortZone := true
+    startCountingShort := false
+    countBarsAbove := 0
+    
+// Reset zones
+if mainLine1m > -70
+    inLongZone := false
+if mainLine1m < 70
+    inShortZone := false
+
+// Plotting
+hline(0, "Zero Line", color=color.new(#787b86, 50), linestyle=hline.style_solid)
+hline(75, "OB Level", color=color.new(#ff5252, 50), linestyle=hline.style_dashed)
+hline(-75, "OS Level", color=color.new(#4caf50, 50), linestyle=hline.style_dashed)
+hline(110, "Upper Limit", color=color.new(#787b86, 70), linestyle=hline.style_dotted)
+hline(-110, "Lower Limit", color=color.new(#787b86, 70), linestyle=hline.style_dotted)
+
+plot(indicPro1, "Main Line", color=mainLineColor, linewidth=2, style=plot.style_line)
+plot(indicPro2, "Signal Line", color=signalLineColor, linewidth=1, style=plot.style_line)
+
+// Signal markers
+plotchar(startCountingLong ? countBarsBelow : na, "Bars Below -75", "•", location.bottom, color.white, size=size.tiny)
+plotshape(longCondition ? -100 : na, "LONG", shape.triangleup, location.absolute, color.new(#4caf50, 0), size=size.small)
+plotshape(shortCondition ? 100 : na, "SHORT", shape.triangledown, location.absolute, color.new(#ff5252, 0), size=size.small)
+
+// Statistics table
+var table statsTable = table.new(position.top_right, 3, 3, bgcolor = color.new(#1e222d, 80))
+if barstate.islast
+    table.cell(statsTable, 0, 0, "Tepki Analizi", text_color = color.white)
+    table.cell(statsTable, 0, 1, "-75 Altı", text_color = color.white)
+    table.cell(statsTable, 0, 2, "+75 Üstü", text_color = color.white)
+    
+    table.cell(statsTable, 1, 0, "Tepki (%)", text_color = color.white)
+    table.cell(statsTable, 1, 1, str.format("{0,number,#.##}", reactionUp), text_color = color.red)
+    table.cell(statsTable, 1, 2, str.format("{0,number,#.##}", reactionDown), text_color = color.green)
+
+// Alerts
+alertcondition(longCondition, title="Long Signal", message="İndicPro Long Signal Generated!")
+alertcondition(shortCondition, title="Short Signal", message="İndicPro Short Signal Generated!")

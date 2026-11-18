@@ -1,0 +1,657 @@
+{
+  "date_range": "2026-11-03 - 2026-11-09",
+  "match_count": 17,
+  "matches": [
+    {
+      "id": 5908699,
+      "leagueId": 1000001750,
+      "time": "08.11.2026 14:00",
+      "home": {
+        "id": 281460,
+        "score": 2,
+        "name": "Ümraniyespor"
+      },
+      "away": {
+        "id": 10182,
+        "score": 1,
+        "name": "Kayserispor"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "14",
+      "status": {
+        "utcTime": "2026-11-08T13:00:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "08.11.2026 14:00:43",
+          "secondHalfStarted": "08.11.2026 15:05:05"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "2 - 1",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1794142800000
+    },
+    {
+      "id": 5904797,
+      "leagueId": 1000001862,
+      "time": "08.11.2026 11:30",
+      "home": {
+        "id": 2166,
+        "score": 2,
+        "name": "Rizespor"
+      },
+      "away": {
+        "id": 281467,
+        "score": 1,
+        "name": "Erzurumspor FK"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "11",
+      "status": {
+        "utcTime": "2026-11-08T10:30:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "08.11.2026 11:29:52",
+          "secondHalfStarted": "08.11.2026 12:32:54"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "2 - 1",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1794133800000
+    },
+    {
+      "id": 5904799,
+      "leagueId": 1000001862,
+      "time": "08.11.2026 14:00",
+      "home": {
+        "id": 357274,
+        "score": 0,
+        "name": "Çorum FK"
+      },
+      "away": {
+        "id": 8695,
+        "score": 5,
+        "name": "Fenerbahçe"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "11",
+      "status": {
+        "utcTime": "2026-11-08T13:00:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "08.11.2026 14:01:12",
+          "secondHalfStarted": "08.11.2026 15:05:06"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "0 - 5",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1794142800000
+    },
+    {
+      "id": 5904796,
+      "leagueId": 1000001862,
+      "time": "08.11.2026 16:30",
+      "home": {
+        "id": 4678,
+        "score": 0,
+        "name": "Alanyaspor"
+      },
+      "away": {
+        "id": 9752,
+        "score": 2,
+        "name": "Trabzonspor"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "11",
+      "status": {
+        "utcTime": "2026-11-08T15:30:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "08.11.2026 16:30:35",
+          "secondHalfStarted": "08.11.2026 17:34:59"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "0 - 2",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1794151800000
+    },
+    {
+      "id": 5904801,
+      "leagueId": 1000001862,
+      "time": "08.11.2026 19:00",
+      "home": {
+        "id": 10188,
+        "score": 3,
+        "name": "Beşiktaş"
+      },
+      "away": {
+        "id": 7800,
+        "score": 0,
+        "name": "Gençlerbirliği",
+        "redCards": 1
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "11",
+      "status": {
+        "utcTime": "2026-11-08T18:00:00.000Z",
+        "numberOfAwayRedCards": 1,
+        "halfs": {
+          "firstHalfStarted": "08.11.2026 19:00:46",
+          "secondHalfStarted": "08.11.2026 20:04:23"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "3 - 0",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1794160800000
+    },
+    {
+      "id": 5908701,
+      "leagueId": 1000001750,
+      "time": "07.11.2026 11:30",
+      "home": {
+        "id": 146408,
+        "score": 3,
+        "name": "Van Spor Kulübü"
+      },
+      "away": {
+        "id": 6265,
+        "score": 1,
+        "name": "Sivasspor"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "14",
+      "status": {
+        "utcTime": "2026-11-07T10:30:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "07.11.2026 11:30:22",
+          "secondHalfStarted": "07.11.2026 12:31:28"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "3 - 1",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1794047400000
+    },
+    {
+      "id": 5904798,
+      "leagueId": 1000001862,
+      "time": "07.11.2026 17:00",
+      "home": {
+        "id": 1925,
+        "score": 1,
+        "name": "Göztepe"
+      },
+      "away": {
+        "id": 1933,
+        "score": 2,
+        "name": "Başakşehir"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "11",
+      "status": {
+        "utcTime": "2026-11-07T16:00:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "07.11.2026 17:06:47",
+          "secondHalfStarted": "07.11.2026 18:11:23"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "1 - 2",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1794067200000
+    },
+    {
+      "id": 5904800,
+      "leagueId": 1000001862,
+      "time": "07.11.2026 17:00",
+      "home": {
+        "id": 8637,
+        "score": 4,
+        "name": "Galatasaray"
+      },
+      "away": {
+        "id": 96498,
+        "score": 3,
+        "name": "Amed Sportif"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "11",
+      "status": {
+        "utcTime": "2026-11-07T16:00:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "07.11.2026 17:02:09",
+          "secondHalfStarted": "07.11.2026 18:07:11"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "4 - 3",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1794067200000
+    },
+    {
+      "id": 5904802,
+      "leagueId": 1000001862,
+      "time": "07.11.2026 14:00",
+      "home": {
+        "id": 9750,
+        "score": 1,
+        "name": "Samsunspor"
+      },
+      "away": {
+        "id": 8622,
+        "score": 0,
+        "name": "Konyaspor"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "11",
+      "status": {
+        "utcTime": "2026-11-07T13:00:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "07.11.2026 14:01:26",
+          "secondHalfStarted": "07.11.2026 15:03:05"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "1 - 0",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1794056400000
+    },
+    {
+      "id": 6112301,
+      "leagueId": 943229,
+      "time": "05.11.2026 21:00",
+      "home": {
+        "id": 9925,
+        "score": 3,
+        "name": "Celtic"
+      },
+      "away": {
+        "id": 10188,
+        "score": 2,
+        "name": "Beşiktaş"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "4",
+      "status": {
+        "utcTime": "2026-11-05T20:00:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "05.11.2026 21:02:14",
+          "secondHalfStarted": "05.11.2026 22:03:14"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "3 - 2",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1793908800000
+    },
+    {
+      "id": 5908696,
+      "leagueId": 1000001750,
+      "time": "06.11.2026 18:00",
+      "home": {
+        "id": 1931,
+        "score": 1,
+        "name": "Antalyaspor"
+      },
+      "away": {
+        "id": 10270,
+        "score": 1,
+        "name": "Bursaspor"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "14",
+      "status": {
+        "utcTime": "2026-11-06T17:00:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "06.11.2026 18:00:46",
+          "secondHalfStarted": "06.11.2026 19:09:32"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "1 - 1",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1793984400000
+    },
+    {
+      "id": 5904794,
+      "leagueId": 1000001862,
+      "time": "06.11.2026 18:00",
+      "home": {
+        "id": 4081,
+        "score": 0,
+        "name": "Gaziantep FK"
+      },
+      "away": {
+        "id": 4685,
+        "score": 2,
+        "name": "Kasımpaşa"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "11",
+      "status": {
+        "utcTime": "2026-11-06T17:00:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "06.11.2026 17:59:58",
+          "secondHalfStarted": "06.11.2026 19:04:25"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "0 - 2",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1793984400000
+    },
+    {
+      "id": 6112501,
+      "leagueId": 943231,
+      "time": "05.11.2026 18:45",
+      "home": {
+        "id": 9752,
+        "score": 0,
+        "name": "Trabzonspor"
+      },
+      "away": {
+        "id": 8358,
+        "score": 1,
+        "name": "Freiburg",
+        "shortName": "Freiburg"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "3",
+      "status": {
+        "utcTime": "2026-11-05T17:45:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "05.11.2026 18:46:22",
+          "secondHalfStarted": "05.11.2026 19:47:02"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "0 - 1",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1793900700000
+    },
+    {
+      "id": 6106330,
+      "leagueId": 943230,
+      "time": "04.11.2026 18:45",
+      "home": {
+        "id": 8695,
+        "score": 3,
+        "name": "Fenerbahçe"
+      },
+      "away": {
+        "id": 8650,
+        "score": 2,
+        "name": "Liverpool"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "4",
+      "status": {
+        "utcTime": "2026-11-04T17:45:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "04.11.2026 18:47:47",
+          "secondHalfStarted": "04.11.2026 19:50:24"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "3 - 2",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1793814300000
+    },
+    {
+      "id": 1000021145,
+      "leagueId": 1000001457,
+      "time": "04.11.2026 12:00",
+      "home": {
+        "id": 394215,
+        "score": 3,
+        "name": "Fenerbahçe U19",
+        "redCards": 1
+      },
+      "away": {
+        "id": 394197,
+        "score": 5,
+        "name": "Liverpool U19"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "4",
+      "status": {
+        "utcTime": "2026-11-04T11:00:00.000Z",
+        "numberOfHomeRedCards": 1,
+        "halfs": {
+          "firstHalfStarted": "04.11.2026 12:04:15",
+          "secondHalfStarted": "04.11.2026 13:08:26"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "3 - 5",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1793790000000
+    },
+    {
+      "id": 6106341,
+      "leagueId": 943230,
+      "time": "03.11.2026 18:45",
+      "home": {
+        "id": 8637,
+        "score": 2,
+        "name": "Galatasaray"
+      },
+      "away": {
+        "id": 10269,
+        "score": 0,
+        "name": "VfB Stuttgart"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "4",
+      "status": {
+        "utcTime": "2026-11-03T17:45:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "03.11.2026 18:47:02",
+          "secondHalfStarted": "03.11.2026 19:50:58"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "2 - 0",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1793727900000
+    },
+    {
+      "id": 1000021136,
+      "leagueId": 1000001457,
+      "time": "03.11.2026 12:00",
+      "home": {
+        "id": 598333,
+        "score": 2,
+        "name": "Galatasaray U19"
+      },
+      "away": {
+        "id": 665291,
+        "score": 2,
+        "name": "VfB Stuttgart U19"
+      },
+      "eliminatedTeamId": null,
+      "statusId": 6,
+      "tournamentStage": "4",
+      "status": {
+        "utcTime": "2026-11-03T11:00:00.000Z",
+        "halfs": {
+          "firstHalfStarted": "03.11.2026 12:02:16",
+          "secondHalfStarted": "03.11.2026 13:04:02"
+        },
+        "periodLength": 45,
+        "finished": true,
+        "started": true,
+        "cancelled": false,
+        "awarded": false,
+        "scoreStr": "2 - 2",
+        "reason": {
+          "short": "FT",
+          "shortKey": "fulltime_short",
+          "long": "Full-Time",
+          "longKey": "finished"
+        }
+      },
+      "timeTS": 1793703600000
+    }
+  ]
+}

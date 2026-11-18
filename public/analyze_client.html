@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BetSmart Lig Analizi</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #090D14;
+      color: #19E98B;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .section {
+      background: #171E29;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #293241;
+    }
+    .missing {
+      color: #ff6b6b;
+    }
+    .existing {
+      color: #19E98B;
+    }
+    h2 {
+      color: #19E98B;
+      border-bottom: 2px solid #293241;
+      padding-bottom: 10px;
+    }
+    .code {
+      background: #0D1117;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 5px 0;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 BetSmart Lig Analizi</h1>
+  <div id="output"></div>
+
+  <script>
+    const EXISTING_LEAGUES = new Set([
+      1000001212, 1000001591,
+      1000001862, 1000001750, 1000001751, 1000001752,
+      943230, 943229, 943231, 1000001457,
+      8, 9, 10, 11, 940374, 953430,
+      87, 88, 138, 938653,
+      35, 36,
+      135, 136, 942846, 942852,
+      34, 60,
+      63, 185, 1000001242, 1000001243,
+      37, 38,
+      59, 51, 936592, 57, 951425, 32, 50, 56, 62, 66, 345, 179,
+      77, 333, 210, 266,
+      325, 326, 332, 341, 355, 356, 357, 318, 268,
+      955, 950, 956, 288,
+      1000001253, 10342, 335, 336, 337,
+      938428, 942122, 183, 938187,
+      9941, 959, 960, 961,
+      9676, 938777, 939688
+    ]);
+
+    async function analyze() {
+      const output = document.getElementById('output');
+      output.innerHTML = '<p>⏳ API\'den veriler alınıyor...</p>';
+
+      try {
+        const response = await fetch('/api/matches');
+        const data = await response.json();
+        const matches = data.matches || [];
+
+        output.innerHTML = `<p>✅ ${matches.length} maç bulundu</p>`;
+
+        // Ligleri topla
+        const leaguesMap = new Map();
+
+        matches.forEach(match => {
+          const leagueId = match.leagueId;
+          const leagueName = match.leagueName || 'Unknown';
+
+          if (!leaguesMap.has(leagueId)) {
+            leaguesMap.set(leagueId, {
+              id: leagueId,
+              name: leagueName,
+              matchCount: 0
+            });
+          }
+
+          leaguesMap.get(leagueId).matchCount++;
+        });
+
+        // Eksik ligleri bul
+        const missingLeagues = [];
+        const existingLeagues = [];
+
+        Array.from(leaguesMap.values()).forEach(league => {
+          if (!EXISTING_LEAGUES.has(league.id)) {
+            missingLeagues.push(league);
+          } else {
+            existingLeagues.push(league);
+          }
+        });
+
+        missingLeagues.sort((a, b) => b.matchCount - a.matchCount);
+
+        // Eksik ligler
+        let html = '<div class="section"><h2 class="missing">❌ EKSİK LİGLER</h2>';
+        
+        if (missingLeagues.length === 0) {
+          html += '<p>✅ Tüm ligler tanımlı!</p>';
+        } else {
+          html += '<p>types/index.ts LEAGUE_NAMES içine ekle:</p>';
+          html += '<div class="code">';
+          
+          missingLeagues.forEach(league => {
+            let cleanName = league.name
+              .replace(/^[^a-zA-ZÀ-ž0-9]+/, '')
+              .trim();
+
+            if (cleanName === 'Unknown' || cleanName.length < 3) {
+              cleanName = `Lig ${league.id}`;
+            }
+
+            // Bayrak tahmin et
+            let flag = '⚽';
+            const nameLower = cleanName.toLowerCase();
+
+            if (nameLower.includes('brazil') || nameLower.includes('brasileiro')) flag = '🇧🇷';
+            else if (nameLower.includes('argentin')) flag = '🇦🇷';
+            else if (nameLower.includes('portugal') || nameLower.includes('portug')) flag = '🇵🇹';
+            else if (nameLower.includes('spain') || nameLower.includes('españa')) flag = '🇪🇸';
+            else if (nameLower.includes('england') || nameLower.includes('premier')) flag = '🏴󠁧󠁢󠁥󠁮󠁧󠁿';
+            else if (nameLower.includes('italy') || nameLower.includes('serie')) flag = '🇮🇹';
+            else if (nameLower.includes('germany') || nameLower.includes('bundesliga')) flag = '🇩🇪';
+            else if (nameLower.includes('france') || nameLower.includes('ligue')) flag = '🇫🇷';
+            else if (nameLower.includes('netherlands') || nameLower.includes('eredivisie')) flag = '🇳🇱';
+            else if (nameLower.includes('belgium')) flag = '🇧🇪';
+            else if (nameLower.includes('turkey') || nameLower.includes('türk')) flag = '🇹🇷';
+            else if (nameLower.includes('mexico')) flag = '🇲🇽';
+            else if (nameLower.includes('usa') || nameLower.includes('mls')) flag = '🇺🇸';
+            else if (nameLower.includes('chile')) flag = '🇨🇱';
+            else if (nameLower.includes('colombia')) flag = '🇨🇴';
+            else if (nameLower.includes('uruguay')) flag = '🇺🇾';
+            else if (nameLower.includes('peru')) flag = '🇵🇪';
+            else if (nameLower.includes('ecuador')) flag = '🇪🇨';
+            else if (nameLower.includes('greece')) flag = '🇬🇷';
+            else if (nameLower.includes('croatia')) flag = '🇭🇷';
+            else if (nameLower.includes('serbia')) flag = '🇷🇸';
+            else if (nameLower.includes('romania')) flag = '🇷🇴';
+            else if (nameLower.includes('poland')) flag = '🇵🇱';
+            else if (nameLower.includes('czech')) flag = '🇨🇿';
+            else if (nameLower.includes('austria')) flag = '🇦🇹';
+            else if (nameLower.includes('switzerland')) flag = '🇨🇭';
+            else if (nameLower.includes('sweden')) flag = '🇸🇪';
+            else if (nameLower.includes('norway')) flag = '🇳🇴';
+            else if (nameLower.includes('denmark')) flag = '🇩🇰';
+            else if (nameLower.includes('scotland')) flag = '🏴󠁧󠁢󠁳󠁣󠁴󠁿';
+            else if (nameLower.includes('wales')) flag = '🏴󠁧󠁢󠁷󠁬󠁳󠁿';
+            else if (nameLower.includes('ireland')) flag = '🇮🇪';
+            else if (nameLower.includes('australia')) flag = '🇦🇺';
+            else if (nameLower.includes('japan')) flag = '🇯🇵';
+            else if (nameLower.includes('korea')) flag = '🇰🇷';
+            else if (nameLower.includes('china')) flag = '🇨🇳';
+            else if (nameLower.includes('india')) flag = '🇮🇳';
+            else if (nameLower.includes('saudi')) flag = '🇸🇦';
+            else if (nameLower.includes('uae') || nameLower.includes('emirates')) flag = '🇦🇪';
+            else if (nameLower.includes('qatar')) flag = '🇶🇦';
+            else if (nameLower.includes('egypt')) flag = '🇪🇬';
+            else if (nameLower.includes('morocco')) flag = '🇲🇦';
+            else if (nameLower.includes('tunisia')) flag = '🇹🇳';
+            else if (nameLower.includes('algeria')) flag = '🇩🇿';
+            else if (nameLower.includes('south africa')) flag = '🇿🇦';
+            else if (nameLower.includes('hungary')) flag = '🇭🇺';
+            else if (nameLower.includes('bulgaria')) flag = '🇧🇬';
+            else if (nameLower.includes('israel')) flag = '🇮🇱';
+            else if (nameLower.includes('slovakia')) flag = '🇸🇰';
+            else if (nameLower.includes('slovenia')) flag = '🇸🇮';
+            else if (nameLower.includes('bosnia')) flag = '🇧🇦';
+            else if (nameLower.includes('champions') || nameLower.includes('uefa')) flag = '🏆';
+            else if (nameLower.includes('women') || nameLower.includes('kadın')) flag = '👩';
+            else if (nameLower.includes('youth') || nameLower.includes('u19') || nameLower.includes('u21')) flag = '👦';
+
+            html += `${league.id}: '${flag} ${cleanName}', // ${league.matchCount} maç<br>`;
+          });
+
+          html += '</div>';
+          html += `<p>📊 Toplam <strong>${missingLeagues.length}</strong> eksik lig bulundu</p>`;
+        }
+        html += '</div>';
+
+        // Mevcut ligler
+        html += '<div class="section"><h2 class="existing">✅ MEVCUT LİGLER</h2>';
+        existingLeagues.sort((a, b) => b.matchCount - a.matchCount);
+        
+        html += '<div class="code">';
+        existingLeagues.slice(0, 15).forEach(league => {
+          html += `${league.id}: ${league.name} (${league.matchCount} maç)<br>`;
+        });
+        html += '</div>';
+        html += `<p>📊 Toplam <strong>${existingLeagues.length}</strong> lig zaten tanımlı</p>`;
+        html += '</div>';
+
+        output.innerHTML = html;
+
+      } catch (error) {
+        output.innerHTML = `<p class="missing">❌ Hata: ${error.message}</p>`;
+      }
+    }
+
+    analyze();
+  </script>
+</body>
+</html>
