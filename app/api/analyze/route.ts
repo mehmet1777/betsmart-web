@@ -113,13 +113,17 @@ export async function POST(request: NextRequest) {
                         percentage >= 50 ? 'Yüksek' :
                         percentage >= 40 ? 'Orta' : 'Düşük';
 
-      const resultNames = { 'MS1': 'Ev sahibi', 'MSX': 'Beraberlik', 'MS2': 'Deplasman' };
+      const resultNames: Record<string, string> = { 
+        'MS1': 'Ev sahibi', 
+        'MSX': 'Beraberlik', 
+        'MS2': 'Deplasman' 
+      };
 
       recommendation = {
         type: resultType,
         odds: resultData.odds,
         confidence,
-        reason: `Benzer oranlı ${stats.total_valid} maçta ${resultNames[resultType].toLowerCase()} ${resultData.count} kez gerçekleşti (%${percentage.toFixed(0)})`,
+        reason: `Benzer oranlı ${stats.total_valid} maçta ${resultNames[resultType]?.toLowerCase() || resultType} ${resultData.count} kez gerçekleşti (%${percentage.toFixed(0)})`,
         percentage: Math.round(percentage * 10) / 10
       };
     }
