@@ -29,27 +29,31 @@ export async function POST(request: NextRequest) {
     const { data: exactMatches, error: exactError } = await supabase
       .from('matches')
       .select('*')
-      .gte('odd_1', odd1 - 0.01)
-      .lte('odd_1', odd1 + 0.01)
-      .gte('odd_x', oddX - 0.01)
-      .lte('odd_x', oddX + 0.01)
-      .gte('odd_2', odd2 - 0.01)
-      .lte('odd_2', odd2 + 0.01)
+      .filter('odd_1', 'gte', odd1 - 0.01)
+      .filter('odd_1', 'lte', odd1 + 0.01)
+      .filter('odd_x', 'gte', oddX - 0.01)
+      .filter('odd_x', 'lte', oddX + 0.01)
+      .filter('odd_2', 'gte', odd2 - 0.01)
+      .filter('odd_2', 'lte', odd2 + 0.01)
       .not('score', 'is', null)
       .limit(50);
+
+    console.log('🔍 Exact query:', exactError ? `Error: ${exactError.message}` : `Found ${exactMatches?.length || 0} matches`);
 
     // Similar match (±0.10 tolerans)
     const { data: similarMatches, error: similarError } = await supabase
       .from('matches')
       .select('*')
-      .gte('odd_1', odd1 - 0.10)
-      .lte('odd_1', odd1 + 0.10)
-      .gte('odd_x', oddX - 0.10)
-      .lte('odd_x', oddX + 0.10)
-      .gte('odd_2', odd2 - 0.10)
-      .lte('odd_2', odd2 + 0.10)
+      .filter('odd_1', 'gte', odd1 - 0.10)
+      .filter('odd_1', 'lte', odd1 + 0.10)
+      .filter('odd_x', 'gte', oddX - 0.10)
+      .filter('odd_x', 'lte', oddX + 0.10)
+      .filter('odd_2', 'gte', odd2 - 0.10)
+      .filter('odd_2', 'lte', odd2 + 0.10)
       .not('score', 'is', null)
       .limit(50);
+
+    console.log('🔍 Similar query:', similarError ? `Error: ${similarError.message}` : `Found ${similarMatches?.length || 0} matches`);
 
     const exact = exactMatches || [];
     const similar = (similarMatches || []).filter(
