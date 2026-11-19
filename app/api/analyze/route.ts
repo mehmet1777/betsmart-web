@@ -1,76 +1,138 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 
-// Python backend URL (local development)
-const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://localhost:5000';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { odd_1, odd_x, odd_2, home_team, away_team } = body;
 
-    console.log('📊 API: Analiz isteği alındı:', { odd_1, odd_x, odd_2, home_team, away_team });
+    console.log('📊 Analiz isteği:', { odd_1, odd_x, odd_2, home_team, away_team });
 
     // Validasyon
-    if (!odd_1 || !odd_x || !odd_2 || odd_1 <= 0 || odd_x <= 0 || odd_2 <= 0) {
-      console.warn('⚠️ Geçersiz oranlar:', { odd_1, odd_x, odd_2 });
+    const odd1 = parseFloat(odd_1);
+    const oddX = parseFloat(odd_x);
+    const odd2 = parseFloat(odd_2);
+
+    if (!odd1 || !oddX || !odd2 || odd1 <= 0 || oddX <= 0 || odd2 <= 0) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Oranlar eksik veya geçersiz',
-          details: { odd_1, odd_x, odd_2 }
-        },
+        { success: false, error: 'Geçersiz oran değerleri' },
         { status: 400 }
       );
     }
 
-    // Python backend'e istek gönder (SQLite veritabanı sorgusu için)
-    try {
-      const pythonResponse = await fetch(`${PYTHON_API_URL}/api/analyze-odds`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          odd_1: parseFloat(odd_1),
-          odd_x: parseFloat(odd_x),
-          odd_2: parseFloat(odd_2),
-          home_team: home_team || '',
-          away_team: away_team || ''
-        }),
-        signal: AbortSignal.timeout(10000) // 10 saniye timeout
-      });
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-      if (pythonResponse.ok) {
-        const pythonData = await pythonResponse.json();
-        console.log('✅ Python backend yanıtı:', pythonData);
-        return NextResponse.json({
-          success: true,
-          ...pythonData
-        });
-      } else {
-        console.warn('⚠️ Python backend hatası:', pythonResponse.status);
-      }
-    } catch (pythonError) {
-      console.warn('⚠️ Python backend bağlantı hatası:', pythonError);
+    // Exact match (±0.01 tolerans)
+    const { data: exactMatches, error: exactError } = await supabase
+      .from('matches')
+      .select('*')
+      .gte('odd_1', odd1 - 0.01)
+      .lte('odd_1', odd1 + 0.01)
+      .gte('odd_x', oddX - 0.01)
+      .lte('odd_x', oddX + 0.01)
+      .gte('odd_2', odd2 - 0.01)
+      .lte('odd_2', odd2 + 0.01)
+      .not('score', 'is', null)
+      .limit(50);
+
+    // Similar match (±0.10 tolerans)
+    const { data: similarMatches, error: similarError } = await supabase
+      .from('matches')
+      .select('*')
+      .gte('odd_1', odd1 - 0.10)
+      .lte('odd_1', odd1 + 0.10)
+      .gte('odd_x', oddX - 0.10)
+      .lte('odd_x', oddX + 0.10)
+      .gte('odd_2', odd2 - 0.10)
+      .lte('odd_2', odd2 + 0.10)
+      .not('score', 'is', null)
+      .limit(50);
+
+    const exact = exactMatches || [];
+    const similar = (similarMatches || []).filter(
+      m => !exact.some(e => e.id === m.id)
+    );
+
+    // İstatistikleri hesapla
+    const allMatches = [...exact, ...similar];
+    const stats = {
+      home_wins: 0,
+      draws: 0,
+      away_wins: 0,
+      gg_yes: 0,
+      gg_no: 0,
+      total_valid: 0
+    };
+
+    for (const match of allMatches) {
+      const score = match.score?.trim();
+      if (!score || !score.includes('-')) continue;
+
+      const parts = score.split('-');
+      if (parts.length !== 2) continue;
+
+      const homeScore = parseInt(parts[0].trim());
+      const awayScore = parseInt(parts[1].trim());
+
+      if (isNaN(homeScore) || isNaN(awayScore)) continue;
+
+      stats.total_valid++;
+
+      if (homeScore > awayScore) stats.home_wins++;
+      else if (homeScore === awayScore) stats.draws++;
+      else stats.away_wins++;
+
+      if (homeScore > 0 && awayScore > 0) stats.gg_yes++;
+      else stats.gg_no++;
     }
 
-    // Fallback: Python backend yoksa veya hata verdiyse
-    console.log('ℹ️ Fallback: Mock data döndürülüyor');
+    // Öneri oluştur
+    let recommendation = null;
+    if (stats.total_valid > 0) {
+      const results = {
+        'MS1': { count: stats.home_wins, odds: odd1 },
+        'MSX': { count: stats.draws, odds: oddX },
+        'MS2': { count: stats.away_wins, odds: odd2 }
+      };
+
+      const bestResult = Object.entries(results).reduce((best, [type, data]) => 
+        data.count > best[1].count ? [type, data] : best
+      );
+
+      const [resultType, resultData] = bestResult as [string, { count: number; odds: number }];
+      const percentage = (resultData.count / stats.total_valid) * 100;
+
+      const confidence = percentage >= 60 ? 'Çok Yüksek' :
+                        percentage >= 50 ? 'Yüksek' :
+                        percentage >= 40 ? 'Orta' : 'Düşük';
+
+      const resultNames = { 'MS1': 'Ev sahibi', 'MSX': 'Beraberlik', 'MS2': 'Deplasman' };
+
+      recommendation = {
+        type: resultType,
+        odds: resultData.odds,
+        confidence,
+        reason: `Benzer oranlı ${stats.total_valid} maçta ${resultNames[resultType].toLowerCase()} ${resultData.count} kez gerçekleşti (%${percentage.toFixed(0)})`,
+        percentage: Math.round(percentage * 10) / 10
+      };
+    }
+
+    console.log(`✅ Analiz tamamlandı: ${exact.length} exact, ${similar.length} similar`);
+
     return NextResponse.json({
       success: true,
-      total_count: 0,
-      exact: [],
-      similar: [],
-      statistics: {
-        home_wins: 0,
-        draws: 0,
-        away_wins: 0,
-        gg_yes: 0,
-        gg_no: 0,
-        total_valid: 0
-      },
-      message: '⚠️ Benzer oranlı maç bulunamadı veya backend bağlantısı yok'
+      total_count: allMatches.length,
+      exact,
+      similar,
+      statistics: stats,
+      recommendation
     });
+
   } catch (error) {
-    console.error('❌ API hatası:', error);
+    console.error('❌ Analiz hatası:', error);
     return NextResponse.json(
       { 
         success: false, 
