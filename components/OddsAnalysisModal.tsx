@@ -246,15 +246,13 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                               Aynı Oranlar ({analysis.exact.length})
                             </h4>
                           </div>
-                          {exactStats.ht_total > 0 && (
-                            <button
-                              onClick={() => setDetailsModal('exact')}
-                              className="flex items-center gap-1.5 text-[#8B5CF6] hover:text-[#9b6dff] transition-colors group"
-                            >
-                              <span className="text-xs font-medium">Detaylar</span>
-                              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                            </button>
-                          )}
+                          <button
+                            onClick={() => setDetailsModal('exact')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-lg transition-colors group border border-[#8B5CF6]/20"
+                          >
+                            <span className="text-xs font-semibold">📊 İstatistikler</span>
+                            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
                         </div>
 
                         {(() => {
@@ -320,15 +318,13 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                               Yakın Oranlar ({analysis.similar.length})
                             </h4>
                           </div>
-                          {similarStats.ht_total > 0 && (
-                            <button
-                              onClick={() => setDetailsModal('similar')}
-                              className="flex items-center gap-1.5 text-[#6366F1] hover:text-[#7c7dff] transition-colors group"
-                            >
-                              <span className="text-xs font-medium">Detaylar</span>
-                              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                            </button>
-                          )}
+                          <button
+                            onClick={() => setDetailsModal('similar')}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#6366F1]/10 hover:bg-[#6366F1]/20 text-[#6366F1] rounded-lg transition-colors group border border-[#6366F1]/20"
+                          >
+                            <span className="text-xs font-semibold">📊 İstatistikler</span>
+                            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
                         </div>
 
                         <div className="relative space-y-2">

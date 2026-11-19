@@ -1,6 +1,8 @@
 'use client';
 
-import { X, Sparkles, BarChart3, Ticket } from 'lucide-react';
+import { useState } from 'react';
+import { X, Sparkles, BarChart3, Ticket, TrendingUp } from 'lucide-react';
+import OddsAnalysisModal from './OddsAnalysisModal';
 
 interface SmartCouponRecommendation {
   match: any;
@@ -27,6 +29,8 @@ interface SmartCouponModalProps {
 }
 
 export default function SmartCouponModal({ isOpen, onClose, recommendations, analyzedCount, onAddToCoupon }: SmartCouponModalProps) {
+  const [selectedMatchForAnalysis, setSelectedMatchForAnalysis] = useState<any | null>(null);
+  
   if (!isOpen) return null;
 
   const getRecommendationLabel = (type: string) => {
