@@ -57,7 +57,7 @@ export default function PWAInstallPrompt() {
 
   const springTransition = prefersReducedMotion 
     ? { duration: 0 }
-    : { type: 'spring', damping: 25, stiffness: 300 };
+    : { type: 'spring' as const, damping: 25, stiffness: 300 };
 
   return (
     <AnimatePresence>
