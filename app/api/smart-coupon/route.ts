@@ -104,8 +104,19 @@ export async function POST(request: NextRequest) {
         const [resultType, resultData] = bestResult as [string, { count: number; odds: number }];
         const winRate = (resultData.count / stats.totalValid) * 100;
 
-        // %75+ kazanma oranı olanları öner
-        if (winRate >= 75) {
+        // Filtreleme kriterleri:
+        // 1. Minimum %75 kazanma oranı
+        // 2. Minimum 3 benzer maç
+        // 3. Minimum 1.30 oran
+        const MIN_WIN_RATE = 75;
+        const MIN_MATCHES = 3;
+        const MIN_ODDS = 1.30;
+
+        if (
+          winRate >= MIN_WIN_RATE && 
+          stats.totalValid >= MIN_MATCHES &&
+          resultData.odds >= MIN_ODDS
+        ) {
           recommendations.push({
             match,
             exact_matches: historicalMatches.length,
@@ -122,7 +133,9 @@ export async function POST(request: NextRequest) {
             }
           });
 
-          console.log(`✅ Öneri: ${match.home_team} vs ${match.away_team} - ${resultType} (${winRate.toFixed(1)}%)`);
+          console.log(`✅ Öneri: ${match.home_team} vs ${match.away_team} - ${resultType} (${winRate.toFixed(1)}% | ${resultData.odds} | ${stats.totalValid} maç)`);
+        } else {
+          console.log(`⏭️ Reddedildi: ${match.home_team} vs ${match.away_team} - Kriter: Win=${winRate.toFixed(1)}%, Maç=${stats.totalValid}, Oran=${resultData.odds}`);
         }
       } catch (matchError) {
         console.error('⚠️ Maç analiz hatası:', matchError);
