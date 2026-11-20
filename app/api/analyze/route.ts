@@ -40,16 +40,16 @@ export async function POST(request: NextRequest) {
 
     console.log('🔍 Exact query:', exactError ? `Error: ${exactError.message}` : `Found ${exactMatches?.length || 0} matches`);
 
-    // Similar match (±0.03 tolerans)
+    // Similar match (±0.02 tolerans)
     const { data: similarMatches, error: similarError } = await supabase
       .from('matches')
       .select('*')
-      .filter('odd_1', 'gte', odd1 - 0.03)
-      .filter('odd_1', 'lte', odd1 + 0.03)
-      .filter('odd_x', 'gte', oddX - 0.03)
-      .filter('odd_x', 'lte', oddX + 0.03)
-      .filter('odd_2', 'gte', odd2 - 0.03)
-      .filter('odd_2', 'lte', odd2 + 0.03)
+      .filter('odd_1', 'gte', odd1 - 0.02)
+      .filter('odd_1', 'lte', odd1 + 0.02)
+      .filter('odd_x', 'gte', oddX - 0.02)
+      .filter('odd_x', 'lte', oddX + 0.02)
+      .filter('odd_2', 'gte', odd2 - 0.02)
+      .filter('odd_2', 'lte', odd2 + 0.02)
       .not('score', 'is', null)
       .limit(100);
 
