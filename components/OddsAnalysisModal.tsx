@@ -470,7 +470,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                             >
                               <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/0 group-hover:from-[#8B5CF6]/5 to-transparent rounded-[16px] transition-all"></div>
                               
-                              {/* Main Row */}
+                              {/* Main Row - Teams + Score */}
                               <div className="relative flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-3 flex-1 min-w-0">
                                   <div className="flex-1 min-w-0">
@@ -495,42 +495,27 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                                 </div>
                               </div>
 
-                              {/* Bottom Row: Half Score + Odds */}
-                              <div className="relative mt-3 flex items-center justify-between gap-4">
-                                {/* Half Score - Left */}
-                                {m.half_score && m.half_score !== '?-?' ? (
-                                  <div className="flex-shrink-0">
-                                    <span className="text-[#9295AC] text-xs font-medium">
-                                      İY: <span className="text-[#F8FAFC] font-semibold tabular-nums">{m.half_score}</span>
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <div className="flex-shrink-0">
-                                    <span className="text-[#9295AC]/50 text-xs">İY: -</span>
-                                  </div>
-                                )}
+                              {/* Half Score - Center */}
+                              {m.half_score && m.half_score !== '?-?' && (
+                                <div className="relative mt-2 text-center">
+                                  <span className="text-[#9295AC] text-xs font-medium">
+                                    İY: <span className="text-[#F8FAFC] font-semibold tabular-nums">{m.half_score}</span>
+                                  </span>
+                                </div>
+                              )}
 
-                                {/* Odds - Right */}
-                                {hasOdds && (
-                                  <div className="flex items-center gap-2 flex-shrink-0">
-                                    <div className="bg-[#1a1a35]/60 rounded-lg px-2 py-1 border border-white/[0.06]">
-                                      <span className="text-[#8B5CF6] text-xs font-bold tabular-nums">
-                                        {typeof m.odd_1 === 'number' ? m.odd_1.toFixed(2) : m.odd_1}
-                                      </span>
-                                    </div>
-                                    <div className="bg-[#1a1a35]/60 rounded-lg px-2 py-1 border border-white/[0.06]">
-                                      <span className="text-[#8B5CF6] text-xs font-bold tabular-nums">
-                                        {typeof m.odd_x === 'number' ? m.odd_x.toFixed(2) : m.odd_x}
-                                      </span>
-                                    </div>
-                                    <div className="bg-[#1a1a35]/60 rounded-lg px-2 py-1 border border-white/[0.06]">
-                                      <span className="text-[#8B5CF6] text-xs font-bold tabular-nums">
-                                        {typeof m.odd_2 === 'number' ? m.odd_2.toFixed(2) : m.odd_2}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                              {/* Odds - Center with dashes */}
+                              {hasOdds && (
+                                <div className="relative mt-2 text-center">
+                                  <span className="text-[#8B5CF6] text-xs font-bold tabular-nums">
+                                    {typeof m.odd_1 === 'number' ? m.odd_1.toFixed(2) : m.odd_1}
+                                    <span className="text-[#9295AC] mx-1.5">-</span>
+                                    {typeof m.odd_x === 'number' ? m.odd_x.toFixed(2) : m.odd_x}
+                                    <span className="text-[#9295AC] mx-1.5">-</span>
+                                    {typeof m.odd_2 === 'number' ? m.odd_2.toFixed(2) : m.odd_2}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
