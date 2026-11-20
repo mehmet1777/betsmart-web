@@ -5,10 +5,20 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "BetSmart - Akıllı Bahis Analizi",
+  title: "BetSmart",
   description: "Profesyonel spor bahis ve analiz platformu",
   icons: {
     icon: '/favicon.svg',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'BetSmart',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
   },
 };
 
