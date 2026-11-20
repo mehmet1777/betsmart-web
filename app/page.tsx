@@ -12,6 +12,7 @@ import Sidebar from '@/components/Sidebar';
 import SavedCoupons from '@/components/SavedCoupons';
 import SmartCouponModal from '@/components/SmartCouponModal';
 import NotificationDropdown from '@/components/NotificationDropdown';
+import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import { BetSelection, Match, getLeagueName } from '@/types';
 
 const LEAGUE_ICONS: Record<number, string> = {
@@ -353,6 +354,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-bg-app pb-32">
+      {/* PWA Install Prompt - Premium 2026 Experience */}
+      <PWAInstallPrompt />
+
       {/* Mobile Header */}
       <div className="relative">
         <MobileHeader 
