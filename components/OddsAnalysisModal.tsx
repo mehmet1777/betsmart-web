@@ -459,48 +459,81 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                       </div>
                       
                       <div className="space-y-2">
-                        {matches.slice(0, 30).map((m: any, idx: number) => (
-                          <div 
-                            key={idx} 
-                            className="relative bg-gradient-to-br from-[#15152D]/90 to-[#1a1a35]/70 backdrop-blur-sm rounded-[16px] p-4 border border-white/[0.08] hover:border-[#8B5CF6]/30 hover:shadow-lg hover:shadow-purple-900/10 transition-all group"
-                          >
-                            <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/0 group-hover:from-[#8B5CF6]/5 to-transparent rounded-[16px] transition-all"></div>
-                            
-                            {/* Main Row */}
-                            <div className="relative flex items-center justify-between gap-4">
-                              <div className="flex items-center gap-3 flex-1 min-w-0">
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-[#F8FAFC] text-sm font-semibold truncate">
-                                    {m.home_team}
-                                  </p>
-                                </div>
-                                
-                                <div className="flex-shrink-0">
-                                  <div className="bg-gradient-to-br from-[#22C55E]/20 to-[#22C55E]/10 rounded-lg px-3 py-1.5 border border-[#22C55E]/20 shadow-lg shadow-green-900/10">
-                                    <span className="text-[#22C55E] font-bold text-sm tabular-nums">
-                                      {m.score || '?-?'}
-                                    </span>
+                        {matches.slice(0, 30).map((m: any, idx: number) => {
+                          // Oran bilgilerini parse et
+                          const hasOdds = m.odd_1 && m.odd_x && m.odd_2;
+                          
+                          return (
+                            <div 
+                              key={idx} 
+                              className="relative bg-gradient-to-br from-[#15152D]/90 to-[#1a1a35]/70 backdrop-blur-sm rounded-[16px] p-4 border border-white/[0.08] hover:border-[#8B5CF6]/30 hover:shadow-lg hover:shadow-purple-900/10 transition-all group"
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/0 group-hover:from-[#8B5CF6]/5 to-transparent rounded-[16px] transition-all"></div>
+                              
+                              {/* Main Row */}
+                              <div className="relative flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-[#F8FAFC] text-sm font-semibold truncate">
+                                      {m.home_team}
+                                    </p>
+                                  </div>
+                                  
+                                  <div className="flex-shrink-0">
+                                    <div className="bg-gradient-to-br from-[#22C55E]/20 to-[#22C55E]/10 rounded-lg px-3 py-1.5 border border-[#22C55E]/20 shadow-lg shadow-green-900/10">
+                                      <span className="text-[#22C55E] font-bold text-sm tabular-nums">
+                                        {m.score || '?-?'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  
+                                  <div className="flex-1 min-w-0 text-right">
+                                    <p className="text-[#F8FAFC] text-sm font-semibold truncate">
+                                      {m.away_team}
+                                    </p>
                                   </div>
                                 </div>
-                                
-                                <div className="flex-1 min-w-0 text-right">
-                                  <p className="text-[#F8FAFC] text-sm font-semibold truncate">
-                                    {m.away_team}
-                                  </p>
-                                </div>
+                              </div>
+
+                              {/* Bottom Row: Half Score + Odds */}
+                              <div className="relative mt-3 flex items-center justify-between gap-4">
+                                {/* Half Score - Left */}
+                                {m.half_score && m.half_score !== '?-?' ? (
+                                  <div className="flex-shrink-0">
+                                    <span className="text-[#9295AC] text-xs font-medium">
+                                      İY: <span className="text-[#F8FAFC] font-semibold tabular-nums">{m.half_score}</span>
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="flex-shrink-0">
+                                    <span className="text-[#9295AC]/50 text-xs">İY: -</span>
+                                  </div>
+                                )}
+
+                                {/* Odds - Right */}
+                                {hasOdds && (
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    <div className="bg-[#1a1a35]/60 rounded-lg px-2 py-1 border border-white/[0.06]">
+                                      <span className="text-[#8B5CF6] text-xs font-bold tabular-nums">
+                                        {typeof m.odd_1 === 'number' ? m.odd_1.toFixed(2) : m.odd_1}
+                                      </span>
+                                    </div>
+                                    <div className="bg-[#1a1a35]/60 rounded-lg px-2 py-1 border border-white/[0.06]">
+                                      <span className="text-[#8B5CF6] text-xs font-bold tabular-nums">
+                                        {typeof m.odd_x === 'number' ? m.odd_x.toFixed(2) : m.odd_x}
+                                      </span>
+                                    </div>
+                                    <div className="bg-[#1a1a35]/60 rounded-lg px-2 py-1 border border-white/[0.06]">
+                                      <span className="text-[#8B5CF6] text-xs font-bold tabular-nums">
+                                        {typeof m.odd_2 === 'number' ? m.odd_2.toFixed(2) : m.odd_2}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
-
-                            {/* Half Score - Center Only */}
-                            {m.half_score && m.half_score !== '?-?' && (
-                              <div className="relative mt-2 text-center">
-                                <span className="text-[#9295AC] text-sm font-semibold tabular-nums">
-                                  İY: {m.half_score}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   </div>
