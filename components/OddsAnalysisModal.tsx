@@ -260,9 +260,11 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                             { type: 'home', count: exactStats.home, label: 'Ev Sahibi', odds: match.odds?.home },
                             { type: 'draw', count: exactStats.draw, label: 'Beraberlik', odds: match.odds?.draw },
                             { type: 'away', count: exactStats.away, label: 'Deplasman', odds: match.odds?.away }
-                          ].sort((a, b) => b.count - a.count);
+                          ];
 
-                          const best = results[0];
+                          // En yüksek olanı bul (öneri için)
+                          const sortedResults = [...results].sort((a, b) => b.count - a.count);
+                          const best = sortedResults[0];
                           const percentage = ((best.count / exactStats.total) * 100).toFixed(0);
                           
                           return (
@@ -329,12 +331,10 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                         <div className="relative space-y-2">
                           {[
-                            { label: 'Deplasman', count: similarStats.away, icon: '✈️' },
                             { label: 'Ev Sahibi', count: similarStats.home, icon: '🏠' },
-                            { label: 'Beraberlik', count: similarStats.draw, icon: '🤝' }
-                          ]
-                            .sort((a, b) => b.count - a.count)
-                            .map((item, idx) => (
+                            { label: 'Beraberlik', count: similarStats.draw, icon: '🤝' },
+                            { label: 'Deplasman', count: similarStats.away, icon: '✈️' }
+                          ].map((item, idx) => (
                               <div key={idx} className="flex items-center justify-between text-sm bg-[#1a1a35]/50 rounded-xl p-2.5 border border-white/[0.04]">
                                 <div className="flex items-center gap-2.5">
                                   <span className="text-base">{item.icon}</span>
