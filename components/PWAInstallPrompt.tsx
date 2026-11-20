@@ -12,7 +12,7 @@ export default function PWAInstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useReducedMotion() ?? false;
 
   useEffect(() => {
     // Check if iOS Safari
