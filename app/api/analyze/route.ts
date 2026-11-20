@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       .filter('odd_2', 'gte', odd2 - 0.01)
       .filter('odd_2', 'lte', odd2 + 0.01)
       .not('score', 'is', null)
-      .limit(50);
+      .limit(100);
 
     console.log('🔍 Exact query:', exactError ? `Error: ${exactError.message}` : `Found ${exactMatches?.length || 0} matches`);
 
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       .filter('odd_2', 'gte', odd2 - 0.03)
       .filter('odd_2', 'lte', odd2 + 0.03)
       .not('score', 'is', null)
-      .limit(50);
+      .limit(100);
 
     console.log('🔍 Similar query:', similarError ? `Error: ${similarError.message}` : `Found ${similarMatches?.length || 0} matches`);
 

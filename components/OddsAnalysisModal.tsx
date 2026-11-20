@@ -459,7 +459,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                       </div>
                       
                       <div className="space-y-2">
-                        {matches.slice(0, 30).map((m: any, idx: number) => {
+                        {matches.slice(0, 100).map((m: any, idx: number) => {
                           // Oran bilgilerini parse et
                           const hasOdds = m.odd_1 && m.odd_x && m.odd_2;
                           
