@@ -9,7 +9,8 @@ interface SmartCouponRecommendation {
   exact_matches: number;
   total_analyzed: number;
   win_rate: number;
-  recommendation: 'MS1' | 'MSX' | 'MS2';
+  recommendation: string;
+  recommendation_label?: string;
   recommended_odds: number;
   statistics: {
     home_wins: number;
@@ -17,6 +18,8 @@ interface SmartCouponRecommendation {
     away_wins: number;
     gg_yes: number;
     gg_no: number;
+    over_25?: number;
+    over_35?: number;
   };
 }
 
@@ -34,16 +37,38 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
   if (!isOpen) return null;
 
   const getRecommendationLabel = (type: string) => {
-    if (type === 'MS1') return 'Ev Sahibi';
-    if (type === 'MSX') return 'Beraberlik';
-    if (type === 'MS2') return 'Deplasman';
-    return type;
+    const labels: Record<string, string> = {
+      'MS1': 'Ev Sahibi',
+      'MSX': 'Beraberlik',
+      'MS2': 'Deplasman',
+      'GG_YES': '⚽ Karşılıklı Gol Var',
+      'GG_NO': '🚫 Karşılıklı Gol Yok',
+      'OVER_15': '📈 1.5 Üst',
+      'OVER_25': '📈 2.5 Üst',
+      'OVER_35': '📈 3.5 Üst',
+      'HT_OVER_05': '🕐 İlk Yarı 0.5 Üst',
+      'HT_OVER_15': '🕐 İlk Yarı 1.5 Üst',
+      'HT_GG_YES': '🕐⚽ İlk Yarı KG Var'
+    };
+    return labels[type] || type;
   };
 
   const getRecommendationColor = (type: string) => {
+    // Maç Sonucu
     if (type === 'MS1') return 'bg-[#00E99A]/20 text-[#00E99A] border-[#00E99A]/40';
     if (type === 'MSX') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40';
     if (type === 'MS2') return 'bg-blue-500/20 text-blue-400 border-blue-500/40';
+    
+    // KG
+    if (type === 'GG_YES') return 'bg-green-500/20 text-green-400 border-green-500/40';
+    if (type === 'GG_NO') return 'bg-red-500/20 text-red-400 border-red-500/40';
+    
+    // Alt/Üst
+    if (type.startsWith('OVER_')) return 'bg-purple-500/20 text-purple-400 border-purple-500/40';
+    
+    // İlk Yarı
+    if (type.startsWith('HT_')) return 'bg-orange-500/20 text-orange-400 border-orange-500/40';
+    
     return 'bg-gray-500/20 text-gray-400 border-gray-500/40';
   };
 
@@ -98,9 +123,11 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
                     <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold ${getRecommendationColor(rec.recommendation)}`}>
                       {getRecommendationLabel(rec.recommendation)}
                     </div>
-                    <div className="bg-[#813BFF]/20 border border-[#813BFF]/40 text-[#813BFF] font-black px-3 py-1.5 rounded-lg">
-                      {rec.recommended_odds.toFixed(2)}
-                    </div>
+                    {rec.recommended_odds > 0 && (
+                      <div className="bg-[#813BFF]/20 border border-[#813BFF]/40 text-[#813BFF] font-black px-3 py-1.5 rounded-lg text-xs">
+                        {rec.recommended_odds.toFixed(2)}
+                      </div>
+                    )}
                   </div>
                   <div className="bg-[#101027] rounded-lg p-2.5 border border-[rgba(139,76,255,0.15)]">
                     <div className="flex items-center gap-1.5 mb-2">
