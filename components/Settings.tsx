@@ -44,9 +44,19 @@ export default function Settings() {
       localStorage.setItem('similarTolerance', similarTolerance.toString());
       setHasChanges(false);
       
-      // Başarı bildirimi (opsiyonel)
-      alert('✅ Ayarlar kaydedildi!');
+      // Modern toast notification göster
+      showToast();
     }
+  };
+
+  // Toast notification
+  const [showToastNotif, setShowToastNotif] = useState(false);
+  
+  const showToast = () => {
+    setShowToastNotif(true);
+    setTimeout(() => {
+      setShowToastNotif(false);
+    }, 3000);
   };
 
   return (
@@ -230,6 +240,23 @@ export default function Settings() {
         </div>
       </div>
 
+      {/* Modern Toast Notification */}
+      {showToastNotif && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 animate-slide-up">
+          <div className="bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 min-w-[280px]">
+            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <p className="font-bold text-base">Ayarlar Kaydedildi!</p>
+              <p className="text-sm text-white/80">Değişiklikler uygulandı</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Custom Slider Styles */}
       <style jsx>{`
         .slider::-webkit-slider-thumb {
@@ -262,6 +289,21 @@ export default function Settings() {
         .slider::-moz-range-thumb:hover {
           transform: scale(1.1);
           box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.3);
+        }
+
+        @keyframes slide-up {
+          from {
+            opacity: 0;
+            transform: translate(-50%, 20px);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, 0);
+          }
+        }
+
+        .animate-slide-up {
+          animation: slide-up 0.3s ease-out forwards;
         }
       `}</style>
     </div>
