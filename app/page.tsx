@@ -93,39 +93,45 @@ export default function Home() {
       
       // Saat kontrolü - Maç saati geçmişse gizle
       try {
-        const [datePart, timePart] = match.time.split(' ');
+        const timeStr = match.time?.trim(); // Boşlukları temizle
         
-        if (!timePart) {
-          console.warn('⚠️ No time part:', match.time);
+        if (!timeStr) {
+          console.warn('⚠️ No time:', match.time);
           return true; // Saat yoksa göster
         }
         
-        const [d, m, y] = datePart.split('.');
-        const [h, min] = timePart.split(':');
-        
-        const matchDateTime = new Date(
-          parseInt(y),
-          parseInt(m) - 1,  // JavaScript months are 0-indexed
-          parseInt(d),
-          parseInt(h),
-          parseInt(min)
-        );
-        
-        // Debug: İlk 3 maçı logla
-        if (filtered.length < 3) {
-          console.log(`🔎 Match: ${match.home.name} vs ${match.away.name}`);
-          console.log(`   Time: ${match.time}`);
-          console.log(`   Parsed: ${matchDateTime.toLocaleString('tr-TR')}`);
-          console.log(`   Now: ${now.toLocaleString('tr-TR')}`);
-          console.log(`   Future? ${matchDateTime > now}`);
-        }
-        
-        // Şu andan büyükse (gelecekteyse) göster
-        if (matchDateTime > now) {
+        const parts = timeStr.split(' ');
+        if (parts.length < 2) {
+          console.warn('⚠️ Invalid time format:', timeStr);
           return true;
         }
         
-        return false;
+        const datePart = parts[0];
+        const timePart = parts[1];
+        
+        const dateParts = datePart.split('.');
+        const timeParts = timePart.split(':');
+        
+        if (dateParts.length !== 3 || timeParts.length !== 2) {
+          console.warn('⚠️ Invalid date/time parts:', datePart, timePart);
+          return true;
+        }
+        
+        const d = parseInt(dateParts[0]);
+        const m = parseInt(dateParts[1]);
+        const y = parseInt(dateParts[2]);
+        const h = parseInt(timeParts[0]);
+        const min = parseInt(timeParts[1]);
+        
+        if (isNaN(d) || isNaN(m) || isNaN(y) || isNaN(h) || isNaN(min)) {
+          console.warn('⚠️ Invalid numbers:', d, m, y, h, min);
+          return true;
+        }
+        
+        const matchDateTime = new Date(y, m - 1, d, h, min);
+        
+        // Şu andan büyükse (gelecekteyse) göster
+        return matchDateTime > now;
         
       } catch (e) {
         console.error('❌ Match time parse error:', match.time, e);
