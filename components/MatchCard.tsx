@@ -83,15 +83,6 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
   return (
     <>
       <div className="bg-bg-card rounded-2xl p-4 mx-4 mb-3 relative">
-        {/* Oran Değişiklik Badge */}
-        {latestChange && (
-          <div className="absolute -top-2 -right-2 z-10">
-            <div className="bg-gradient-to-r from-[#F59E0B] to-[#EF4444] text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-              <span className="text-lg">📈</span>
-            </div>
-          </div>
-        )}
-
         {/* Önerilen Badge */}
         {isRecommended && (
           <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
