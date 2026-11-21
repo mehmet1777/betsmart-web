@@ -58,10 +58,10 @@ export default function Home() {
     // İlk yükleme - loader göster
     loadMatches(true);
     
-    // Her 30 saniyede bir sessizce güncelle (loader YOK, scroll korunur)
+    // Her 3 dakikada bir sessizce güncelle (loader YOK, scroll korunur)
     const interval = setInterval(() => {
       loadMatches(false);
-    }, 30000);
+    }, 180000); // 3 dakika
     
     return () => clearInterval(interval);
   }, []);
