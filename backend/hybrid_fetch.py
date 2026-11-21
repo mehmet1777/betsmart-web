@@ -21,7 +21,7 @@ def fetch_matches_hybrid(days_ahead=2, status_callback=None):
     print("━" * 50)
     
     # 1️⃣ Önce Sahadan'ı dene
-    print("1️⃣ Sahadan.com deneniyor...")
+    print("1️⃣ Sahadan.com deneniyor (tarih filtreli)...")
     
     if status_callback:
         status_callback("trying_sahadan")
@@ -29,12 +29,12 @@ def fetch_matches_hybrid(days_ahead=2, status_callback=None):
     success, matches, error = fetch_sahadan_matches(days_ahead, status_callback)
     
     if success and len(matches) >= 10:
-        print(f"✅ Sahadan başarılı: {len(matches)} maç bulundu")
+        print(f"✅ Sahadan başarılı: {len(matches)} geçerli maç bulundu")
         print("━" * 50)
         return (True, matches, None, "sahadan")
     
-    # Sahadan başarısız
-    print(f"⚠️  Sahadan'da yeterli maç yok (bulundu: {len(matches)})")
+    # Sahadan başarısız veya yeterli maç yok
+    print(f"⚠️  Sahadan'da yeterli geçerli maç yok (bulundu: {len(matches)})")
     print(f"   Hata: {error}")
     print("━" * 50)
     

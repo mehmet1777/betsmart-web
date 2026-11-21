@@ -10,95 +10,120 @@ def fetch_sahadan_matches(days_ahead=2, status_callback=None):
     Sahadan.com API'den maç verilerini çek
     
     Args:
-        days_ahead: Kaç gün sonrasına kadar maçları çek
+        days_ahead: Kaç gün sonrasına kadar maçları çek (referans için)
         status_callback: İlerleme bildirimi için callback
         
     Returns:
         (success: bool, matches: list, error: str)
     """
     try:
-        all_matches = []
-        
-        # Bugünden itibaren belirtilen gün sayısı kadar çek
+        # Hedef tarih aralığını hesapla (bugün + days_ahead gün)
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        target_dates = []
         for day in range(days_ahead):
-            target_date = datetime.now() + timedelta(days=day)
-            date_str = target_date.strftime("%Y-%m-%d")  # Sahadan formatı: 2026-11-21
-            
-            print(f"📅 [Sahadan] {date_str} tarihi çekiliyor...")
-            
-            if status_callback:
-                status_callback(f"sahadan_fetching_{date_str}")
-            
-            # Sahadan API URL
-            url = (
-                f"https://www.sahadan.com/api/index/betting-service-bulletin-soccer"
-                f"?a=bs"
-                f"&e=bsbp"
-                f"&u=soccer"
-                f"&application=mackolik.com"
-                f"&language=tr"
-                f"&country=tr"
-                f"&date={date_str}"
-            )
-            
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'Accept': 'application/json',
-                'Referer': 'https://www.sahadan.com/'
-            }
-            
-            # Retry mekanizması: 3 kez dene
-            max_retries = 3
-            response = None
-            last_error = None
-            
-            for attempt in range(max_retries):
-                try:
-                    response = requests.get(url, headers=headers, timeout=30)
-                    break
-                except requests.exceptions.Timeout:
-                    last_error = f"Timeout (deneme {attempt + 1}/{max_retries})"
-                    print(f"⏳ {last_error}")
-                    if attempt < max_retries - 1:
-                        import time
-                        time.sleep(2)
-                    continue
-                except Exception as e:
-                    last_error = str(e)
-                    print(f"❌ Hata: {last_error}")
-                    break
-            
-            if response is None:
-                print(f"❌ {date_str} çekilemedi: {last_error}")
-                continue
-            
-            if response.status_code != 200:
-                print(f"❌ API hatası: {response.status_code}")
-                continue
-            
-            # JSON parse
+            target_date = today + timedelta(days=day)
+            target_dates.append(target_date)
+        
+        print(f"🎯 Hedef tarihler: {[d.strftime('%d.%m.%Y') for d in target_dates]}")
+        
+        # Sahadan API - tarih parametresi OLMADAN (otomatik olarak güncel maçları getirir)
+        print(f"📅 [Sahadan] Güncel maçlar çekiliyor (tarih filtresi yok)...")
+        
+        if status_callback:
+            status_callback(f"sahadan_fetching_current")
+        
+        # Sahadan API URL - date parametresi YOK
+        url = (
+            f"https://www.sahadan.com/api/index/betting-service-bulletin-soccer"
+            f"?a=bs"
+            f"&e=bsbp"
+            f"&u=soccer"
+            f"&application=mackolik.com"
+            f"&language=tr"
+            f"&country=tr"
+        )
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json',
+            'Referer': 'https://www.sahadan.com/'
+        }
+        
+        # Retry mekanizması: 3 kez dene
+        max_retries = 3
+        response = None
+        last_error = None
+        
+        for attempt in range(max_retries):
             try:
-                data = response.json()
-            except json.JSONDecodeError as e:
-                print(f"❌ JSON parse hatası: {e}")
+                response = requests.get(url, headers=headers, timeout=30)
+                break
+            except requests.exceptions.Timeout:
+                last_error = f"Timeout (deneme {attempt + 1}/{max_retries})"
+                print(f"⏳ {last_error}")
+                if attempt < max_retries - 1:
+                    import time
+                    time.sleep(2)
                 continue
-            
-            # Sahadan API response formatını parse et
-            day_matches = parse_sahadan_response(data, date_str)
-            
-            print(f"✅ {date_str}: {len(day_matches)} maç bulundu")
-            
-            if status_callback:
-                status_callback(f"sahadan_found_{date_str}_{len(day_matches)}")
-            
-            all_matches.extend(day_matches)
+            except Exception as e:
+                last_error = str(e)
+                print(f"❌ Hata: {last_error}")
+                break
         
-        print(f"🎯 Toplam {len(all_matches)} maç toplandı (Sahadan)")
+        if response is None:
+            print(f"❌ Sahadan çekilemedi: {last_error}")
+            return (False, [], last_error)
         
-        if len(all_matches) == 0:
-            return (False, [], "Sahadan'da maç bulunamadı")
+        if response.status_code != 200:
+            error_msg = f"API hatası: {response.status_code}"
+            print(f"❌ {error_msg}")
+            return (False, [], error_msg)
         
-        return (True, all_matches, None)
+        # JSON parse
+        try:
+            data = response.json()
+        except json.JSONDecodeError as e:
+            error_msg = f"JSON parse hatası: {e}"
+            print(f"❌ {error_msg}")
+            return (False, [], error_msg)
+        
+        # Sahadan API response formatını parse et (date_str artık gerekli değil)
+        all_matches = parse_sahadan_response(data, None)
+        
+        print(f"   📦 API'den {len(all_matches)} maç geldi")
+        
+        # Gelen maçları tarih filtresinden geçir - sadece hedef tarihlerdeki maçları al
+        filtered_matches = []
+        for match in all_matches:
+            try:
+                # Match datetime formatı: "21.11.2026 04:00"
+                match_datetime_str = match.get('datetime', '')
+                match_date_str = match_datetime_str.split(' ')[0]  # "21.11.2026"
+                
+                # Parse et
+                day, month, year = match_date_str.split('.')
+                match_date = datetime(int(year), int(month), int(day))
+                
+                # Hedef tarihler arasında mı kontrol et
+                if any(match_date.date() == target.date() for target in target_dates):
+                    filtered_matches.append(match)
+                else:
+                    # Debug için sadece ilk 3 atlamayı yazdır
+                    if len([m for m in all_matches if m not in filtered_matches]) < 3:
+                        print(f"   ⏭️  Atlandı (tarih dışı): {match['home_team']} vs {match['away_team']} - {match_date_str}")
+            except Exception as e:
+                print(f"   ⚠️  Tarih parse hatası: {e}")
+                continue
+        
+        print(f"✅ Sahadan: {len(filtered_matches)} geçerli maç (toplam {len(all_matches)} maçtan)")
+        
+        if status_callback:
+            status_callback(f"sahadan_found_{len(filtered_matches)}")
+        
+        if len(filtered_matches) == 0:
+            return (False, [], "Sahadan'da hedef tarihlerde maç bulunamadı")
+        
+        return (True, filtered_matches, None)
         
     except Exception as e:
         error_msg = f"Sahadan API hatası: {str(e)}"
@@ -108,9 +133,13 @@ def fetch_sahadan_matches(days_ahead=2, status_callback=None):
         return (False, [], error_msg)
 
 
-def parse_sahadan_response(data, date_str):
+def parse_sahadan_response(data, date_str=None):
     """
     Sahadan API response'unu parse et
+    
+    Args:
+        data: API response JSON
+        date_str: İsteğe bağlı tarih (eski uyumluluk için)
     
     Format:
     {
@@ -134,7 +163,7 @@ def parse_sahadan_response(data, date_str):
             league_matches = league_group.get('matches', [])
             
             for match in league_matches:
-                parsed_match = parse_sahadan_match(match, date_str, league_name)
+                parsed_match = parse_sahadan_match(match, league_name)
                 if parsed_match:
                     matches.append(parsed_match)
         
@@ -148,17 +177,41 @@ def parse_sahadan_response(data, date_str):
     return matches
 
 
-def parse_sahadan_match(item, date_str, league_name):
+def parse_sahadan_match(item, league_name):
     """
     Tek bir Sahadan maç objesini parse et
     
     Args:
-        date_str: ISO format (YYYY-MM-DD) - örn: "2026-11-21"
+        item: Sahadan match object
+        league_name: Lig adı
     """
     try:
         home_team = item.get('team_A', '')
         away_team = item.get('team_B', '')
         time = item.get('time', '00:00')
+        
+        # Sahadan'dan gelen tarih bilgisi (eğer varsa)
+        # API'den date field gelebilir (örn: "2026-11-21" veya "21.11.2026")
+        date_from_api = item.get('date', '')
+        
+        if date_from_api:
+            # Tarihi normalize et
+            if '-' in date_from_api:
+                # ISO format: "2026-11-21" -> "21.11.2026"
+                try:
+                    dt = datetime.strptime(date_from_api, "%Y-%m-%d")
+                    formatted_date = dt.strftime("%d.%m.%Y")
+                except:
+                    formatted_date = None
+            elif '.' in date_from_api:
+                # Zaten doğru format: "21.11.2026"
+                formatted_date = date_from_api
+            else:
+                formatted_date = None
+        else:
+            # Tarih yok, sadece saat var - bugünün tarihini kullan
+            today = datetime.now()
+            formatted_date = today.strftime("%d.%m.%Y")
         
         # Maç Sonucu (MS) oranlarını bul
         # market i:1 = MS
@@ -185,16 +238,8 @@ def parse_sahadan_match(item, date_str, league_name):
                 break
         
         # Temel validasyon
-        if not home_team or not away_team:
+        if not home_team or not away_team or not formatted_date:
             return None
-        
-        # Tarihi ISO -> Mackolik formatına çevir (2026-11-21 -> 21.11.2026)
-        try:
-            from datetime import datetime
-            dt = datetime.strptime(date_str, "%Y-%m-%d")
-            formatted_date = dt.strftime("%d.%m.%Y")  # 21.11.2026
-        except:
-            formatted_date = date_str  # Hata olursa olduğu gibi kullan
         
         # BetSmart formatına dönüştür (Mackolik ile uyumlu)
         datetime_str = f"{formatted_date} {time}"  # "21.11.2026 04:00"
