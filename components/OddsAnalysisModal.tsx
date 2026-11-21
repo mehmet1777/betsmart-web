@@ -29,16 +29,18 @@ interface AnalysisResult {
 
 interface OddsChange {
   detected_at: string;
-  old_odd_1: number;
-  new_odd_1: number;
+  first_odd_1: number;
+  first_odd_x: number;
+  first_odd_2: number;
+  current_odd_1: number;
+  current_odd_x: number;
+  current_odd_2: number;
   change_1: number;
-  old_odd_x: number;
-  new_odd_x: number;
   change_x: number;
-  old_odd_2: number;
-  new_odd_2: number;
   change_2: number;
   total_change: number;
+  first_detected_at?: string;
+  last_updated_at?: string;
 }
 
 interface OddsAnalysisModalProps {
@@ -425,12 +427,12 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                   // Duplicate'leri filtrele - aynı oranlar tekrar etmesin
                   const uniqueChanges = oddsChanges.reduce((acc: OddsChange[], change) => {
                     const exists = acc.find(c => 
-                      c.old_odd_1 === change.old_odd_1 &&
-                      c.old_odd_x === change.old_odd_x &&
-                      c.old_odd_2 === change.old_odd_2 &&
-                      c.new_odd_1 === change.new_odd_1 &&
-                      c.new_odd_x === change.new_odd_x &&
-                      c.new_odd_2 === change.new_odd_2
+                      c.first_odd_1 === change.first_odd_1 &&
+                      c.first_odd_x === change.first_odd_x &&
+                      c.first_odd_2 === change.first_odd_2 &&
+                      c.current_odd_1 === change.current_odd_1 &&
+                      c.current_odd_x === change.current_odd_x &&
+                      c.current_odd_2 === change.current_odd_2
                     );
                     if (!exists) {
                       acc.push(change);
@@ -451,7 +453,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                       <div className="relative space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
                         {uniqueChanges.map((change, idx) => {
-                          const date = new Date(change.detected_at);
+                          const date = new Date(change.last_updated_at || change.detected_at);
                           const formattedDate = date.toLocaleDateString('tr-TR', { 
                             day: '2-digit', 
                             month: '2-digit',
@@ -477,20 +479,20 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                               {/* Grid Content */}
                               <div className="bg-[#0D0E1F]/50 rounded-lg border border-white/[0.03] overflow-hidden">
-                                {/* Eski Oranlar */}
+                                {/* İlk Oranlar */}
                                 <div className="grid grid-cols-4 gap-2 p-2 border-b border-white/[0.03]">
-                                  <div className="text-xs text-[#9295AC]/70">Eski</div>
-                                  <div className="text-center text-xs text-[#F8FAFC]/50">{change.old_odd_1.toFixed(2)}</div>
-                                  <div className="text-center text-xs text-[#F8FAFC]/50">{change.old_odd_x.toFixed(2)}</div>
-                                  <div className="text-center text-xs text-[#F8FAFC]/50">{change.old_odd_2.toFixed(2)}</div>
+                                  <div className="text-xs text-[#9295AC]/70">İlk</div>
+                                  <div className="text-center text-xs text-[#F8FAFC]/50">{change.first_odd_1.toFixed(2)}</div>
+                                  <div className="text-center text-xs text-[#F8FAFC]/50">{change.first_odd_x.toFixed(2)}</div>
+                                  <div className="text-center text-xs text-[#F8FAFC]/50">{change.first_odd_2.toFixed(2)}</div>
                                 </div>
                                 
-                                {/* Yeni Oranlar - Belirgin */}
+                                {/* Son Oranlar - Belirgin */}
                                 <div className="grid grid-cols-4 gap-2 p-2 bg-gradient-to-r from-[#F59E0B]/5 to-transparent">
-                                  <div className="text-xs text-[#F59E0B] font-semibold">Yeni</div>
-                                  <div className="text-center text-sm text-[#F8FAFC] font-bold">{change.new_odd_1.toFixed(2)}</div>
-                                  <div className="text-center text-sm text-[#F8FAFC] font-bold">{change.new_odd_x.toFixed(2)}</div>
-                                  <div className="text-center text-sm text-[#F8FAFC] font-bold">{change.new_odd_2.toFixed(2)}</div>
+                                  <div className="text-xs text-[#F59E0B] font-semibold">Son</div>
+                                  <div className="text-center text-sm text-[#F8FAFC] font-bold">{change.current_odd_1.toFixed(2)}</div>
+                                  <div className="text-center text-sm text-[#F8FAFC] font-bold">{change.current_odd_x.toFixed(2)}</div>
+                                  <div className="text-center text-sm text-[#F8FAFC] font-bold">{change.current_odd_2.toFixed(2)}</div>
                                 </div>
                               </div>
                             </div>
