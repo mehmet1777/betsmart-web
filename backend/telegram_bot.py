@@ -402,12 +402,103 @@ class TelegramBotManager:
                 if cleanup_count > 0:
                     cleanup_msg = f"🗑️  {cleanup_count} eski maç temizlendi\n"
                 
+                # Oran takipçisini tetikle (yeni oranları odds_changes'e kaydetsin)
+                await status_msg.edit_text(
+                    f"✅ <b>Maçlar Kaydedildi!</b>\n\n"
+                    f"{cleanup_msg}"
+                    f"📊 <b>{success_count}</b> maç kaydedildi\n\n"
+                    f"🔄 İlk oranlar kaydediliyor...",
+                    parse_mode='HTML'
+                )
+                
+                # İlk oranları odds_changes'e kaydet (Sahadan'dan tekrar çekmeden!)
+                try:
+                    def save_initial_odds():
+                        """Yeni maçların ilk oranlarını odds_changes'e kaydet"""
+                        from supabase_sync import get_supabase_client
+                        from datetime import datetime
+                        client = get_supabase_client()
+                        
+                        saved_count = 0
+                        updated_count = 0
+                        total = len(matches)
+                        
+                        print(f"\n🔄 İlk oranlar kaydediliyor... ({total} maç)")
+                        
+                        for idx, match in enumerate(matches, 1):
+                            try:
+                                # Kontrol et: Bu maç daha önce eklendi mi?
+                                existing = client.table('odds_changes').select('*').eq(
+                                    'home_team', match['home_team']
+                                ).eq('away_team', match['away_team']).eq(
+                                    'match_datetime', match['datetime']
+                                ).execute()
+                                
+                                if existing.data and len(existing.data) > 0:
+                                    # MEVCUT MAÇ - Sadece current_odd güncelle
+                                    client.table('odds_changes').update({
+                                        'current_odd_1': match.get('odd_1'),
+                                        'current_odd_x': match.get('odd_x'),
+                                        'current_odd_2': match.get('odd_2'),
+                                        'last_updated_at': datetime.now().isoformat()
+                                    }).eq('id', existing.data[0]['id']).execute()
+                                    updated_count += 1
+                                else:
+                                    # YENİ MAÇ - İlk oranları kaydet
+                                    client.table('odds_changes').insert({
+                                        'match_datetime': match['datetime'],
+                                        'home_team': match['home_team'],
+                                        'away_team': match['away_team'],
+                                        'league': match.get('league'),
+                                        'first_odd_1': match.get('odd_1'),
+                                        'first_odd_x': match.get('odd_x'),
+                                        'first_odd_2': match.get('odd_2'),
+                                        'current_odd_1': match.get('odd_1'),
+                                        'current_odd_x': match.get('odd_x'),
+                                        'current_odd_2': match.get('odd_2'),
+                                        'change_1': 0,
+                                        'change_x': 0,
+                                        'change_2': 0,
+                                        'change_direction': 'none',
+                                        'total_change': 0,
+                                        'telegram_sent': False,
+                                        'first_detected_at': datetime.now().isoformat(),
+                                        'last_updated_at': datetime.now().isoformat()
+                                    }).execute()
+                                    saved_count += 1
+                                
+                                # Progress bar
+                                if idx % (total // 10) == 0 or idx == total:
+                                    percentage = int((idx / total) * 100)
+                                    filled = int((idx / total) * 10)
+                                    bar = '▓' * filled + '░' * (10 - filled)
+                                    print(f"   {bar} {percentage}% ({idx}/{total})")
+                                    
+                            except Exception as e:
+                                # Sessizce devam et
+                                continue
+                        
+                        print(f"✅ Tamamlandı: {saved_count} yeni, {updated_count} güncelleme\n")
+                        return saved_count, updated_count
+                    
+                    # Thread'de çalıştır
+                    saved, updated = await loop.run_in_executor(None, save_initial_odds)
+                    
+                    if saved > 0 or updated > 0:
+                        odds_status = f"✅ İlk oranlar kaydedildi ({saved} yeni, {updated} güncelleme)"
+                    else:
+                        odds_status = "⚠️ Oran kaydı yapılamadı"
+                        
+                except Exception as e:
+                    odds_status = f"⚠️ Oran kayıt hatası: {str(e)}"
+                
                 await status_msg.edit_text(
                     f"✅ <b>İşlem Tamamlandı!</b>\n\n"
                     f"{cleanup_msg}"
                     f"📊 <b>{success_count}</b> maç kaydedildi\n"
                     f"☁️ Supabase'e yüklendi\n"
-                    f"🌐 Web sitesinde görünür\n\n"
+                    f"🌐 Web sitesinde görünür\n"
+                    f"{odds_status}\n\n"
                     f"📅 <b>Tarih Dağılımı:</b>\n"
                     f"   • Bugün: {today_matches} maç\n"
                     f"   • Yarın: {tomorrow_matches} maç\n"

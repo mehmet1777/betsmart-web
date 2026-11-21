@@ -8,7 +8,6 @@ import MatchCard from '@/components/MatchCard';
 import CouponBar from '@/components/CouponBar';
 import CouponSheet from '@/components/CouponSheet';
 import BottomNav from '@/components/BottomNav';
-import Sidebar from '@/components/Sidebar';
 import SavedCoupons from '@/components/SavedCoupons';
 import SmartCouponModal from '@/components/SmartCouponModal';
 import NotificationDropdown from '@/components/NotificationDropdown';
@@ -42,7 +41,6 @@ export default function Home() {
   const [filterMode, setFilterMode] = useState<'single' | 'popular' | 'favorites'>('single');
   const [sortBy, setSortBy] = useState<'time' | 'league'>('league');
   const [activeTab, setActiveTab] = useState('home');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCouponSheetOpen, setIsCouponSheetOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isLeagueModalOpen, setIsLeagueModalOpen] = useState(false);
@@ -422,7 +420,6 @@ export default function Home() {
       {/* Mobile Header */}
       <div className="relative">
         <MobileHeader 
-          onMenuClick={() => setIsSidebarOpen(true)}
           onNotificationClick={() => setIsNotificationOpen(!isNotificationOpen)}
           onSearchClick={() => setIsSearchModalOpen(true)}
           notificationCount={smartRecommendations.length}
@@ -474,11 +471,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Sidebar */}
-      <Sidebar 
-        isMobileOpen={isSidebarOpen}
-        onMobileClose={() => setIsSidebarOpen(false)}
-      />
+      {/* Sidebar - Kaldırıldı */}
 
       {/* Smart Coupon Modal */}
       <SmartCouponModal
