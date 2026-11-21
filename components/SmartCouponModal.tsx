@@ -9,8 +9,7 @@ interface SmartCouponRecommendation {
   exact_matches: number;
   total_analyzed: number;
   win_rate: number;
-  recommendation: string;
-  recommendation_label?: string;
+  recommendation: 'MS1' | 'MSX' | 'MS2';
   recommended_odds: number;
   statistics: {
     home_wins: number;
@@ -21,6 +20,13 @@ interface SmartCouponRecommendation {
     over_25?: number;
     over_35?: number;
   };
+  additional_insights?: Array<{
+    type: string;
+    label: string;
+    rate: number;
+    count: number;
+    total: number;
+  }>;
 }
 
 interface SmartCouponModalProps {
@@ -37,38 +43,16 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
   if (!isOpen) return null;
 
   const getRecommendationLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      'MS1': 'Ev Sahibi',
-      'MSX': 'Beraberlik',
-      'MS2': 'Deplasman',
-      'GG_YES': '⚽ Karşılıklı Gol Var',
-      'GG_NO': '🚫 Karşılıklı Gol Yok',
-      'OVER_15': '📈 1.5 Üst',
-      'OVER_25': '📈 2.5 Üst',
-      'OVER_35': '📈 3.5 Üst',
-      'HT_OVER_05': '🕐 İlk Yarı 0.5 Üst',
-      'HT_OVER_15': '🕐 İlk Yarı 1.5 Üst',
-      'HT_GG_YES': '🕐⚽ İlk Yarı KG Var'
-    };
-    return labels[type] || type;
+    if (type === 'MS1') return 'Ev Sahibi';
+    if (type === 'MSX') return 'Beraberlik';
+    if (type === 'MS2') return 'Deplasman';
+    return type;
   };
 
   const getRecommendationColor = (type: string) => {
-    // Maç Sonucu
     if (type === 'MS1') return 'bg-[#00E99A]/20 text-[#00E99A] border-[#00E99A]/40';
     if (type === 'MSX') return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40';
     if (type === 'MS2') return 'bg-blue-500/20 text-blue-400 border-blue-500/40';
-    
-    // KG
-    if (type === 'GG_YES') return 'bg-green-500/20 text-green-400 border-green-500/40';
-    if (type === 'GG_NO') return 'bg-red-500/20 text-red-400 border-red-500/40';
-    
-    // Alt/Üst
-    if (type.startsWith('OVER_')) return 'bg-purple-500/20 text-purple-400 border-purple-500/40';
-    
-    // İlk Yarı
-    if (type.startsWith('HT_')) return 'bg-orange-500/20 text-orange-400 border-orange-500/40';
-    
     return 'bg-gray-500/20 text-gray-400 border-gray-500/40';
   };
 
@@ -123,11 +107,9 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
                     <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold ${getRecommendationColor(rec.recommendation)}`}>
                       {getRecommendationLabel(rec.recommendation)}
                     </div>
-                    {rec.recommended_odds > 0 && (
-                      <div className="bg-[#813BFF]/20 border border-[#813BFF]/40 text-[#813BFF] font-black px-3 py-1.5 rounded-lg text-xs">
-                        {rec.recommended_odds.toFixed(2)}
-                      </div>
-                    )}
+                    <div className="bg-[#813BFF]/20 border border-[#813BFF]/40 text-[#813BFF] font-black px-3 py-1.5 rounded-lg text-xs">
+                      {rec.recommended_odds.toFixed(2)}
+                    </div>
                   </div>
                   <div className="bg-[#101027] rounded-lg p-2.5 border border-[rgba(139,76,255,0.15)]">
                     <div className="flex items-center gap-1.5 mb-2">
@@ -135,7 +117,7 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
                       <p className="text-[#A5A5C5] text-[10px]">{rec.exact_matches} benzer maç</p>
                     </div>
                     
-                    <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center justify-between text-xs mb-2">
                       {/* Maç Sonuçları */}
                       <div className="flex gap-3">
                         <span className="text-[#00E99A] font-semibold">🏠 {rec.statistics.home_wins}</span>
@@ -152,6 +134,23 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
                         <span className="text-[#EF4444] font-semibold">⚽ Yok: {rec.statistics.gg_no}</span>
                       </div>
                     </div>
+                    
+                    {/* Ek Bilgiler */}
+                    {rec.additional_insights && rec.additional_insights.length > 0 && (
+                      <div className="mt-2 pt-2 border-t border-white/[0.05]">
+                        <p className="text-[#A5A5C5] text-[10px] mb-1.5 font-semibold">💡 Bu Maçlarda Ayrıca:</p>
+                        <div className="space-y-1">
+                          {rec.additional_insights.map((insight, idx) => (
+                            <div key={idx} className="flex items-center justify-between text-[10px]">
+                              <span className="text-white/80">{insight.label}</span>
+                              <span className="text-[#00E99A] font-bold">
+                                %{insight.rate} ({insight.count}/{insight.total})
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

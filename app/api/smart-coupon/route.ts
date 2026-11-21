@@ -162,67 +162,130 @@ export async function POST(request: NextRequest) {
 
         if (stats.totalValid === 0) continue;
 
-        // TÜM SEÇENEKLERİ HESAPLA ve EN İYİSİNİ SEÇ
-        const options = [
-          // Maç Sonucu
-          { type: 'MS1', label: 'Ev Sahibi', count: stats.homeWins, total: stats.totalValid, odds: odd1 },
-          { type: 'MSX', label: 'Beraberlik', count: stats.draws, total: stats.totalValid, odds: oddX },
-          { type: 'MS2', label: 'Deplasman', count: stats.awayWins, total: stats.totalValid, odds: odd2 },
-          
-          // Karşılıklı Gol
-          { type: 'GG_YES', label: 'Karşılıklı Gol Var', count: stats.ggYes, total: stats.totalValid, odds: 0 },
-          { type: 'GG_NO', label: 'Karşılıklı Gol Yok', count: stats.ggNo, total: stats.totalValid, odds: 0 },
-          
-          // Alt/Üst
-          { type: 'OVER_15', label: '1.5 Üst', count: stats.over_15, total: stats.totalValid, odds: 0 },
-          { type: 'OVER_25', label: '2.5 Üst', count: stats.over_25, total: stats.totalValid, odds: 0 },
-          { type: 'OVER_35', label: '3.5 Üst', count: stats.over_35, total: stats.totalValid, odds: 0 },
-          
-          // İlk Yarı Alt/Üst (sadece ilk yarı verisi varsa)
-          ...(stats.totalWithHalfTime >= 3 ? [
-            { type: 'HT_OVER_05', label: 'İlk Yarı 0.5 Üst', count: stats.ht_over_05, total: stats.totalWithHalfTime, odds: 0 },
-            { type: 'HT_OVER_15', label: 'İlk Yarı 1.5 Üst', count: stats.ht_over_15, total: stats.totalWithHalfTime, odds: 0 },
-          ] : []),
-          
-          // İlk Yarı KG (sadece ilk yarı verisi varsa)
-          ...(stats.totalWithHalfTime >= 3 ? [
-            { type: 'HT_GG_YES', label: 'İlk Yarı KG Var', count: stats.ht_gg_yes, total: stats.totalWithHalfTime, odds: 0 }
-          ] : [])
-        ];
+        // ANA ÖNERİ: Sadece Maç Sonucu (MS1, MSX, MS2)
+        const msResults = {
+          'MS1': { count: stats.homeWins, odds: odd1 },
+          'MSX': { count: stats.draws, odds: oddX },
+          'MS2': { count: stats.awayWins, odds: odd2 }
+        };
 
-        // Her seçeneğin başarı oranını hesapla
-        const optionsWithRate = options.map(opt => ({
-          ...opt,
-          rate: (opt.count / opt.total) * 100
-        }));
-
-        // En yüksek oranı bul
-        const bestOption = optionsWithRate.reduce((best, current) => 
-          current.rate > best.rate ? current : best
+        const bestMS = Object.entries(msResults).reduce((best, [type, data]) => 
+          data.count > best[1].count ? [type, data] : best
         );
+
+        const [msType, msData] = bestMS as [string, { count: number; odds: number }];
+        const msWinRate = (msData.count / stats.totalValid) * 100;
 
         // Filtreleme kriterleri
         const MIN_WIN_RATE = 75;
         const MIN_MATCHES = 3;
         const MIN_ODDS = 1.30;
 
-        // Eğer MS seçeneği ise oran kontrolü yap, diğerlerinde oran kontrolü yok
-        const needsOddCheck = ['MS1', 'MSX', 'MS2'].includes(bestOption.type);
-        const oddsOk = !needsOddCheck || bestOption.odds >= MIN_ODDS;
-
         if (
-          bestOption.rate >= MIN_WIN_RATE && 
-          bestOption.total >= MIN_MATCHES &&
-          oddsOk
+          msWinRate >= MIN_WIN_RATE && 
+          stats.totalValid >= MIN_MATCHES &&
+          msData.odds >= MIN_ODDS
         ) {
+          // EK BİLGİLER: Diğer seçeneklerin istatistikleri
+          const additionalInsights = [];
+
+          // KG Var
+          const ggYesRate = (stats.ggYes / stats.totalValid) * 100;
+          if (ggYesRate >= 60) {
+            additionalInsights.push({
+              type: 'GG_YES',
+              label: '⚽ Karşılıklı Gol Var',
+              rate: Math.round(ggYesRate * 10) / 10,
+              count: stats.ggYes,
+              total: stats.totalValid
+            });
+          }
+
+          // KG Yok
+          const ggNoRate = (stats.ggNo / stats.totalValid) * 100;
+          if (ggNoRate >= 60) {
+            additionalInsights.push({
+              type: 'GG_NO',
+              label: '🚫 Karşılıklı Gol Yok',
+              rate: Math.round(ggNoRate * 10) / 10,
+              count: stats.ggNo,
+              total: stats.totalValid
+            });
+          }
+
+          // 2.5 Üst
+          const over25Rate = (stats.over_25 / stats.totalValid) * 100;
+          if (over25Rate >= 60) {
+            additionalInsights.push({
+              type: 'OVER_25',
+              label: '📈 2.5 Üst',
+              rate: Math.round(over25Rate * 10) / 10,
+              count: stats.over_25,
+              total: stats.totalValid
+            });
+          }
+
+          // 3.5 Üst
+          const over35Rate = (stats.over_35 / stats.totalValid) * 100;
+          if (over35Rate >= 60) {
+            additionalInsights.push({
+              type: 'OVER_35',
+              label: '📈 3.5 Üst',
+              rate: Math.round(over35Rate * 10) / 10,
+              count: stats.over_35,
+              total: stats.totalValid
+            });
+          }
+
+          // İlk Yarı 0.5 Üst
+          if (stats.totalWithHalfTime >= 3) {
+            const htOver05Rate = (stats.ht_over_05 / stats.totalWithHalfTime) * 100;
+            if (htOver05Rate >= 60) {
+              additionalInsights.push({
+                type: 'HT_OVER_05',
+                label: '🕐 İlk Yarı 0.5 Üst',
+                rate: Math.round(htOver05Rate * 10) / 10,
+                count: stats.ht_over_05,
+                total: stats.totalWithHalfTime
+              });
+            }
+          }
+
+          // İlk Yarı 1.5 Üst
+          if (stats.totalWithHalfTime >= 3) {
+            const htOver15Rate = (stats.ht_over_15 / stats.totalWithHalfTime) * 100;
+            if (htOver15Rate >= 60) {
+              additionalInsights.push({
+                type: 'HT_OVER_15',
+                label: '🕐 İlk Yarı 1.5 Üst',
+                rate: Math.round(htOver15Rate * 10) / 10,
+                count: stats.ht_over_15,
+                total: stats.totalWithHalfTime
+              });
+            }
+          }
+
+          // İlk Yarı KG Var
+          if (stats.totalWithHalfTime >= 3) {
+            const htGGRate = (stats.ht_gg_yes / stats.totalWithHalfTime) * 100;
+            if (htGGRate >= 60) {
+              additionalInsights.push({
+                type: 'HT_GG_YES',
+                label: '🕐⚽ İlk Yarı KG Var',
+                rate: Math.round(htGGRate * 10) / 10,
+                count: stats.ht_gg_yes,
+                total: stats.totalWithHalfTime
+              });
+            }
+          }
+
           recommendations.push({
             match,
             exact_matches: historicalMatches.length,
-            total_analyzed: bestOption.total,
-            win_rate: Math.round(bestOption.rate * 10) / 10,
-            recommendation: bestOption.type,
-            recommendation_label: bestOption.label,
-            recommended_odds: bestOption.odds || 0,
+            total_analyzed: stats.totalValid,
+            win_rate: Math.round(msWinRate * 10) / 10,
+            recommendation: msType,
+            recommended_odds: msData.odds,
             statistics: {
               home_wins: stats.homeWins,
               draws: stats.draws,
@@ -231,12 +294,13 @@ export async function POST(request: NextRequest) {
               gg_no: stats.ggNo,
               over_25: stats.over_25,
               over_35: stats.over_35
-            }
+            },
+            additional_insights: additionalInsights
           });
 
-          console.log(`✅ Öneri: ${match.home_team} vs ${match.away_team} - ${bestOption.label} (${bestOption.rate.toFixed(1)}% | ${bestOption.count}/${bestOption.total})`);
+          console.log(`✅ Öneri: ${match.home_team} vs ${match.away_team} - ${msType} (${msWinRate.toFixed(1)}% | ${msData.odds} | ${stats.totalValid} maç) + ${additionalInsights.length} ek bilgi`);
         } else {
-          console.log(`⏭️ Reddedildi: ${match.home_team} vs ${match.away_team} - En iyi: ${bestOption.label} (${bestOption.rate.toFixed(1)}%, ${bestOption.total} maç)`);
+          console.log(`⏭️ Reddedildi: ${match.home_team} vs ${match.away_team} - MS Kriter: Win=${msWinRate.toFixed(1)}%, Maç=${stats.totalValid}, Oran=${msData.odds}`);
         }
       } catch (matchError) {
         console.error('⚠️ Maç analiz hatası:', matchError);
