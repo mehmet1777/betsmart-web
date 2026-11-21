@@ -151,6 +151,9 @@ def parse_sahadan_response(data, date_str):
 def parse_sahadan_match(item, date_str, league_name):
     """
     Tek bir Sahadan maç objesini parse et
+    
+    Args:
+        date_str: ISO format (YYYY-MM-DD) - örn: "2026-11-21"
     """
     try:
         home_team = item.get('team_A', '')
@@ -185,10 +188,21 @@ def parse_sahadan_match(item, date_str, league_name):
         if not home_team or not away_team:
             return None
         
-        # BetSmart formatına dönüştür
+        # Tarihi ISO -> Mackolik formatına çevir (2026-11-21 -> 21.11.2026)
+        try:
+            from datetime import datetime
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            formatted_date = dt.strftime("%d.%m.%Y")  # 21.11.2026
+        except:
+            formatted_date = date_str  # Hata olursa olduğu gibi kullan
+        
+        # BetSmart formatına dönüştür (Mackolik ile uyumlu)
+        datetime_str = f"{formatted_date} {time}"  # "21.11.2026 04:00"
+        
         match = {
-            'date': date_str,
-            'time': f"{date_str} {time}",
+            'datetime': datetime_str,  # Supabase için datetime key'i (Mackolik formatında)
+            'date': formatted_date,
+            'time': time,
             'league': league_name,
             'home_team': home_team,
             'away_team': away_team,
@@ -197,6 +211,8 @@ def parse_sahadan_match(item, date_str, league_name):
             'odd_1': convert_odd_to_float(odd_1),
             'odd_x': convert_odd_to_float(odd_x),
             'odd_2': convert_odd_to_float(odd_2),
+            'over_25': None,
+            'under_25': None,
             'gg_yes': None,
             'gg_no': None
         }
