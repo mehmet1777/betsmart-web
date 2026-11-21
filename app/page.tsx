@@ -56,6 +56,13 @@ export default function Home() {
 
   useEffect(() => {
     loadMatches();
+    
+    // Her 30 saniyede bir maçları yenile (güncel oranlar için)
+    const interval = setInterval(() => {
+      loadMatches();
+    }, 30000); // 30 saniye
+    
+    return () => clearInterval(interval);
   }, []);
 
   const loadMatches = async () => {
