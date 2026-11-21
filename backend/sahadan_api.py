@@ -190,6 +190,22 @@ def parse_sahadan_match(item, league_name):
         away_team = item.get('team_B', '')
         time = item.get('time', '00:00')
         
+        # Maç durumu kontrolü - 's' field'ı bitmiş maçları gösterir
+        match_status = item.get('s', '')
+        
+        # Eğer skor varsa (bitmiş maç), atla
+        home_score = item.get('score_A')
+        away_score = item.get('score_B')
+        
+        if home_score is not None and away_score is not None:
+            # Maç bitmiş, atla
+            return None
+        
+        # 's' field'ı da kontrol et (1 = bitmiş, 0 = oynanmamış gibi olabilir)
+        if match_status and str(match_status) != '0' and str(match_status) != '':
+            # Maç başlamış/bitmiş olabilir, atla
+            return None
+        
         # Sahadan'dan gelen tarih bilgisi (eğer varsa)
         # API'den date field gelebilir (örn: "2026-11-21" veya "21.11.2026")
         date_from_api = item.get('date', '')
@@ -239,6 +255,10 @@ def parse_sahadan_match(item, league_name):
         
         # Temel validasyon
         if not home_team or not away_team or not formatted_date:
+            return None
+        
+        # Oran kontrolü - eğer hiç oran yoksa, maç iptal/bitmiş olabilir
+        if odd_1 == '-' and odd_x == '-' and odd_2 == '-':
             return None
         
         # BetSmart formatına dönüştür (Mackolik ile uyumlu)
