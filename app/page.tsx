@@ -456,6 +456,7 @@ export default function Home() {
           {/* Analysis Modal from Search */}
           {selectedMatchForAnalysis && (
             <OddsAnalysisModal
+              isOpen={true}
               match={selectedMatchForAnalysis}
               onClose={() => setSelectedMatchForAnalysis(null)}
             />
