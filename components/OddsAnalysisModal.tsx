@@ -134,7 +134,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
         body: JSON.stringify({
           home_team: match.home.name,
           away_team: match.away.name,
-          match_datetime: match.datetime
+          // match_datetime opsiyonel, göndermeyelim
         })
       });
 
