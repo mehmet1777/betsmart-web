@@ -1,8 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Match, BetSelection } from '@/types';
 import OddsAnalysisModal from './OddsAnalysisModal';
+
+interface OddsChange {
+  change_1: number;
+  change_x: number;
+  change_2: number;
+  detected_at: string;
+}
 
 interface MatchCardProps {
   match: Match;
@@ -17,6 +24,35 @@ interface MatchCardProps {
 
 export default function MatchCard({ match, leagueName, leagueIcon, onSelect, selectedPrediction, isLive, isRecommended, recommendedWinRate }: MatchCardProps) {
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [latestChange, setLatestChange] = useState<OddsChange | null>(null);
+
+  useEffect(() => {
+    // Oran değişikliklerini fetch et
+    const fetchOddsChanges = async () => {
+      try {
+        const response = await fetch('/api/odds-changes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            home_team: match.home.name,
+            away_team: match.away.name,
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.changes && data.changes.length > 0) {
+            // En son değişikliği al
+            setLatestChange(data.changes[0]);
+          }
+        }
+      } catch (err) {
+        // Sessizce başarısız ol
+      }
+    };
+
+    fetchOddsChanges();
+  }, [match.home.name, match.away.name]);
 
   const handleOddClick = (prediction: '1' | 'X' | '2') => {
     onSelect({
@@ -47,6 +83,15 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
   return (
     <>
       <div className="bg-bg-card rounded-2xl p-4 mx-4 mb-3 relative">
+        {/* Oran Değişiklik Badge */}
+        {latestChange && (
+          <div className="absolute -top-2 -right-2 z-10">
+            <div className="bg-gradient-to-r from-[#F59E0B] to-[#EF4444] text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+              <span className="text-lg">📈</span>
+            </div>
+          </div>
+        )}
+
         {/* Önerilen Badge */}
         {isRecommended && (
           <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
@@ -117,18 +162,20 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
       {/* Odds */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { id: '1', label: '1', odds: match.odds?.home },
-          { id: 'X', label: 'X', odds: match.odds?.draw },
-          { id: '2', label: '2', odds: match.odds?.away }
+          { id: '1', label: '1', odds: match.odds?.home, change: latestChange?.change_1 },
+          { id: 'X', label: 'X', odds: match.odds?.draw, change: latestChange?.change_x },
+          { id: '2', label: '2', odds: match.odds?.away, change: latestChange?.change_2 }
         ].map((odd) => {
           const isDisabled = !odd.odds || odd.odds === '-' || odd.odds === 'null';
+          const hasChange = odd.change !== undefined && odd.change !== null && Math.abs(odd.change) > 0.01;
+          const isIncrease = hasChange && odd.change! > 0;
           
           return (
             <button
               key={odd.id}
               onClick={() => !isDisabled && handleOddClick(odd.id as '1' | 'X' | '2')}
               disabled={isDisabled}
-              className={`py-3 rounded-xl transition-all ${
+              className={`py-3 rounded-xl transition-all relative ${
                 isDisabled
                   ? 'bg-bg-elevated border border-border-color opacity-40 cursor-not-allowed'
                   : selectedPrediction === odd.id
@@ -145,14 +192,19 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
               }`}>
                 {odd.label}
               </div>
-              <div className={`text-base font-bold ${
+              <div className={`text-base font-bold flex items-center justify-center gap-1 ${
                 isDisabled
                   ? 'text-text-muted'
                   : selectedPrediction === odd.id 
                   ? 'text-bg-app' 
                   : 'text-accent-primary'
               }`}>
-                {isDisabled ? '-' : odd.odds}
+                <span>{isDisabled ? '-' : odd.odds}</span>
+                {hasChange && (
+                  <span className={`text-xs ${isIncrease ? 'text-green-400' : 'text-red-400'}`}>
+                    {isIncrease ? '↑' : '↓'}
+                  </span>
+                )}
               </div>
             </button>
           );
