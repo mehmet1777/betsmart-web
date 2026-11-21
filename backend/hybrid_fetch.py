@@ -20,8 +20,8 @@ def fetch_matches_hybrid(days_ahead=2, status_callback=None):
     print("🔄 Hybrid Fetch başlatılıyor...")
     print("━" * 50)
     
-    # 1️⃣ Önce Sahadan'ı dene
-    print("1️⃣ Sahadan.com deneniyor (tarih filtreli)...")
+    # 1️⃣ Önce Sahadan'ı dene (lig seviyesinde time var!)
+    print("1️⃣ Sahadan.com deneniyor (lig seviyesinde saat)...")
     
     if status_callback:
         status_callback("trying_sahadan")

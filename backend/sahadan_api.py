@@ -147,6 +147,7 @@ def parse_sahadan_response(data, date_str=None):
         "soccer": [
           {
             "title": "Lig adı",
+            "time": "09:00",  // Lig seviyesinde saat
             "matches": [...]
           }
         ]
@@ -160,10 +161,12 @@ def parse_sahadan_response(data, date_str=None):
         
         for league_group in soccer_data:
             league_name = league_group.get('title', 'Unknown')
+            league_time = league_group.get('time', '')  # ← LİG seviyesinde saat!
             league_matches = league_group.get('matches', [])
             
             for match in league_matches:
-                parsed_match = parse_sahadan_match(match, league_name)
+                # Lig saatini maça geçir
+                parsed_match = parse_sahadan_match(match, league_name, league_time)
                 if parsed_match:
                     matches.append(parsed_match)
         
@@ -177,18 +180,25 @@ def parse_sahadan_response(data, date_str=None):
     return matches
 
 
-def parse_sahadan_match(item, league_name):
+def parse_sahadan_match(item, league_name, league_time=''):
     """
     Tek bir Sahadan maç objesini parse et
     
     Args:
         item: Sahadan match object
         league_name: Lig adı
+        league_time: Lig seviyesindeki saat bilgisi (örn: "09:00")
     """
     try:
         home_team = item.get('team_A', '')
         away_team = item.get('team_B', '')
-        time = item.get('time', '00:00')
+        
+        # Önce maç seviyesinde time var mı bak, yoksa lig time'ını kullan
+        time = item.get('time', '') or league_time or ''
+        
+        # Saat bilgisi yoksa atla (geçersiz maç)
+        if not time or time == '':
+            return None
         
         # Maç durumu kontrolü - 's' field'ı bitmiş maçları gösterir
         match_status = item.get('s', '')
