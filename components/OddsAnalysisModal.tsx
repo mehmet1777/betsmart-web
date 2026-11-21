@@ -421,62 +421,77 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                 )}
 
                 {/* ORAN DEĞİŞİKLİKLERİ */}
-                {oddsChanges.length > 0 && (
-                  <div className="relative bg-gradient-to-br from-[#F59E0B]/10 via-[#EF4444]/5 to-transparent border border-[#F59E0B]/20 rounded-[18px] p-4 sm:p-5 shadow-lg shadow-orange-900/10">
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#F59E0B]/5 to-transparent rounded-[18px] opacity-50"></div>
-                    
-                    <div className="relative flex items-center gap-2.5 mb-4">
-                      <div className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full shadow-lg shadow-orange-500/50"></div>
-                      <h4 className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider">
-                        Oran Değişiklik Geçmişi ({oddsChanges.length})
-                      </h4>
-                    </div>
+                {oddsChanges.length > 0 && (() => {
+                  // Duplicate'leri filtrele - aynı oranlar tekrar etmesin
+                  const uniqueChanges = oddsChanges.reduce((acc: OddsChange[], change) => {
+                    const exists = acc.find(c => 
+                      c.old_odd_1 === change.old_odd_1 &&
+                      c.old_odd_x === change.old_odd_x &&
+                      c.old_odd_2 === change.old_odd_2 &&
+                      c.new_odd_1 === change.new_odd_1 &&
+                      c.new_odd_x === change.new_odd_x &&
+                      c.new_odd_2 === change.new_odd_2
+                    );
+                    if (!exists) {
+                      acc.push(change);
+                    }
+                    return acc;
+                  }, []);
 
-                    <div className="relative space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
-                      {oddsChanges.map((change, idx) => {
-                        const date = new Date(change.detected_at);
-                        const formattedDate = date.toLocaleDateString('tr-TR', { 
-                          day: '2-digit', 
-                          month: '2-digit',
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        });
+                  return uniqueChanges.length > 0 ? (
+                    <div className="relative bg-gradient-to-br from-[#F59E0B]/10 via-[#EF4444]/5 to-transparent border border-[#F59E0B]/20 rounded-[18px] p-4 sm:p-5 shadow-lg shadow-orange-900/10">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#F59E0B]/5 to-transparent rounded-[18px] opacity-50"></div>
+                      
+                      <div className="relative flex items-center gap-2.5 mb-4">
+                        <div className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full shadow-lg shadow-orange-500/50"></div>
+                        <h4 className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider">
+                          Oran Değişiklik Geçmişi ({uniqueChanges.length})
+                        </h4>
+                      </div>
 
-                        return (
-                          <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-3 border border-white/[0.04]">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-xs text-[#9295AC]">{formattedDate}</span>
-                              <span className="text-xs font-bold text-[#F59E0B]">
-                                Toplam: {change.total_change.toFixed(1)}%
-                              </span>
+                      <div className="relative space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                        {uniqueChanges.map((change, idx) => {
+                          const date = new Date(change.detected_at);
+                          const formattedDate = date.toLocaleDateString('tr-TR', { 
+                            day: '2-digit', 
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          });
+
+                          return (
+                            <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-3 border border-white/[0.04]">
+                              <div className="mb-2">
+                                <span className="text-xs text-[#9295AC]">{formattedDate}</span>
+                              </div>
+                              
+                              <div className="space-y-1.5">
+                                {[
+                                  { label: 'MS1', old: change.old_odd_1, new: change.new_odd_1, change: change.change_1 },
+                                  { label: 'MSX', old: change.old_odd_x, new: change.new_odd_x, change: change.change_x },
+                                  { label: 'MS2', old: change.old_odd_2, new: change.new_odd_2, change: change.change_2 }
+                                ].map((odd, i) => (
+                                  <div key={i} className="flex items-center justify-between text-xs">
+                                    <span className="text-[#9295AC] font-medium w-10">{odd.label}:</span>
+                                    <span className="text-[#F8FAFC]">
+                                      {odd.old.toFixed(2)} → {odd.new.toFixed(2)}
+                                    </span>
+                                    <span className={`font-bold ml-auto ${
+                                      odd.change > 0 ? 'text-green-400' : odd.change < 0 ? 'text-red-400' : 'text-[#9295AC]'
+                                    }`}>
+                                      {odd.change > 0 ? '+' : ''}{odd.change.toFixed(1)}%
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                            
-                            <div className="space-y-1.5">
-                              {[
-                                { label: 'MS1', old: change.old_odd_1, new: change.new_odd_1, change: change.change_1 },
-                                { label: 'MSX', old: change.old_odd_x, new: change.new_odd_x, change: change.change_x },
-                                { label: 'MS2', old: change.old_odd_2, new: change.new_odd_2, change: change.change_2 }
-                              ].map((odd, i) => (
-                                <div key={i} className="flex items-center justify-between text-xs">
-                                  <span className="text-[#9295AC] font-medium w-10">{odd.label}:</span>
-                                  <span className="text-[#F8FAFC]">
-                                    {odd.old.toFixed(2)} → {odd.new.toFixed(2)}
-                                  </span>
-                                  <span className={`font-bold ml-auto ${
-                                    odd.change > 0 ? 'text-green-400' : odd.change < 0 ? 'text-red-400' : 'text-[#9295AC]'
-                                  }`}>
-                                    {odd.change > 0 ? '+' : ''}{odd.change.toFixed(1)}%
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  ) : null;
+                })()}
               </div>
             )}
           </div>
