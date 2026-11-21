@@ -88,37 +88,13 @@ export default function Home() {
       });
     }
     
-    const now = new Date();
-    
     const filtered = allMatches.filter(match => {
       // match.time formatı: "DD.MM.YYYY HH:MM"
       const matchDate = match.time.split(' ')[0]; // "DD.MM.YYYY"
       const [day, month, year] = matchDate.split('.');
       const matchDateKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
       
-      // Tarih kontrolü
-      const isMatchingDate = matchDateKey === selectedDate;
-      
-      if (!isMatchingDate) return false;
-      
-      // Saat kontrolü - 2 saatten eski maçları gizle
-      try {
-        const [datePart, timePart] = match.time.split(' ');
-        const [d, m, y] = datePart.split('.');
-        const [h, min] = timePart.split(':');
-        const matchDateTime = new Date(parseInt(y), parseInt(m) - 1, parseInt(d), parseInt(h), parseInt(min));
-        
-        const hoursDiff = (now.getTime() - matchDateTime.getTime()) / (1000 * 60 * 60);
-        
-        // 2 saatten eski maçları gizle
-        if (hoursDiff > 2) {
-          return false;
-        }
-      } catch (e) {
-        // Parse hatası varsa göster
-      }
-      
-      return true;
+      return matchDateKey === selectedDate;
     });
     
     console.log(`✅ Filtered ${filtered.length} matches for ${selectedDate}`);
