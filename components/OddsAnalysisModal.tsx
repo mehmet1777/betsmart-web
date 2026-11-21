@@ -27,6 +27,20 @@ interface AnalysisResult {
   message?: string;
 }
 
+interface OddsChange {
+  detected_at: string;
+  old_odd_1: number;
+  new_odd_1: number;
+  change_1: number;
+  old_odd_x: number;
+  new_odd_x: number;
+  change_x: number;
+  old_odd_2: number;
+  new_odd_2: number;
+  change_2: number;
+  total_change: number;
+}
+
 interface OddsAnalysisModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -36,6 +50,7 @@ interface OddsAnalysisModalProps {
 export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalysisModalProps) {
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [oddsChanges, setOddsChanges] = useState<OddsChange[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [detailsModal, setDetailsModal] = useState<'exact' | 'similar' | null>(null);
 
@@ -99,11 +114,39 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
       const data = await response.json();
       console.log('✅ Analiz sonucu:', data);
       setAnalysis(data);
+
+      // Oran değişikliklerini de çek
+      fetchOddsChanges();
+      
     } catch (err) {
       console.error('❌ Fetch hatası:', err);
       setError(err instanceof Error ? err.message : 'Bir hata oluştu');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchOddsChanges = async () => {
+    try {
+      const response = await fetch('/api/odds-changes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          home_team: match.home.name,
+          away_team: match.away.name,
+          match_datetime: match.datetime
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.changes) {
+          setOddsChanges(data.changes);
+          console.log(`✅ ${data.changes.length} oran değişikliği bulundu`);
+        }
+      }
+    } catch (err) {
+      console.log('⚠️ Oran değişiklikleri alınamadı:', err);
     }
   };
 
@@ -374,6 +417,64 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                 {analysis.message && (
                   <div className="bg-gradient-to-br from-yellow-500/10 to-yellow-600/5 border border-yellow-500/20 rounded-[16px] p-4 shadow-lg shadow-yellow-900/10">
                     <p className="text-yellow-400 text-xs">{analysis.message}</p>
+                  </div>
+                )}
+
+                {/* ORAN DEĞİŞİKLİKLERİ */}
+                {oddsChanges.length > 0 && (
+                  <div className="relative bg-gradient-to-br from-[#F59E0B]/10 via-[#EF4444]/5 to-transparent border border-[#F59E0B]/20 rounded-[18px] p-4 sm:p-5 shadow-lg shadow-orange-900/10">
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#F59E0B]/5 to-transparent rounded-[18px] opacity-50"></div>
+                    
+                    <div className="relative flex items-center gap-2.5 mb-4">
+                      <div className="w-1.5 h-1.5 bg-[#F59E0B] rounded-full shadow-lg shadow-orange-500/50"></div>
+                      <h4 className="text-xs font-bold text-[#F59E0B] uppercase tracking-wider">
+                        Oran Değişiklik Geçmişi ({oddsChanges.length})
+                      </h4>
+                    </div>
+
+                    <div className="relative space-y-3 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
+                      {oddsChanges.map((change, idx) => {
+                        const date = new Date(change.detected_at);
+                        const formattedDate = date.toLocaleDateString('tr-TR', { 
+                          day: '2-digit', 
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        });
+
+                        return (
+                          <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-3 border border-white/[0.04]">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs text-[#9295AC]">{formattedDate}</span>
+                              <span className="text-xs font-bold text-[#F59E0B]">
+                                Toplam: {change.total_change.toFixed(1)}%
+                              </span>
+                            </div>
+                            
+                            <div className="space-y-1.5">
+                              {[
+                                { label: 'MS1', old: change.old_odd_1, new: change.new_odd_1, change: change.change_1 },
+                                { label: 'MSX', old: change.old_odd_x, new: change.new_odd_x, change: change.change_x },
+                                { label: 'MS2', old: change.old_odd_2, new: change.new_odd_2, change: change.change_2 }
+                              ].map((odd, i) => (
+                                <div key={i} className="flex items-center justify-between text-xs">
+                                  <span className="text-[#9295AC] font-medium w-10">{odd.label}:</span>
+                                  <span className="text-[#F8FAFC]">
+                                    {odd.old.toFixed(2)} → {odd.new.toFixed(2)}
+                                  </span>
+                                  <span className={`font-bold ml-auto ${
+                                    odd.change > 0 ? 'text-green-400' : odd.change < 0 ? 'text-red-400' : 'text-[#9295AC]'
+                                  }`}>
+                                    {odd.change > 0 ? '+' : ''}{odd.change.toFixed(1)}%
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
