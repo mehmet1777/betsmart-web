@@ -78,6 +78,7 @@ export default function Home() {
     console.log(`📦 Total matches in allMatches: ${allMatches.length}`);
     
     const now = new Date();
+    console.log(`⏰ Current time: ${now.toLocaleString('tr-TR')}`);
     
     const filtered = allMatches.filter(match => {
       // match.time formatı: "DD.MM.YYYY HH:MM"
@@ -93,29 +94,43 @@ export default function Home() {
       // Saat kontrolü - Maç saati geçmişse gizle
       try {
         const [datePart, timePart] = match.time.split(' ');
+        
+        if (!timePart) {
+          console.warn('⚠️ No time part:', match.time);
+          return true; // Saat yoksa göster
+        }
+        
         const [d, m, y] = datePart.split('.');
         const [h, min] = timePart.split(':');
         
         const matchDateTime = new Date(
           parseInt(y),
-          parseInt(m) - 1,
+          parseInt(m) - 1,  // JavaScript months are 0-indexed
           parseInt(d),
           parseInt(h),
           parseInt(min)
         );
         
-        // Şu andan küçükse (geçmişse) gizle
-        // 1 dakika bile geçmişse başlamış demektir
-        if (matchDateTime <= now) {
-          return false;
+        // Debug: İlk 3 maçı logla
+        if (filtered.length < 3) {
+          console.log(`🔎 Match: ${match.home.name} vs ${match.away.name}`);
+          console.log(`   Time: ${match.time}`);
+          console.log(`   Parsed: ${matchDateTime.toLocaleString('tr-TR')}`);
+          console.log(`   Now: ${now.toLocaleString('tr-TR')}`);
+          console.log(`   Future? ${matchDateTime > now}`);
         }
         
+        // Şu andan büyükse (gelecekteyse) göster
+        if (matchDateTime > now) {
+          return true;
+        }
+        
+        return false;
+        
       } catch (e) {
-        // Parse hatası varsa göster (güvenli taraf)
-        console.warn('Match time parse error:', match.time, e);
+        console.error('❌ Match time parse error:', match.time, e);
+        return true; // Parse hatası varsa göster (güvenli taraf)
       }
-      
-      return true;
     });
     
     console.log(`✅ Filtered ${filtered.length} upcoming matches for ${selectedDate}`);
