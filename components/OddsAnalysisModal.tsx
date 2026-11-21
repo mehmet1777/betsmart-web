@@ -461,22 +461,24 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                           });
 
                           return (
-                            <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-4 border border-white/[0.04]">
-                              <div className="mb-3">
-                                <span className="text-sm text-[#9295AC] font-medium">{formattedDate}</span>
+                            <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-3 border border-white/[0.04]">
+                              <div className="mb-2.5">
+                                <span className="text-xs text-[#9295AC]">{formattedDate}</span>
                               </div>
                               
-                              <div className="space-y-1.5">
+                              <div className="space-y-1">
                                 {[
                                   { label: 'MS1', old: change.old_odd_1, new: change.new_odd_1, change: change.change_1 },
                                   { label: 'MSX', old: change.old_odd_x, new: change.new_odd_x, change: change.change_x },
                                   { label: 'MS2', old: change.old_odd_2, new: change.new_odd_2, change: change.change_2 }
                                 ].map((odd, i) => (
-                                  <div key={i} className="flex items-center justify-between text-sm">
-                                    <span className="text-[#9295AC] font-medium">{odd.label}</span>
-                                    <span className="text-[#F8FAFC] font-semibold">
-                                      {odd.old.toFixed(2)} → {odd.new.toFixed(2)}
-                                    </span>
+                                  <div key={i} className="flex items-center text-xs">
+                                    <span className="text-[#9295AC] font-medium w-12">{odd.label}</span>
+                                    <div className="flex-1 flex items-center justify-end gap-1.5">
+                                      <span className="text-[#F8FAFC]/70">{odd.old.toFixed(2)}</span>
+                                      <span className="text-[#9295AC]">→</span>
+                                      <span className="text-[#F8FAFC] font-semibold">{odd.new.toFixed(2)}</span>
+                                    </div>
                                   </div>
                                 ))}
                               </div>
