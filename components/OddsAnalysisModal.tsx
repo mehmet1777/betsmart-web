@@ -95,6 +95,17 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
         return;
       }
 
+      // LocalStorage'dan tolerans değerlerini al
+      const exactTolerance = typeof window !== 'undefined' 
+        ? parseFloat(localStorage.getItem('exactTolerance') || '0.01')
+        : 0.01;
+      
+      const similarTolerance = typeof window !== 'undefined'
+        ? parseFloat(localStorage.getItem('similarTolerance') || '0.02')
+        : 0.02;
+
+      console.log('🎚️ Tolerans ayarları:', { exactTolerance, similarTolerance });
+
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -103,7 +114,9 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
           odd_x,
           odd_2,
           home_team: match.home.name,
-          away_team: match.away.name
+          away_team: match.away.name,
+          exactTolerance,
+          similarTolerance
         })
       });
 

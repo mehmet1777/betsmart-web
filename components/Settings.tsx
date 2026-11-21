@@ -1,8 +1,54 @@
 'use client';
 
-import { Bell, Moon, Globe, HelpCircle, Info, ChevronRight } from 'lucide-react';
+import { Bell, Moon, Globe, HelpCircle, Info, ChevronRight, Sliders } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function Settings() {
+  // Tolerans ayarları - localStorage'dan yükle
+  const [exactTolerance, setExactTolerance] = useState(0.01);
+  const [similarTolerance, setSimilarTolerance] = useState(0.02);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Component mount olduğunda localStorage'dan yükle
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedExact = localStorage.getItem('exactTolerance');
+      const storedSimilar = localStorage.getItem('similarTolerance');
+      
+      if (storedExact) setExactTolerance(parseFloat(storedExact));
+      if (storedSimilar) setSimilarTolerance(parseFloat(storedSimilar));
+    }
+  }, []);
+
+  // Tolerans değiştiğinde
+  const handleToleranceChange = (type: 'exact' | 'similar', value: number) => {
+    if (type === 'exact') {
+      setExactTolerance(value);
+    } else {
+      setSimilarTolerance(value);
+    }
+    setHasChanges(true);
+  };
+
+  // Varsayılana dön
+  const resetToDefaults = () => {
+    setExactTolerance(0.01);
+    setSimilarTolerance(0.02);
+    setHasChanges(true);
+  };
+
+  // Kaydet
+  const saveSettings = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('exactTolerance', exactTolerance.toString());
+      localStorage.setItem('similarTolerance', similarTolerance.toString());
+      setHasChanges(false);
+      
+      // Başarı bildirimi (opsiyonel)
+      alert('✅ Ayarlar kaydedildi!');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-bg-app pb-32 pt-20 px-4">
       <div className="max-w-2xl mx-auto">
@@ -14,6 +60,102 @@ export default function Settings() {
 
         {/* Settings Sections */}
         <div className="space-y-6">
+          {/* Analiz Ayarları */}
+          <section className="bg-bg-card rounded-2xl border border-border-color overflow-hidden">
+            <h2 className="text-lg font-bold text-text-primary px-5 py-4 border-b border-border-color flex items-center gap-2">
+              <Sliders className="w-5 h-5 text-accent-primary" />
+              Analiz Toleransı
+            </h2>
+            
+            <div className="p-5 space-y-8">
+              {/* Tam Eşleşme Slider */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-text-primary">Tam Eşleşme Toleransı</h3>
+                    <p className="text-xs text-text-secondary mt-1">Daha kesin sonuçlar</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-accent-primary">±{exactTolerance.toFixed(3)}</span>
+                  </div>
+                </div>
+                
+                <input
+                  type="range"
+                  min="0.01"
+                  max="0.10"
+                  step="0.005"
+                  value={exactTolerance}
+                  onChange={(e) => handleToleranceChange('exact', parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-accent-primary slider"
+                />
+                
+                <div className="flex justify-between text-xs text-text-muted mt-2">
+                  <span>0.010</span>
+                  <span>0.055</span>
+                  <span>0.100</span>
+                </div>
+              </div>
+
+              {/* Benzer Eşleşme Slider */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-text-primary">Benzer Eşleşme Toleransı</h3>
+                    <p className="text-xs text-text-secondary mt-1">Daha geniş sonuçlar</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-accent-primary">±{similarTolerance.toFixed(3)}</span>
+                  </div>
+                </div>
+                
+                <input
+                  type="range"
+                  min="0.02"
+                  max="0.20"
+                  step="0.005"
+                  value={similarTolerance}
+                  onChange={(e) => handleToleranceChange('similar', parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-accent-primary slider"
+                />
+                
+                <div className="flex justify-between text-xs text-text-muted mt-2">
+                  <span>0.020</span>
+                  <span>0.110</span>
+                  <span>0.200</span>
+                </div>
+              </div>
+
+              {/* Info Box */}
+              <div className="bg-accent-primary/5 border border-accent-primary/20 rounded-xl p-4">
+                <p className="text-xs text-text-secondary">
+                  <span className="font-bold text-accent-primary">💡 İpucu:</span> Düşük tolerans daha az ama kesin sonuç verir. Yüksek tolerans daha fazla ama çeşitli sonuç verir.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={resetToDefaults}
+                  className="flex-1 px-4 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-semibold transition-colors"
+                >
+                  Varsayılana Dön
+                </button>
+                <button
+                  onClick={saveSettings}
+                  disabled={!hasChanges}
+                  className={`flex-1 px-4 py-3 rounded-xl font-semibold transition-all ${
+                    hasChanges
+                      ? 'bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white hover:shadow-lg hover:shadow-accent-primary/50'
+                      : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                  }`}
+                >
+                  {hasChanges ? 'Kaydet' : 'Kaydedildi ✓'}
+                </button>
+              </div>
+            </div>
+          </section>
+
           {/* Bildirimler */}
           <section className="bg-bg-card rounded-2xl border border-border-color overflow-hidden">
             <h2 className="text-lg font-bold text-text-primary px-5 py-4 border-b border-border-color">
@@ -87,6 +229,41 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      {/* Custom Slider Styles */}
+      <style jsx>{`
+        .slider::-webkit-slider-thumb {
+          appearance: none;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+          cursor: pointer;
+          box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+          transition: all 0.2s ease;
+        }
+
+        .slider::-webkit-slider-thumb:hover {
+          transform: scale(1.1);
+          box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.3);
+        }
+
+        .slider::-moz-range-thumb {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+          transition: all 0.2s ease;
+        }
+
+        .slider::-moz-range-thumb:hover {
+          transform: scale(1.1);
+          box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.3);
+        }
+      `}</style>
     </div>
   );
 }

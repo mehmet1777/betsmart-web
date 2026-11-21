@@ -7,9 +7,9 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { odd_1, odd_x, odd_2, home_team, away_team } = body;
+    const { odd_1, odd_x, odd_2, home_team, away_team, exactTolerance, similarTolerance } = body;
 
-    console.log('📊 Analiz isteği:', { odd_1, odd_x, odd_2, home_team, away_team });
+    console.log('📊 Analiz isteği:', { odd_1, odd_x, odd_2, home_team, away_team, exactTolerance, similarTolerance });
 
     // Validasyon
     const odd1 = parseFloat(odd_1);
@@ -23,37 +23,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Tolerans değerlerini al (gönderilmemişse varsayılan değerler)
+    const exactTol = exactTolerance || 0.01;
+    const similarTol = similarTolerance || 0.02;
+
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Exact match (±0.01 tolerans)
+    // Exact match (kullanıcı toleransı)
     const { data: exactMatches, error: exactError } = await supabase
       .from('matches')
       .select('*')
-      .filter('odd_1', 'gte', odd1 - 0.01)
-      .filter('odd_1', 'lte', odd1 + 0.01)
-      .filter('odd_x', 'gte', oddX - 0.01)
-      .filter('odd_x', 'lte', oddX + 0.01)
-      .filter('odd_2', 'gte', odd2 - 0.01)
-      .filter('odd_2', 'lte', odd2 + 0.01)
+      .filter('odd_1', 'gte', odd1 - exactTol)
+      .filter('odd_1', 'lte', odd1 + exactTol)
+      .filter('odd_x', 'gte', oddX - exactTol)
+      .filter('odd_x', 'lte', oddX + exactTol)
+      .filter('odd_2', 'gte', odd2 - exactTol)
+      .filter('odd_2', 'lte', odd2 + exactTol)
       .not('score', 'is', null)
       .limit(100);
 
-    console.log('🔍 Exact query:', exactError ? `Error: ${exactError.message}` : `Found ${exactMatches?.length || 0} matches`);
+    console.log(`🔍 Exact query (±${exactTol}):`, exactError ? `Error: ${exactError.message}` : `Found ${exactMatches?.length || 0} matches`);
 
-    // Similar match (±0.02 tolerans)
+    // Similar match (kullanıcı toleransı)
     const { data: similarMatches, error: similarError } = await supabase
       .from('matches')
       .select('*')
-      .filter('odd_1', 'gte', odd1 - 0.02)
-      .filter('odd_1', 'lte', odd1 + 0.02)
-      .filter('odd_x', 'gte', oddX - 0.02)
-      .filter('odd_x', 'lte', oddX + 0.02)
-      .filter('odd_2', 'gte', odd2 - 0.02)
-      .filter('odd_2', 'lte', odd2 + 0.02)
+      .filter('odd_1', 'gte', odd1 - similarTol)
+      .filter('odd_1', 'lte', odd1 + similarTol)
+      .filter('odd_x', 'gte', oddX - similarTol)
+      .filter('odd_x', 'lte', oddX + similarTol)
+      .filter('odd_2', 'gte', odd2 - similarTol)
+      .filter('odd_2', 'lte', odd2 + similarTol)
       .not('score', 'is', null)
       .limit(100);
 
-    console.log('🔍 Similar query:', similarError ? `Error: ${similarError.message}` : `Found ${similarMatches?.length || 0} matches`);
+    console.log(`🔍 Similar query (±${similarTol}):`, similarError ? `Error: ${similarError.message}` : `Found ${similarMatches?.length || 0} matches`);
 
     const exact = exactMatches || [];
     const similar = (similarMatches || []).filter(
