@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Radio, Ticket, Star } from 'lucide-react';
+import { Home, Radio, Ticket, Settings } from 'lucide-react';
 
 interface BottomNavProps {
   activeTab: string;
@@ -12,7 +12,7 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
     { id: 'home', label: 'Ana Sayfa', icon: Home },
     { id: 'live', label: 'Canlı', icon: Radio },
     { id: 'coupons', label: 'Kuponlarım', icon: Ticket },
-    { id: 'favorites', label: 'Favorilerim', icon: Star },
+    { id: 'settings', label: 'Ayarlar', icon: Settings },
   ];
 
   return (

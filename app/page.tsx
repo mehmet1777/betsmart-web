@@ -9,6 +9,7 @@ import CouponBar from '@/components/CouponBar';
 import CouponSheet from '@/components/CouponSheet';
 import BottomNav from '@/components/BottomNav';
 import SavedCoupons from '@/components/SavedCoupons';
+import Settings from '@/components/Settings';
 import SmartCouponModal from '@/components/SmartCouponModal';
 import NotificationDropdown from '@/components/NotificationDropdown';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
@@ -485,6 +486,8 @@ export default function Home() {
       {/* Kuponlarım Sekmesi */}
       {activeTab === 'coupons' ? (
         <SavedCoupons />
+      ) : activeTab === 'settings' ? (
+        <Settings />
       ) : (
         <>
           {/* Main Content */}
