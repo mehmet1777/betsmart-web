@@ -77,16 +77,24 @@ export default function Home() {
     console.log(`🔍 Filtering for date: ${selectedDate}`);
     console.log(`📦 Total matches in allMatches: ${allMatches.length}`);
     
+    // İlk 5 maçın tarihlerini debug için yazdır
+    if (allMatches.length > 0) {
+      console.log('🔎 Sample match dates:');
+      allMatches.slice(0, 5).forEach(m => {
+        const matchDate = m.time.split(' ')[0];
+        const [day, month, year] = matchDate.split('.');
+        const matchDateKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        console.log(`  ${m.home.name} vs ${m.away.name}: ${m.time} -> ${matchDateKey}`);
+      });
+    }
+    
     const filtered = allMatches.filter(match => {
       // match.time formatı: "DD.MM.YYYY HH:MM"
       const matchDate = match.time.split(' ')[0]; // "DD.MM.YYYY"
       const [day, month, year] = matchDate.split('.');
-      const matchDateKey = `${year}-${month}-${day}`;
+      const matchDateKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
       
       const isMatch = matchDateKey === selectedDate;
-      if (isMatch) {
-        console.log(`✅ Match found: ${match.home.name} vs ${match.away.name} at ${match.time}`);
-      }
       
       return isMatch;
     });
