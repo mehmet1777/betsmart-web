@@ -1,16 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, TrendingUp } from 'lucide-react';
 import { Match } from '@/types';
 
 interface SearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   matches: Match[];
+  onAnalyze: (match: Match) => void;
 }
 
-export default function SearchModal({ isOpen, onClose, matches }: SearchModalProps) {
+export default function SearchModal({ isOpen, onClose, matches, onAnalyze }: SearchModalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredMatches, setFilteredMatches] = useState<Match[]>([]);
 
@@ -28,6 +29,11 @@ export default function SearchModal({ isOpen, onClose, matches }: SearchModalPro
 
     setFilteredMatches(results);
   }, [searchQuery, matches]);
+
+  const handleAnalyze = (match: Match) => {
+    onAnalyze(match);
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -48,7 +54,7 @@ export default function SearchModal({ isOpen, onClose, matches }: SearchModalPro
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Takım adı ile ara..."
+            placeholder="Takım adı ile ara... (örn: Hannover, Malmö)"
             className="flex-1 bg-transparent text-text-primary placeholder-text-secondary outline-none text-base"
             autoFocus
           />
@@ -64,14 +70,14 @@ export default function SearchModal({ isOpen, onClose, matches }: SearchModalPro
         <div className="flex-1 overflow-y-auto p-4">
           {searchQuery.trim() === '' ? (
             <div className="text-center py-12 text-text-secondary">
-              Takım adı yazın...
+              💡 Takım adı yazın (örn: Hannover, Malmö)
             </div>
           ) : filteredMatches.length === 0 ? (
             <div className="text-center py-12 text-text-secondary">
               "{searchQuery}" için sonuç bulunamadı
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="text-sm text-text-secondary mb-3">
                 {filteredMatches.length} sonuç bulundu
               </div>
@@ -93,23 +99,34 @@ export default function SearchModal({ isOpen, onClose, matches }: SearchModalPro
                     <div className="text-text-primary font-medium">{match.away.name}</div>
                   </div>
 
-                  {/* Odds */}
-                  {match.odds && (
-                    <div className="flex gap-2">
-                      <div className="flex-1 bg-bg-app rounded px-3 py-2 text-center">
-                        <div className="text-xs text-text-secondary mb-1">MS1</div>
-                        <div className="text-sm font-bold text-accent-primary">{match.odds.home}</div>
-                      </div>
-                      <div className="flex-1 bg-bg-app rounded px-3 py-2 text-center">
-                        <div className="text-xs text-text-secondary mb-1">MSX</div>
-                        <div className="text-sm font-bold text-accent-primary">{match.odds.draw}</div>
-                      </div>
-                      <div className="flex-1 bg-bg-app rounded px-3 py-2 text-center">
-                        <div className="text-xs text-text-secondary mb-1">MS2</div>
-                        <div className="text-sm font-bold text-accent-primary">{match.odds.away}</div>
-                      </div>
-                    </div>
-                  )}
+                  {/* Odds & Analyze */}
+                  <div className="flex gap-2">
+                    {match.odds && (
+                      <>
+                        <div className="flex-1 bg-bg-app rounded px-3 py-2 text-center">
+                          <div className="text-xs text-text-secondary mb-1">MS1</div>
+                          <div className="text-sm font-bold text-accent-primary">{match.odds.home}</div>
+                        </div>
+                        <div className="flex-1 bg-bg-app rounded px-3 py-2 text-center">
+                          <div className="text-xs text-text-secondary mb-1">MSX</div>
+                          <div className="text-sm font-bold text-accent-primary">{match.odds.draw}</div>
+                        </div>
+                        <div className="flex-1 bg-bg-app rounded px-3 py-2 text-center">
+                          <div className="text-xs text-text-secondary mb-1">MS2</div>
+                          <div className="text-sm font-bold text-accent-primary">{match.odds.away}</div>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Analyze Button */}
+                    <button
+                      onClick={() => handleAnalyze(match)}
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] hover:from-[#7C3AED] hover:to-[#4F46E5] text-white rounded-lg transition-all"
+                    >
+                      <TrendingUp className="w-4 h-4" />
+                      <span className="text-sm font-medium">Analiz</span>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>

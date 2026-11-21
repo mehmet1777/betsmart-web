@@ -14,6 +14,7 @@ import SmartCouponModal from '@/components/SmartCouponModal';
 import NotificationDropdown from '@/components/NotificationDropdown';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 import SearchModal from '@/components/SearchModal';
+import OddsAnalysisModal from '@/components/OddsAnalysisModal';
 import { BetSelection, Match, getLeagueName } from '@/types';
 
 const LEAGUE_ICONS: Record<number, string> = {
@@ -51,6 +52,7 @@ export default function Home() {
   const [smartRecommendations, setSmartRecommendations] = useState<any[]>([]);
   const [analyzedCount, setAnalyzedCount] = useState(0);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [selectedMatchForAnalysis, setSelectedMatchForAnalysis] = useState<Match | null>(null);
 
   useEffect(() => {
     loadMatches();
@@ -448,7 +450,16 @@ export default function Home() {
             isOpen={isSearchModalOpen}
             onClose={() => setIsSearchModalOpen(false)}
             matches={matches}
+            onAnalyze={(match) => setSelectedMatchForAnalysis(match)}
           />
+
+          {/* Analysis Modal from Search */}
+          {selectedMatchForAnalysis && (
+            <OddsAnalysisModal
+              match={selectedMatchForAnalysis}
+              onClose={() => setSelectedMatchForAnalysis(null)}
+            />
+          )}
         </div>
       </div>
 
