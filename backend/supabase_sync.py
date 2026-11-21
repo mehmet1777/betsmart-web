@@ -82,7 +82,7 @@ def sync_matches_to_supabase(matches: List[Dict]) -> tuple:
         matches: Maç listesi (dict formatında)
     
     Returns:
-        (success_count, error_count) tuple
+        (success_count, error_count, cleanup_count) tuple
     """
     try:
         supabase: Client = get_supabase_client()
@@ -90,7 +90,7 @@ def sync_matches_to_supabase(matches: List[Dict]) -> tuple:
         error_count = 0
         
         # Önce eski maçları temizle
-        clean_old_matches()
+        cleanup_count = clean_old_matches()
         
         print(f"\n🔄 Supabase'e {len(matches)} maç gönderiliyor...")
         print("=" * 50)
@@ -126,16 +126,17 @@ def sync_matches_to_supabase(matches: List[Dict]) -> tuple:
         
         print("=" * 50)
         print(f"✅ Supabase senkronizasyonu tamamlandı!")
+        print(f"   🗑️  Temizlenen: {cleanup_count} eski maç")
         print(f"   📊 Başarılı: {success_count} maç")
         print(f"   ❌ Hata: {error_count} maç")
         
-        return (success_count, error_count)
+        return (success_count, error_count, cleanup_count)
         
     except Exception as e:
         print(f"❌ Supabase bağlantı hatası: {e}")
         import traceback
         traceback.print_exc()
-        return (0, len(matches))
+        return (0, len(matches), 0)
 
 def test_supabase_connection() -> bool:
     """Supabase bağlantısını test et"""

@@ -383,7 +383,10 @@ class TelegramBotManager:
             )
             
             # Supabase'e kaydet
-            success_count, errors = await loop.run_in_executor(None, lambda: sync_matches_to_supabase(matches))
+            result = await loop.run_in_executor(None, lambda: sync_matches_to_supabase(matches))
+            success_count = result[0]
+            errors = result[1] if len(result) > 1 else 0
+            cleanup_count = result[2] if len(result) > 2 else 0
             
             if success_count > 0:
                 # Bugünkü ve yarınki maç sayısını hesapla
@@ -398,8 +401,14 @@ class TelegramBotManager:
                 source_emoji = "⚡" if source == "sahadan" else "🔄"
                 source_name = "Sahadan.com" if source == "sahadan" else "Mackolik.com"
                 
+                # Temizlik mesajı (eğer temizlik yapıldıysa)
+                cleanup_msg = ""
+                if cleanup_count > 0:
+                    cleanup_msg = f"🗑️  {cleanup_count} eski maç temizlendi\n"
+                
                 await status_msg.edit_text(
                     f"✅ <b>İşlem Tamamlandı!</b>\n\n"
+                    f"{cleanup_msg}"
                     f"📊 <b>{success_count}</b> maç kaydedildi\n"
                     f"{source_emoji} Kaynak: {source_name}\n"
                     f"☁️ Supabase'e yüklendi\n"
