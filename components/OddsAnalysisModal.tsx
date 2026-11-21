@@ -461,9 +461,9 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                           });
 
                           return (
-                            <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-3 border border-white/[0.04]">
-                              <div className="mb-2">
-                                <span className="text-xs text-[#9295AC]">{formattedDate}</span>
+                            <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-4 border border-white/[0.04]">
+                              <div className="mb-3">
+                                <span className="text-sm text-[#9295AC] font-medium">{formattedDate}</span>
                               </div>
                               
                               <div className="space-y-1.5">
@@ -472,15 +472,10 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                                   { label: 'MSX', old: change.old_odd_x, new: change.new_odd_x, change: change.change_x },
                                   { label: 'MS2', old: change.old_odd_2, new: change.new_odd_2, change: change.change_2 }
                                 ].map((odd, i) => (
-                                  <div key={i} className="flex items-center justify-between text-xs">
-                                    <span className="text-[#9295AC] font-medium w-10">{odd.label}:</span>
-                                    <span className="text-[#F8FAFC]">
+                                  <div key={i} className="flex items-center justify-between text-sm">
+                                    <span className="text-[#9295AC] font-medium">{odd.label}</span>
+                                    <span className="text-[#F8FAFC] font-semibold">
                                       {odd.old.toFixed(2)} → {odd.new.toFixed(2)}
-                                    </span>
-                                    <span className={`font-bold ml-auto ${
-                                      odd.change > 0 ? 'text-green-400' : odd.change < 0 ? 'text-red-400' : 'text-[#9295AC]'
-                                    }`}>
-                                      {odd.change > 0 ? '+' : ''}{odd.change.toFixed(1)}%
                                     </span>
                                   </div>
                                 ))}
