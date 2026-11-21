@@ -397,10 +397,6 @@ class TelegramBotManager:
                 today_matches = sum(1 for m in matches if m.get('datetime', '').startswith(today.split('.')[0] + '.' + today.split('.')[1]))
                 tomorrow_matches = sum(1 for m in matches if m.get('datetime', '').startswith(tomorrow.split('.')[0] + '.' + tomorrow.split('.')[1]))
                 
-                # Kaynak emoji
-                source_emoji = "⚡" if source == "sahadan" else "🔄"
-                source_name = "Sahadan.com" if source == "sahadan" else "Mackolik.com"
-                
                 # Temizlik mesajı (eğer temizlik yapıldıysa)
                 cleanup_msg = ""
                 if cleanup_count > 0:
@@ -410,7 +406,6 @@ class TelegramBotManager:
                     f"✅ <b>İşlem Tamamlandı!</b>\n\n"
                     f"{cleanup_msg}"
                     f"📊 <b>{success_count}</b> maç kaydedildi\n"
-                    f"{source_emoji} Kaynak: {source_name}\n"
                     f"☁️ Supabase'e yüklendi\n"
                     f"🌐 Web sitesinde görünür\n\n"
                     f"📅 <b>Tarih Dağılımı:</b>\n"
