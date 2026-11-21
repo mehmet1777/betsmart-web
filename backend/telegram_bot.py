@@ -350,7 +350,7 @@ class TelegramBotManager:
             # Hybrid API'den veri çek (Sahadan → Mackolik fallback)
             import asyncio
             loop = asyncio.get_event_loop()
-            success, matches, error = await loop.run_in_executor(
+            success, matches, error, source = await loop.run_in_executor(
                 None, 
                 lambda: fetch_matches_hybrid(days_ahead=2, status_callback=lambda s: asyncio.run_coroutine_threadsafe(update_status(s), loop))
             )
@@ -394,9 +394,14 @@ class TelegramBotManager:
                 today_matches = sum(1 for m in matches if m.get('datetime', '').startswith(today.split('.')[0] + '.' + today.split('.')[1]))
                 tomorrow_matches = sum(1 for m in matches if m.get('datetime', '').startswith(tomorrow.split('.')[0] + '.' + tomorrow.split('.')[1]))
                 
+                # Kaynak emoji
+                source_emoji = "⚡" if source == "sahadan" else "🔄"
+                source_name = "Sahadan.com" if source == "sahadan" else "Mackolik.com"
+                
                 await status_msg.edit_text(
                     f"✅ <b>İşlem Tamamlandı!</b>\n\n"
                     f"📊 <b>{success_count}</b> maç kaydedildi\n"
+                    f"{source_emoji} Kaynak: {source_name}\n"
                     f"☁️ Supabase'e yüklendi\n"
                     f"🌐 Web sitesinde görünür\n\n"
                     f"📅 <b>Tarih Dağılımı:</b>\n"
@@ -417,7 +422,7 @@ class TelegramBotManager:
                 )
                 
         except Exception as e:
-            await update.message.reply_text(
+            await query.message.reply_text(
                 f"❌ <b>Hata</b>\n\n{str(e)}",
                 parse_mode='HTML'
             )
