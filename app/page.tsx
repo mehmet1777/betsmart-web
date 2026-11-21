@@ -55,23 +55,26 @@ export default function Home() {
   const [selectedMatchForAnalysis, setSelectedMatchForAnalysis] = useState<Match | null>(null);
 
   useEffect(() => {
-    loadMatches();
+    // İlk yükleme - loader göster
+    loadMatches(true);
     
-    // Her 30 saniyede bir maçları yenile (güncel oranlar için)
+    // Her 30 saniyede bir sessizce güncelle (loader YOK, scroll korunur)
     const interval = setInterval(() => {
-      loadMatches();
-    }, 30000); // 30 saniye
+      loadMatches(false);
+    }, 30000);
     
     return () => clearInterval(interval);
   }, []);
 
-  const loadMatches = async () => {
-    setLoading(true);
+  const loadMatches = async (showLoader = true) => {
+    if (showLoader) setLoading(true);
     try {
       // Cache bypass için timestamp ekle
       const response = await fetch(`/api/matches?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
+        
+        // Sadece matches data'sını güncelle, scroll ve modal state'i koru
         setAllMatches(data.matches || []);
         setMatches(data.matches || []);
         console.log(`Loaded ${data.matches?.length || 0} matches, mock: ${data.mock || false}`);
@@ -79,7 +82,7 @@ export default function Home() {
     } catch (error) {
       console.error('Error loading matches:', error);
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
 
