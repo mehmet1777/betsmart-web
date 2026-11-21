@@ -13,6 +13,7 @@ import SavedCoupons from '@/components/SavedCoupons';
 import SmartCouponModal from '@/components/SmartCouponModal';
 import NotificationDropdown from '@/components/NotificationDropdown';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
+import SearchModal from '@/components/SearchModal';
 import { BetSelection, Match, getLeagueName } from '@/types';
 
 const LEAGUE_ICONS: Record<number, string> = {
@@ -49,6 +50,7 @@ export default function Home() {
   const [analyzing, setAnalyzing] = useState(false);
   const [smartRecommendations, setSmartRecommendations] = useState<any[]>([]);
   const [analyzedCount, setAnalyzedCount] = useState(0);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   useEffect(() => {
     loadMatches();
@@ -410,6 +412,7 @@ export default function Home() {
         <MobileHeader 
           onMenuClick={() => setIsSidebarOpen(true)}
           onNotificationClick={() => setIsNotificationOpen(!isNotificationOpen)}
+          onSearchClick={() => setIsSearchModalOpen(true)}
           notificationCount={smartRecommendations.length}
         />
         
@@ -438,6 +441,13 @@ export default function Home() {
               setIsSmartCouponOpen(true);
             }}
             onClose={() => setIsNotificationOpen(false)}
+          />
+
+          {/* Search Modal */}
+          <SearchModal
+            isOpen={isSearchModalOpen}
+            onClose={() => setIsSearchModalOpen(false)}
+            matches={matches}
           />
         </div>
       </div>

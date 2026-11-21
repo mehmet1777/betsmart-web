@@ -1,15 +1,16 @@
 'use client';
 
-import { Menu, Bell, User } from 'lucide-react';
+import { Menu, Bell, Search } from 'lucide-react';
 import BetSmartLogo from './BetSmartLogo';
 
 interface MobileHeaderProps {
   onMenuClick: () => void;
   onNotificationClick: () => void;
+  onSearchClick: () => void;
   notificationCount?: number;
 }
 
-export default function MobileHeader({ onMenuClick, onNotificationClick, notificationCount = 0 }: MobileHeaderProps) {
+export default function MobileHeader({ onMenuClick, onNotificationClick, onSearchClick, notificationCount = 0 }: MobileHeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-bg-app gradient-header border-b border-border-color safe-top">
       <div className="flex items-center justify-between px-4 py-3">
@@ -39,8 +40,11 @@ export default function MobileHeader({ onMenuClick, onNotificationClick, notific
               </span>
             )}
           </button>
-          <button className="p-2 text-text-secondary hover:text-accent-primary transition-colors">
-            <User className="w-5 h-5" />
+          <button 
+            onClick={onSearchClick}
+            className="p-2 text-text-secondary hover:text-accent-primary transition-colors"
+          >
+            <Search className="w-5 h-5" />
           </button>
         </div>
       </div>
