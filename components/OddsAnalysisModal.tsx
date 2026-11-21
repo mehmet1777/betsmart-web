@@ -461,26 +461,37 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                           });
 
                           return (
-                            <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-3 border border-white/[0.04]">
-                              <div className="mb-2.5">
+                            <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-3.5 border border-white/[0.04]">
+                              {/* Tarih */}
+                              <div className="mb-3">
                                 <span className="text-xs text-[#9295AC]">{formattedDate}</span>
                               </div>
                               
-                              <div className="space-y-1">
-                                {[
-                                  { label: 'MS1', old: change.old_odd_1, new: change.new_odd_1, change: change.change_1 },
-                                  { label: 'MSX', old: change.old_odd_x, new: change.new_odd_x, change: change.change_x },
-                                  { label: 'MS2', old: change.old_odd_2, new: change.new_odd_2, change: change.change_2 }
-                                ].map((odd, i) => (
-                                  <div key={i} className="flex items-center text-xs">
-                                    <span className="text-[#9295AC] font-medium w-12">{odd.label}</span>
-                                    <div className="flex-1 flex items-center justify-end gap-1.5">
-                                      <span className="text-[#F8FAFC]/70">{odd.old.toFixed(2)}</span>
-                                      <span className="text-[#9295AC]">→</span>
-                                      <span className="text-[#F8FAFC] font-semibold">{odd.new.toFixed(2)}</span>
-                                    </div>
-                                  </div>
-                                ))}
+                              {/* Grid Header */}
+                              <div className="grid grid-cols-4 gap-2 mb-1.5">
+                                <div></div>
+                                <div className="text-center text-xs font-semibold text-[#9295AC]">MS1</div>
+                                <div className="text-center text-xs font-semibold text-[#9295AC]">MSX</div>
+                                <div className="text-center text-xs font-semibold text-[#9295AC]">MS2</div>
+                              </div>
+
+                              {/* Grid Content */}
+                              <div className="bg-[#0D0E1F]/50 rounded-lg border border-white/[0.03] overflow-hidden">
+                                {/* Eski Oranlar */}
+                                <div className="grid grid-cols-4 gap-2 p-2 border-b border-white/[0.03]">
+                                  <div className="text-xs text-[#9295AC]/70">Eski</div>
+                                  <div className="text-center text-xs text-[#F8FAFC]/50">{change.old_odd_1.toFixed(2)}</div>
+                                  <div className="text-center text-xs text-[#F8FAFC]/50">{change.old_odd_x.toFixed(2)}</div>
+                                  <div className="text-center text-xs text-[#F8FAFC]/50">{change.old_odd_2.toFixed(2)}</div>
+                                </div>
+                                
+                                {/* Yeni Oranlar - Belirgin */}
+                                <div className="grid grid-cols-4 gap-2 p-2 bg-gradient-to-r from-[#F59E0B]/5 to-transparent">
+                                  <div className="text-xs text-[#F59E0B] font-semibold">Yeni</div>
+                                  <div className="text-center text-sm text-[#F8FAFC] font-bold">{change.new_odd_1.toFixed(2)}</div>
+                                  <div className="text-center text-sm text-[#F8FAFC] font-bold">{change.new_odd_x.toFixed(2)}</div>
+                                  <div className="text-center text-sm text-[#F8FAFC] font-bold">{change.new_odd_2.toFixed(2)}</div>
+                                </div>
                               </div>
                             </div>
                           );
