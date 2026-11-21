@@ -62,7 +62,17 @@ export default function Home() {
       loadMatches(false);
     }, 180000); // 3 dakika
     
-    return () => clearInterval(interval);
+    // Ayarlar sekmesine yönlendirme event listener
+    const handleNavigateToSettings = () => {
+      setActiveTab('settings');
+    };
+    
+    window.addEventListener('navigateToSettings', handleNavigateToSettings);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('navigateToSettings', handleNavigateToSettings);
+    };
   }, []);
 
   const loadMatches = async (showLoader = true) => {

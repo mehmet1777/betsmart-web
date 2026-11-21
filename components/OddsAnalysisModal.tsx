@@ -415,17 +415,57 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                     </div>
                   </div>
                 ) : (
-                  <div className="relative bg-gradient-to-br from-[#15152D] to-[#1a1a35] rounded-[18px] p-8 text-center border border-white/[0.08] shadow-xl">
+                  <div className="relative bg-gradient-to-br from-[#15152D] to-[#1a1a35] rounded-[18px] p-6 sm:p-8 text-center border border-white/[0.08] shadow-xl">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#8B5CF6]/10 to-[#6366F1]/5 flex items-center justify-center border border-[#8B5CF6]/20">
                       <span className="text-4xl">🔍</span>
                     </div>
-                    <h3 className="text-[#F8FAFC] font-bold mb-2">Benzer Maç Bulunamadı</h3>
-                    <p className="text-[#9295AC] text-sm mb-4">Bu oran kombinasyonu nadir görülüyor.</p>
-                    <div className="bg-[#080A18]/50 rounded-xl p-3 text-left border border-white/[0.04]">
+                    
+                    <h3 className="text-[#F8FAFC] font-bold text-lg mb-2">Benzer Maç Bulunamadı</h3>
+                    
+                    <p className="text-[#9295AC] text-sm mb-5 leading-relaxed">
+                      Bu oran kombinasyonu için geçmiş verilerimizde eşleşme bulunamadı.
+                    </p>
+                    
+                    {/* Mevcut Toleranslar */}
+                    <div className="bg-[#080A18]/50 rounded-xl p-4 mb-5 text-left border border-white/[0.04]">
+                      <p className="text-[#9295AC] text-xs font-semibold mb-3">🔍 Mevcut toleranslar:</p>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#9295AC] text-xs">• Tam Eşleşme:</span>
+                          <span className="text-[#8B5CF6] font-mono font-bold text-sm">
+                            ±{typeof window !== 'undefined' ? (parseFloat(localStorage.getItem('exactTolerance') || '0.01')).toFixed(3) : '0.010'}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[#9295AC] text-xs">• Benzer Eşleşme:</span>
+                          <span className="text-[#6366F1] font-mono font-bold text-sm">
+                            ±{typeof window !== 'undefined' ? (parseFloat(localStorage.getItem('similarTolerance') || '0.02')).toFixed(3) : '0.020'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* İpucu */}
+                    <div className="bg-gradient-to-r from-[#8B5CF6]/10 to-[#6366F1]/10 rounded-xl p-4 mb-5 border border-[#8B5CF6]/20">
                       <p className="text-[#9295AC] text-xs leading-relaxed">
-                        Sistem ±0.01 ve ±0.02 toleransla arama yaptı.
+                        💡 <span className="text-[#F8FAFC] font-semibold">Daha geniş arama</span> için tolerans ayarlarını artırın ve tekrar deneyin.
                       </p>
                     </div>
+                    
+                    {/* Kısayol Butonu */}
+                    <button
+                      onClick={() => {
+                        onClose();
+                        // Ayarlar sekmesine geç
+                        const event = new CustomEvent('navigateToSettings');
+                        window.dispatchEvent(event);
+                      }}
+                      className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] hover:from-[#7C3AED] hover:to-[#5B21B6] text-white font-semibold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 group shadow-lg shadow-purple-500/20"
+                    >
+                      <span className="text-lg">⚙️</span>
+                      <span>Toleransı Ayarla</span>
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </button>
                   </div>
                 )}
 
