@@ -60,7 +60,7 @@ function isMatchLive(datetime: string): boolean {
 
 export async function GET() {
   try {
-    console.log('📂 Supabase\'den maçlar çekiliyor...');
+    console.log('📂 Supabase\'den maçlar çekiliyor... [v3]');
     
     const { data: matches, error } = await supabase
       .from('future_matches')
