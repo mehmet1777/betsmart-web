@@ -23,16 +23,17 @@ def get_supabase_client() -> Client:
 
 def clean_old_matches():
     """
-    Bugünden önceki tüm maçları Supabase'den sil
+    Bugünden önceki tüm maçları ve bugünün geçmiş saatlerindeki maçları Supabase'den sil
     """
     try:
-        from datetime import datetime
+        from datetime import datetime, timedelta
         supabase: Client = get_supabase_client()
         
-        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        today_str = today.strftime("%d.%m.%Y")
+        now = datetime.now()
+        today_str = now.strftime("%d.%m.%Y")
         
-        print(f"\n🗑️  {today_str} öncesi eski maçlar temizleniyor...")
+        print(f"\n🗑️  Eski maçlar temizleniyor...")
+        print(f"   📅 Şu an: {now.strftime('%d.%m.%Y %H:%M')}")
         
         # Tüm maçları çek
         all_matches = supabase.table('future_matches').select('id,datetime').execute()
@@ -41,20 +42,38 @@ def clean_old_matches():
         for match in all_matches.data:
             try:
                 # datetime formatı: "21.11.2026 04:00" veya "14/11/2026 04:00"
-                match_date_str = match['datetime'].split(' ')[0]
+                match_datetime_str = match['datetime']
                 
                 # Slash formatını atla (bozuk veri)
-                if '/' in match_date_str:
+                if '/' in match_datetime_str:
                     supabase.table('future_matches').delete().eq('id', match['id']).execute()
                     deleted_count += 1
                     continue
                 
-                # Nokta formatını parse et
-                day, month, year = match_date_str.split('.')
-                match_date = datetime(int(year), int(month), int(day))
+                # Parse et: "21.11.2026 04:00"
+                parts = match_datetime_str.split(' ')
+                if len(parts) != 2:
+                    # Bozuk format, sil
+                    supabase.table('future_matches').delete().eq('id', match['id']).execute()
+                    deleted_count += 1
+                    continue
                 
-                # Bugünden önceki maçları sil
-                if match_date.date() < today.date():
+                date_part = parts[0]  # "21.11.2026"
+                time_part = parts[1]  # "04:00"
+                
+                # Tarihi parse et
+                day, month, year = date_part.split('.')
+                hour, minute = time_part.split(':')
+                
+                match_datetime = datetime(
+                    int(year), int(month), int(day),
+                    int(hour), int(minute)
+                )
+                
+                # Eğer maç şu andan 2 saat önce geçmişse, sil (bitmiş olabilir)
+                time_diff = (now - match_datetime).total_seconds() / 3600  # saat cinsinden
+                
+                if time_diff > 2:  # 2 saatten eski maçlar
                     supabase.table('future_matches').delete().eq('id', match['id']).execute()
                     deleted_count += 1
                     
@@ -66,7 +85,11 @@ def clean_old_matches():
                 except:
                     pass
         
-        print(f"✅ {deleted_count} eski/bozuk maç temizlendi")
+        if deleted_count > 0:
+            print(f"✅ {deleted_count} eski/bitmiş maç temizlendi")
+        else:
+            print(f"✅ Temizlenecek eski maç yok")
+        
         return deleted_count
         
     except Exception as e:
