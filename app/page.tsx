@@ -77,16 +77,7 @@ export default function Home() {
     console.log(`🔍 Filtering for date: ${selectedDate}`);
     console.log(`📦 Total matches in allMatches: ${allMatches.length}`);
     
-    // İlk 5 maçın tarihlerini debug için yazdır
-    if (allMatches.length > 0) {
-      console.log('🔎 Sample match dates:');
-      allMatches.slice(0, 5).forEach(m => {
-        const matchDate = m.time.split(' ')[0];
-        const [day, month, year] = matchDate.split('.');
-        const matchDateKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-        console.log(`  ${m.home.name} vs ${m.away.name}: ${m.time} -> ${matchDateKey}`);
-      });
-    }
+    const now = new Date();
     
     const filtered = allMatches.filter(match => {
       // match.time formatı: "DD.MM.YYYY HH:MM"
@@ -94,10 +85,40 @@ export default function Home() {
       const [day, month, year] = matchDate.split('.');
       const matchDateKey = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
       
-      return matchDateKey === selectedDate;
+      // Tarih kontrolü
+      if (matchDateKey !== selectedDate) {
+        return false;
+      }
+      
+      // Saat kontrolü - Maç saati geçmişse gizle
+      try {
+        const [datePart, timePart] = match.time.split(' ');
+        const [d, m, y] = datePart.split('.');
+        const [h, min] = timePart.split(':');
+        
+        const matchDateTime = new Date(
+          parseInt(y),
+          parseInt(m) - 1,
+          parseInt(d),
+          parseInt(h),
+          parseInt(min)
+        );
+        
+        // Şu andan küçükse (geçmişse) gizle
+        // 1 dakika bile geçmişse başlamış demektir
+        if (matchDateTime <= now) {
+          return false;
+        }
+        
+      } catch (e) {
+        // Parse hatası varsa göster (güvenli taraf)
+        console.warn('Match time parse error:', match.time, e);
+      }
+      
+      return true;
     });
     
-    console.log(`✅ Filtered ${filtered.length} matches for ${selectedDate}`);
+    console.log(`✅ Filtered ${filtered.length} upcoming matches for ${selectedDate}`);
     setMatches(filtered);
   }, [selectedDate, allMatches]);
 
