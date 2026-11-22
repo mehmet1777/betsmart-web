@@ -480,7 +480,12 @@ export default function Home() {
   const uniqueLeagues = Array.from(new Set(matches.map(m => m.leagueId)));
 
   const totalOdds = betSlip.reduce((acc, selection) => {
-    // Gerçek oranları match objesinden al
+    // Önce customOdds varsa onu kullan (akıllı kupondan gelen alternatifler)
+    if (selection.customOdds) {
+      return acc * selection.customOdds;
+    }
+
+    // Gerçek oranları match objesinden al (sadece MS1/MSX/MS2 için)
     let oddValue = 0;
     if (selection.prediction === '1') {
       oddValue = parseFloat(selection.match.odds?.home || '0');
