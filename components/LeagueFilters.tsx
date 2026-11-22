@@ -332,8 +332,8 @@ export default function LeagueFilters({ selectedLeague, onSelectLeague, leagues,
       <PopularPopup
         isOpen={isPopularOpen}
         onClose={() => setIsPopularOpen(false)}
-        onSelectLeague={(leagueId) => {
-          onSelectLeague(leagueId);
+        onSelectLeague={(leagueId, leagueIds) => {
+          onSelectLeague(leagueId, leagueIds);
           setIsPopularOpen(false);
         }}
         matches={matches}

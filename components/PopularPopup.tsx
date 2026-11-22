@@ -7,7 +7,7 @@ import { POPULAR_LEAGUES, getLeagueFlag } from '@/config/leagues';
 interface PopularPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectLeague: (leagueId: number) => void;
+  onSelectLeague: (leagueId: number, leagueIds?: number[]) => void;
   matches: any[];
   triggerButtonRef: React.RefObject<HTMLButtonElement>;
 }
@@ -73,10 +73,28 @@ export default function PopularPopup({ isOpen, onClose, onSelectLeague, matches,
     });
   };
 
+  // Aynı lige ait tüm leagueId'leri bul
+  const findAllLeagueIds = (popularLeague: string): number[] => {
+    const normalized = normalizeLeagueName(popularLeague);
+    const keywords = normalized.split(' ').filter(w => w.length > 2);
+    
+    const matchingMatches = matches.filter(m => {
+      if (!m.leagueName) return false;
+      const matchNormalized = normalizeLeagueName(m.leagueName);
+      return keywords.every(keyword => matchNormalized.includes(keyword));
+    });
+    
+    // Unique leagueId'leri çıkar
+    const uniqueIds = [...new Set(matchingMatches.map(m => m.leagueId))];
+    return uniqueIds;
+  };
+
   const handleSelectLeague = (leagueName: string) => {
     const match = findMatchingLeague(leagueName);
-    if (match) {
-      onSelectLeague(match.leagueId);
+    const allLeagueIds = findAllLeagueIds(leagueName);
+    
+    if (match && allLeagueIds.length > 0) {
+      onSelectLeague(match.leagueId, allLeagueIds);
       onClose();
     }
   };
