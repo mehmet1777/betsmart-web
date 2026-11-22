@@ -57,31 +57,65 @@ export default function PopularPopup({ isOpen, onClose, onSelectLeague, matches,
       .trim();
   };
 
+  // Kesin eşleştirme - popüler lig ile match'i karşılaştır
+  const isExactMatch = (popularLeague: string, matchLeague: string): boolean => {
+    const popNorm = normalizeLeagueName(popularLeague);
+    const matchNorm = normalizeLeagueName(matchLeague);
+    
+    // Anahtar kelimeler çıkar - BÜYÜK harfler önemli (A, B, C ayırımı için)
+    const popWords = popularLeague.toLowerCase().split(' ');
+    const matchWords = matchLeague.toLowerCase().split(' ');
+    
+    // Her popüler lig kelimesi match'te olmalı
+    for (const popWord of popWords) {
+      if (popWord.length <= 2) continue; // Kısa kelimeleri atla
+      if (!matchNorm.includes(normalizeLeagueName(popWord))) {
+        return false;
+      }
+    }
+    
+    // Ek kontroller - İstenmeyen kelimeleri reddet
+    const unwantedPatterns = [
+      { pop: 'serie a', match: ['serie b', 'serie c', 'kadınlar', 'women', 'kadın'] },
+      { pop: 'premier lig', match: ['2. lig', '1. lig', 'kadınlar', 'women', 'championship'] },
+      { pop: 'bundesliga', match: ['2. bundesliga', '3. liga', 'kadınlar', 'women'] },
+      { pop: 'ligue 1', match: ['ligue 2', 'ligue 3', 'kadınlar', 'women'] },
+      { pop: 'süper lig', match: ['1. lig', '2. lig', '3. lig', 'kadınlar', 'women', 'tff'] },
+      { pop: 'laliga', match: ['laliga 2', '2.lig', 'kadınlar', 'women', 'segunda'] },
+      { pop: 'la liga', match: ['la liga 2', '2.lig', 'kadınlar', 'women', 'segunda'] },
+      { pop: 'eredivisie', match: ['eerste divisie', 'tweede', 'kadınlar', 'women'] },
+      { pop: 'j1 lig', match: ['j2', 'j3', 'kadınlar', 'women'] },
+      { pop: 'k lig 1', match: ['k lig 2', 'kadınlar', 'women'] },
+    ];
+    
+    // Pattern kontrolü
+    for (const pattern of unwantedPatterns) {
+      if (popNorm.includes(normalizeLeagueName(pattern.pop))) {
+        // Bu popüler lig için istenmeyen kelimeler var mı?
+        for (const unwanted of pattern.match) {
+          if (matchNorm.includes(normalizeLeagueName(unwanted))) {
+            return false; // İstenmeyen kelime bulundu, eşleşme yok
+          }
+        }
+      }
+    }
+    
+    return true;
+  };
+
   // Popüler lig adını match'lerle eşleştir
   const findMatchingLeague = (popularLeague: string) => {
-    const normalized = normalizeLeagueName(popularLeague);
-    
-    // Anahtar kelimeler çıkar (ülke + lig tipi)
-    const keywords = normalized.split(' ').filter(w => w.length > 2);
-    
     return matches.find(m => {
       if (!m.leagueName) return false;
-      const matchNormalized = normalizeLeagueName(m.leagueName);
-      
-      // Tüm anahtar kelimeleri içeriyor mu kontrol et
-      return keywords.every(keyword => matchNormalized.includes(keyword));
+      return isExactMatch(popularLeague, m.leagueName);
     });
   };
 
   // Aynı lige ait tüm leagueId'leri bul
   const findAllLeagueIds = (popularLeague: string): number[] => {
-    const normalized = normalizeLeagueName(popularLeague);
-    const keywords = normalized.split(' ').filter(w => w.length > 2);
-    
     const matchingMatches = matches.filter(m => {
       if (!m.leagueName) return false;
-      const matchNormalized = normalizeLeagueName(m.leagueName);
-      return keywords.every(keyword => matchNormalized.includes(keyword));
+      return isExactMatch(popularLeague, m.leagueName);
     });
     
     // Unique leagueId'leri çıkar
@@ -129,10 +163,7 @@ export default function PopularPopup({ isOpen, onClose, onSelectLeague, matches,
           const match = findMatchingLeague(league);
           const matchCount = match ? matches.filter(m => {
             if (!m.leagueName) return false;
-            const normalized = normalizeLeagueName(league);
-            const keywords = normalized.split(' ').filter(w => w.length > 2);
-            const matchNormalized = normalizeLeagueName(m.leagueName);
-            return keywords.every(keyword => matchNormalized.includes(keyword));
+            return isExactMatch(league, m.leagueName);
           }).length : 0;
           
           return (
