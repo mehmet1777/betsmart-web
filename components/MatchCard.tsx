@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Match, BetSelection } from '@/types';
 import OddsAnalysisModal from './OddsAnalysisModal';
 
@@ -27,6 +27,9 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [latestChange, setLatestChange] = useState<OddsChange | null>(null);
   const [showRecommendationTooltip, setShowRecommendationTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+  const badgeRef = useRef<HTMLButtonElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Oran değişikliklerini fetch et
@@ -56,6 +59,62 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
     fetchOddsChanges();
   }, [match.home.name, match.away.name]);
 
+  // Tooltip pozisyonunu hesapla
+  useEffect(() => {
+    if (showRecommendationTooltip && badgeRef.current && tooltipRef.current) {
+      const badgeRect = badgeRef.current.getBoundingClientRect();
+      const tooltipRect = tooltipRef.current.getBoundingClientRect();
+      
+      let top = badgeRect.bottom + 8;
+      let left = badgeRect.left + badgeRect.width / 2;
+      
+      // Viewport kontrolü - sağdan taşma
+      if (left + tooltipRect.width / 2 > window.innerWidth - 16) {
+        left = window.innerWidth - tooltipRect.width / 2 - 16;
+      }
+      
+      // Viewport kontrolü - soldan taşma
+      if (left - tooltipRect.width / 2 < 16) {
+        left = tooltipRect.width / 2 + 16;
+      }
+      
+      // Viewport kontrolü - alttan taşma
+      if (top + tooltipRect.height > window.innerHeight - 16) {
+        top = badgeRect.top - tooltipRect.height - 8;
+      }
+      
+      setTooltipPosition({ top, left });
+    }
+  }, [showRecommendationTooltip]);
+
+  // Backdrop click handler - dışarıya tıklamayı yakala
+  useEffect(() => {
+    if (showRecommendationTooltip) {
+      const handleClickOutside = (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        
+        // Tooltip veya badge'e tıklanmadıysa kapat
+        if (
+          tooltipRef.current && 
+          !tooltipRef.current.contains(target) &&
+          badgeRef.current &&
+          !badgeRef.current.contains(target)
+        ) {
+          setShowRecommendationTooltip(false);
+        }
+      };
+
+      // Kısa bir gecikme ile ekle (tooltip render olsun diye)
+      setTimeout(() => {
+        document.addEventListener('click', handleClickOutside);
+      }, 0);
+
+      return () => {
+        document.removeEventListener('click', handleClickOutside);
+      };
+    }
+  }, [showRecommendationTooltip]);
+
   const handleOddClick = (prediction: '1' | 'X' | '2') => {
     onSelect({
       matchId: match.id,
@@ -84,11 +143,102 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
 
   return (
     <>
+      {/* Tooltip Backdrop ve Content - Kartın dışında */}
+      {showRecommendationTooltip && (
+        <>
+          {/* Backdrop - Tam ekran, transparent */}
+          <div 
+            className="fixed inset-0 z-[60]" 
+          />
+          
+          {/* Tooltip Content - Portal gibi */}
+          <div 
+            ref={tooltipRef}
+            className="fixed z-[70]"
+            style={{
+              top: `${tooltipPosition.top}px`,
+              left: `${tooltipPosition.left}px`,
+              transform: 'translateX(-50%)'
+            }}
+          >
+            <div className="w-72 bg-[#1a1a2e] border-2 border-[#8B5CF6] rounded-xl shadow-2xl p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+              {/* Arrow */}
+              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-[#8B5CF6] rotate-45"></div>
+              
+              <div className="relative z-10">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-white font-bold text-sm flex items-center gap-1">
+                    ⭐ Akıllı Kupon Önerisi
+                  </h4>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowRecommendationTooltip(false);
+                    }}
+                    className="text-gray-400 hover:text-white transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                {/* Ana Öneri */}
+                <div className="bg-[#0f0f1e] rounded-lg p-3 mb-3 border border-[#8B5CF6]/30">
+                  <p className="text-[#A5A5C5] text-[10px] mb-1">📌 Ana Öneri</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-white font-bold">
+                      {recommendation?.recommendation === 'MS1' ? 'Ev Sahibi' : 
+                       recommendation?.recommendation === 'MSX' ? 'Beraberlik' : 
+                       recommendation?.recommendation === 'MS2' ? 'Deplasman' : 
+                       recommendation?.recommendation}
+                    </span>
+                    <span className="text-[#00E99A] text-xl font-black">%{recommendation?.win_rate}</span>
+                  </div>
+                  <div className="text-[#A5A5C5] text-[10px] mt-1">
+                    Oran: {recommendation?.recommended_odds?.toFixed(2)}
+                  </div>
+                </div>
+                
+                {/* İstatistikler */}
+                <div className="bg-[#0f0f1e] rounded-lg p-2.5 mb-3 border border-[#8B5CF6]/20">
+                  <p className="text-[#A5A5C5] text-[10px] mb-2">📊 {recommendation?.exact_matches} benzer maç</p>
+                  <div className="flex items-center justify-between text-[10px]">
+                    <div className="flex gap-2">
+                      <span className="text-[#00E99A]">🏠 {recommendation?.statistics.home_wins}</span>
+                      <span className="text-[#F59E0B]">🤝 {recommendation?.statistics.draws}</span>
+                      <span className="text-[#3B82F6]">✈️ {recommendation?.statistics.away_wins}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Alternatifler */}
+                {recommendation?.additional_insights && recommendation.additional_insights.length > 0 && (
+                  <div>
+                    <p className="text-[#A5A5C5] text-[10px] mb-2">💡 Ek Öneriler</p>
+                    <div className="space-y-1.5">
+                      {recommendation.additional_insights.slice(0, 3).map((alt: any, idx: number) => (
+                        <div key={idx} className="flex items-center justify-between text-[10px] bg-[#0f0f1e] rounded p-2">
+                          <span className="text-white">{alt.label}</span>
+                          <span className="text-[#00E99A] font-bold">%{alt.rate}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      
       <div className="bg-bg-card rounded-2xl p-4 mx-4 mb-3 relative">
         {/* Önerilen Badge */}
         {isRecommended && recommendation && (
-          <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
+          <div 
+            className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10"
+          >
             <button
+              ref={badgeRef}
               onClick={(e) => {
                 e.stopPropagation();
                 setShowRecommendationTooltip(!showRecommendationTooltip);
@@ -99,82 +249,6 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
               <span>Önerilen</span>
               {recommendedWinRate && <span className="text-[#FFD700]">%{recommendedWinRate}</span>}
             </button>
-            
-            {/* Tooltip */}
-            {showRecommendationTooltip && (
-              <>
-                {/* Backdrop - dışarı tıklayınca kapat */}
-                <div 
-                  className="fixed inset-0 z-[45]" 
-                  onClick={() => setShowRecommendationTooltip(false)}
-                />
-                
-                {/* Tooltip Content */}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-72 bg-[#1a1a2e] border-2 border-[#8B5CF6] rounded-xl shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                  {/* Arrow */}
-                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-[#8B5CF6] rotate-45"></div>
-                  
-                  <div className="relative z-10">
-                    {/* Header */}
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-white font-bold text-sm flex items-center gap-1">
-                        ⭐ Akıllı Kupon Önerisi
-                      </h4>
-                      <button
-                        onClick={() => setShowRecommendationTooltip(false)}
-                        className="text-gray-400 hover:text-white transition-colors"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                    
-                    {/* Ana Öneri */}
-                    <div className="bg-[#0f0f1e] rounded-lg p-3 mb-3 border border-[#8B5CF6]/30">
-                      <p className="text-[#A5A5C5] text-[10px] mb-1">📌 Ana Öneri</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-white font-bold">
-                          {recommendation.recommendation === 'MS1' ? 'Ev Sahibi' : 
-                           recommendation.recommendation === 'MSX' ? 'Beraberlik' : 
-                           recommendation.recommendation === 'MS2' ? 'Deplasman' : 
-                           recommendation.recommendation}
-                        </span>
-                        <span className="text-[#00E99A] text-xl font-black">%{recommendation.win_rate}</span>
-                      </div>
-                      <div className="text-[#A5A5C5] text-[10px] mt-1">
-                        Oran: {recommendation.recommended_odds?.toFixed(2)}
-                      </div>
-                    </div>
-                    
-                    {/* İstatistikler */}
-                    <div className="bg-[#0f0f1e] rounded-lg p-2.5 mb-3 border border-[#8B5CF6]/20">
-                      <p className="text-[#A5A5C5] text-[10px] mb-2">📊 {recommendation.exact_matches} benzer maç</p>
-                      <div className="flex items-center justify-between text-[10px]">
-                        <div className="flex gap-2">
-                          <span className="text-[#00E99A]">🏠 {recommendation.statistics.home_wins}</span>
-                          <span className="text-[#F59E0B]">🤝 {recommendation.statistics.draws}</span>
-                          <span className="text-[#3B82F6]">✈️ {recommendation.statistics.away_wins}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Alternatifler */}
-                    {recommendation.additional_insights && recommendation.additional_insights.length > 0 && (
-                      <div>
-                        <p className="text-[#A5A5C5] text-[10px] mb-2">💡 Ek Öneriler</p>
-                        <div className="space-y-1.5">
-                          {recommendation.additional_insights.slice(0, 3).map((alt: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between text-[10px] bg-[#0f0f1e] rounded p-2">
-                              <span className="text-white">{alt.label}</span>
-                              <span className="text-[#00E99A] font-bold">%{alt.rate}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
           </div>
         )}
         
