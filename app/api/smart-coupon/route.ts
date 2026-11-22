@@ -7,7 +7,7 @@ const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { matches } = body;
+    const { matches, exactTolerance } = body;
 
     console.log('🤖 Akıllı kupon isteği alındı:', matches?.length, 'maç');
 
@@ -20,6 +20,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Tolerans değerini al (kullanıcı ayarlarından veya varsayılan)
+    const tolerance = parseFloat(exactTolerance || '0.01');
+    console.log(`🎚️ Kullanılan tolerans: ±${tolerance}`);
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     
@@ -37,16 +41,16 @@ export async function POST(request: NextRequest) {
 
         analyzedCount++;
 
-        // Supabase'den benzer oranlı tarihi maçları çek (±0.01 tolerans)
+        // Supabase'den benzer oranlı tarihi maçları çek (kullanıcı toleransı)
         const { data: historicalMatches, error } = await supabase
           .from('matches')
           .select('*')
-          .gte('odd_1', odd1 - 0.01)
-          .lte('odd_1', odd1 + 0.01)
-          .gte('odd_x', oddX - 0.01)
-          .lte('odd_x', oddX + 0.01)
-          .gte('odd_2', odd2 - 0.01)
-          .lte('odd_2', odd2 + 0.01)
+          .gte('odd_1', odd1 - tolerance)
+          .lte('odd_1', odd1 + tolerance)
+          .gte('odd_x', oddX - tolerance)
+          .lte('odd_x', oddX + tolerance)
+          .gte('odd_2', odd2 - tolerance)
+          .lte('odd_2', odd2 + tolerance)
           .not('score', 'is', null)
           .limit(100);
 

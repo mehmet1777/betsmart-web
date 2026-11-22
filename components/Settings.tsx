@@ -44,6 +44,15 @@ export default function Settings() {
       localStorage.setItem('similarTolerance', similarTolerance.toString());
       setHasChanges(false);
       
+      // Cache'i sil - yeni toleransla analiz yapılsın
+      localStorage.removeItem('lastAnalysisTime');
+      localStorage.removeItem('cachedAnalysisResults');
+      console.log('🗑️ Cache temizlendi, yeni analiz tetiklenecek');
+      
+      // Yeniden analiz tetikle
+      const event = new CustomEvent('reAnalyzeMatches');
+      window.dispatchEvent(event);
+      
       // Modern toast notification göster
       showToast();
     }

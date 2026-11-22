@@ -67,11 +67,24 @@ export default function Home() {
       setActiveTab('settings');
     };
     
+    // Yeniden analiz event listener (Ayarlar kaydedildiğinde)
+    const handleReAnalyze = () => {
+      console.log('🔄 Ayarlar değişti, yeniden analiz başlatılıyor...');
+      // Cache'i temizle ve yeniden analiz tetikle
+      setSmartRecommendations([]);
+      setAnalyzedCount(0);
+      // useEffect dependency'leri değişmediği için manuel tetikleme lazım
+      // Sayfa yenilendiğinde otomatik tetiklenecek
+      window.location.reload();
+    };
+    
     window.addEventListener('navigateToSettings', handleNavigateToSettings);
+    window.addEventListener('reAnalyzeMatches', handleReAnalyze);
     
     return () => {
       clearInterval(interval);
       window.removeEventListener('navigateToSettings', handleNavigateToSettings);
+      window.removeEventListener('reAnalyzeMatches', handleReAnalyze);
     };
   }, []);
 
@@ -318,7 +331,7 @@ export default function Home() {
         }
       }
 
-      // Cache yoksa veya süresi dolmuşsa, yeni analiz yap
+      // Cache noksa veya süresi dolmuşsa, yeni analiz yap
       setAnalyzing(true);
       console.log('🤖 Arka planda analiz başlatılıyor:', filteredMatches.length, 'maç');
 
@@ -334,10 +347,20 @@ export default function Home() {
           time: m.time
         }));
 
+        // Kullanıcının tolerans ayarlarını al
+        const exactTolerance = typeof window !== 'undefined'
+          ? parseFloat(localStorage.getItem('exactTolerance') || '0.01')
+          : 0.01;
+
+        console.log(`🎚️ Kullanılan tolerans: ±${exactTolerance}`);
+
         const response = await fetch('/api/smart-coupon', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ matches: matchData })
+          body: JSON.stringify({ 
+            matches: matchData,
+            exactTolerance 
+          })
         });
 
         if (response.ok) {
