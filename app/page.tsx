@@ -683,8 +683,8 @@ export default function Home() {
           <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-2 border-accent-primary border-t-transparent"></div>
           </div>
-        ) : sortBy === 'time' ? (
-          // Saate göre sıralama - lig ayrımı yok
+        ) : sortBy === 'time' || sortBy === 'recommended' ? (
+          // Saate göre veya önerilen önce sıralama - lig ayrımı yok
           <div className="pb-4">
             {sortedMatches.map(match => {
               const selection = betSlip.find(s => s.matchId === match.id);
