@@ -47,6 +47,33 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
     return type;
   };
 
+  // Alternatif tiplerine standart oran ataması
+  const getStandardOdds = (type: string): number => {
+    const oddsMap: Record<string, number> = {
+      // Karşılıklı Gol
+      'GG_YES': 1.75,
+      'GG_NO': 2.00,
+      
+      // Alt/Üst (Maç)
+      'OVER_25': 1.65,
+      'UNDER_25': 2.20,
+      'OVER_35': 2.40,
+      'UNDER_35': 1.55,
+      
+      // İlk Yarı Alt/Üst
+      'HT_OVER_05': 1.30,
+      'HT_UNDER_05': 1.85,
+      'HT_OVER_15': 1.85,
+      'HT_UNDER_15': 1.45,
+      
+      // İlk Yarı KG
+      'HT_GG_YES': 2.80,
+      'HT_GG_NO': 1.40
+    };
+    
+    return oddsMap[type] || 1.50; // Varsayılan
+  };
+
   // Her maç için seçilen seçeneği tut - ilk değer direkt hesaplanıyor
   const [matchSelections, setMatchSelections] = useState<Record<number, {
     main: any;
@@ -63,7 +90,10 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
           count: null,
           total: null
         },
-        alternatives: rec.additional_insights || []
+        alternatives: (rec.additional_insights || []).map(alt => ({
+          ...alt,
+          odds: getStandardOdds(alt.type) // Standart oran ekle
+        }))
       };
     });
     return selections;
@@ -82,7 +112,10 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
           count: null,
           total: null
         },
-        alternatives: rec.additional_insights || []
+        alternatives: (rec.additional_insights || []).map(alt => ({
+          ...alt,
+          odds: getStandardOdds(alt.type) // Standart oran ekle
+        }))
       };
     });
     setMatchSelections(selections);
@@ -215,7 +248,14 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
                           {alternatives.map((alt, idx) => (
                             <div key={`${alt.type}-${idx}`} className="bg-[#101027]/50 rounded-lg p-2.5 border border-white/[0.05] flex items-center justify-between gap-2 group hover:border-[#813BFF]/30 transition-all duration-200">
                               <div className="flex-1">
-                                <p className="text-white text-xs font-semibold">{alt.label}</p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-white text-xs font-semibold">{alt.label}</p>
+                                  {alt.odds && (
+                                    <span className="bg-[#813BFF]/20 border border-[#813BFF]/30 text-[#813BFF] font-bold px-1.5 py-0.5 rounded text-[10px]">
+                                      {alt.odds.toFixed(2)}
+                                    </span>
+                                  )}
+                                </div>
                                 <p className="text-[#00E99A] text-[10px] font-bold">
                                   %{alt.rate} ({alt.count}/{alt.total})
                                 </p>
