@@ -48,8 +48,33 @@ export default function PopularPopup({ isOpen, onClose, onSelectLeague, matches,
     };
   }, [isOpen, onClose, triggerButtonRef]);
 
+  // Fuzzy matching fonksiyonu - lig isimlerini normalize et
+  const normalizeLeagueName = (name: string): string => {
+    return name
+      .toLowerCase()
+      .replace(/[^\w\s]/g, '') // Özel karakterleri kaldır
+      .replace(/\s+/g, ' ')     // Çoklu boşlukları tek boşluğa çevir
+      .trim();
+  };
+
+  // Popüler lig adını match'lerle eşleştir
+  const findMatchingLeague = (popularLeague: string) => {
+    const normalized = normalizeLeagueName(popularLeague);
+    
+    // Anahtar kelimeler çıkar (ülke + lig tipi)
+    const keywords = normalized.split(' ').filter(w => w.length > 2);
+    
+    return matches.find(m => {
+      if (!m.leagueName) return false;
+      const matchNormalized = normalizeLeagueName(m.leagueName);
+      
+      // Tüm anahtar kelimeleri içeriyor mu kontrol et
+      return keywords.every(keyword => matchNormalized.includes(keyword));
+    });
+  };
+
   const handleSelectLeague = (leagueName: string) => {
-    const match = matches.find(m => m.leagueName === leagueName);
+    const match = findMatchingLeague(leagueName);
     if (match) {
       onSelectLeague(match.leagueId);
       onClose();
@@ -83,8 +108,14 @@ export default function PopularPopup({ isOpen, onClose, onSelectLeague, matches,
       {/* List */}
       <div className="max-h-96 overflow-y-auto p-2">
         {POPULAR_LEAGUES.map((league, index) => {
-          const matchCount = matches.filter(m => m.leagueName === league).length;
-          const match = matches.find(m => m.leagueName === league);
+          const match = findMatchingLeague(league);
+          const matchCount = match ? matches.filter(m => {
+            if (!m.leagueName) return false;
+            const normalized = normalizeLeagueName(league);
+            const keywords = normalized.split(' ').filter(w => w.length > 2);
+            const matchNormalized = normalizeLeagueName(m.leagueName);
+            return keywords.every(keyword => matchNormalized.includes(keyword));
+          }).length : 0;
           
           return (
             <button
