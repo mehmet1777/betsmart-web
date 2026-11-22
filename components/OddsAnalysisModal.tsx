@@ -394,6 +394,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                     <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
                       {matchDetails.h2h_data.matches.map((m, idx) => {
+                        if (!m.score || !m.score.includes('-')) return null;
                         const [homeScore, awayScore] = m.score.split('-').map(s => parseInt(s.trim()));
                         const result = homeScore > awayScore ? 'home' : homeScore < awayScore ? 'away' : 'draw';
                         
@@ -427,15 +428,16 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                     {/* H2H İstatistik */}
                     {(() => {
-                      const homeWins = matchDetails.h2h_data.matches.filter(m => {
+                      const validMatches = matchDetails.h2h_data.matches.filter(m => m.score && m.score.includes('-'));
+                      const homeWins = validMatches.filter(m => {
                         const [h, a] = m.score.split('-').map(s => parseInt(s.trim()));
-                        return h > a;
+                        return !isNaN(h) && !isNaN(a) && h > a;
                       }).length;
-                      const draws = matchDetails.h2h_data.matches.filter(m => {
+                      const draws = validMatches.filter(m => {
                         const [h, a] = m.score.split('-').map(s => parseInt(s.trim()));
-                        return h === a;
+                        return !isNaN(h) && !isNaN(a) && h === a;
                       }).length;
-                      const awayWins = matchDetails.h2h_data.matches.length - homeWins - draws;
+                      const awayWins = validMatches.length - homeWins - draws;
 
                       return (
                         <div className="mt-4 grid grid-cols-3 gap-3">
@@ -472,8 +474,10 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                     <div className="space-y-2">
                       {matchDetails.form_home.slice(0, 5).map((m, idx) => {
+                        if (!m.score || !m.score.includes('-')) return null;
                         const isHome = m.home_team === matchDetails.home_team;
                         const [homeScore, awayScore] = m.score.split('-').map(s => parseInt(s.trim()));
+                        if (isNaN(homeScore) || isNaN(awayScore)) return null;
                         const won = isHome ? homeScore > awayScore : awayScore > homeScore;
                         const draw = homeScore === awayScore;
                         
@@ -514,8 +518,10 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                     <div className="space-y-2">
                       {matchDetails.form_away.slice(0, 5).map((m, idx) => {
+                        if (!m.score || !m.score.includes('-')) return null;
                         const isHome = m.home_team === matchDetails.away_team;
                         const [homeScore, awayScore] = m.score.split('-').map(s => parseInt(s.trim()));
+                        if (isNaN(homeScore) || isNaN(awayScore)) return null;
                         const won = isHome ? homeScore > awayScore : awayScore > homeScore;
                         const draw = homeScore === awayScore;
                         
