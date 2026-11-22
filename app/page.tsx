@@ -271,6 +271,12 @@ export default function Home() {
       else if (rec.recommendation === 'HT_GG_YES') prediction = 'HT_GG_YES';
       else if (rec.recommendation === 'HT_GG_NO') prediction = 'HT_GG_NO';
 
+      // Match yoksa null dön (filter ile temizlenecek)
+      if (!match) {
+        console.error('❌ Match bulunamadı ve oluşturulamadı:', rec.match);
+        return null;
+      }
+
       return {
         matchId: match.id,
         match: match,
