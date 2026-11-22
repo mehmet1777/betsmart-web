@@ -109,10 +109,21 @@ export default function Home() {
     }
   };
 
-  // Tarih değiştiğinde maçları filtrele
+  // Tarih değiştiğinde maçları filtrele VE cache'i temizle
   useEffect(() => {
     console.log(`🔍 Filtering for date: ${selectedDate}`);
     console.log(`📦 Total matches in allMatches: ${allMatches.length}`);
+    
+    // Tarih değişince cache'i temizle
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('lastAnalysisTime');
+      localStorage.removeItem('cachedAnalysisResults');
+      console.log('🗑️ Tarih değişti, cache temizlendi');
+      
+      // Önerileri sıfırla
+      setSmartRecommendations([]);
+      setAnalyzedCount(0);
+    }
     
     const now = new Date();
     console.log(`⏰ Current time: ${now.toLocaleString('tr-TR')}`);
@@ -223,12 +234,18 @@ export default function Home() {
     
     // Akıllı kupon önerilerini bet slip'e ekle
     const newSelections: BetSelection[] = recommendations.map(rec => {
-      // Maç objesini matches array'inden bul
-      const match = matches.find(m => m.id === rec.match.id);
+      // Önce mevcut matches array'inde ara
+      let match = matches.find(m => m.id === rec.match.id);
       
+      // Bulamazsa (farklı gün seçiliyse), allMatches'ten ara
       if (!match) {
-        console.warn('⚠️ Maç bulunamadı:', rec.match.id);
-        return null;
+        match = allMatches.find(m => m.id === rec.match.id);
+      }
+      
+      // Hala bulamazsa, recommendation'daki match'i kullan
+      if (!match) {
+        console.warn('⚠️ Maç matches/allMatches\'te bulunamadı, recommendation\'daki match kullanılıyor:', rec.match.id);
+        match = rec.match;
       }
 
       // Öneri tipine göre prediction belirle
