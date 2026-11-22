@@ -16,7 +16,7 @@ interface MatchCardProps {
   leagueName: string;
   leagueIcon?: string;
   onSelect: (selection: BetSelection) => void;
-  selectedPrediction?: '1' | 'X' | '2';
+  selectedPrediction?: BetSelection['prediction'];
   isLive?: boolean;
   isRecommended?: boolean;
   recommendedWinRate?: number;
