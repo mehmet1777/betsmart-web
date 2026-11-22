@@ -426,26 +426,28 @@ class TelegramBotManager:
                     )
                     
                     # Match details fetch (thread'de çalıştır, 1-2 dakika sürebilir)
+                    # Returns: (success_count, error_count, skipped_count)
                     details_result = await loop.run_in_executor(
                         None, 
                         fetch_all_match_details_for_future_matches
                     )
                     
-                    if details_result['success']:
-                        success_detail_count = details_result['success_count']
-                        failed_detail_count = details_result['failed_count']
-                        
-                        if success_detail_count > 0:
-                            details_status = f"📊 {success_detail_count} maç detayı eklendi\n"
-                            if failed_detail_count > 0:
-                                details_status += f"⚠️ {failed_detail_count} maç detayı alınamadı\n"
-                        else:
-                            details_status = "⚠️ Maç detayları alınamadı\n"
+                    # Tuple unpack
+                    success_detail_count, failed_detail_count, skipped_count = details_result
+                    
+                    if success_detail_count > 0:
+                        details_status = f"📊 {success_detail_count} maç detayı eklendi\n"
+                        if failed_detail_count > 0:
+                            details_status += f"⚠️ {failed_detail_count} maç detayı alınamadı\n"
+                    elif failed_detail_count > 0:
+                        details_status = f"⚠️ {failed_detail_count} maç detayı alınamadı\n"
                     else:
-                        details_status = "⚠️ Maç detayı hatası\n"
+                        details_status = "⚠️ Maç detayları alınamadı\n"
                         
                 except Exception as e:
                     print(f"Match details hatası: {e}")
+                    import traceback
+                    traceback.print_exc()
                     details_status = "⚠️ Maç detayı hatası\n"
                 
                 # İlk oranları odds_changes'e kaydet (Sahadan'dan tekrar çekmeden!)
