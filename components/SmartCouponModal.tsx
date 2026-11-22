@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Sparkles, BarChart3, Ticket, TrendingUp, RefreshCw } from 'lucide-react';
 import OddsAnalysisModal from './OddsAnalysisModal';
 
@@ -40,14 +40,37 @@ interface SmartCouponModalProps {
 export default function SmartCouponModal({ isOpen, onClose, recommendations: initialRecommendations, analyzedCount, onAddToCoupon }: SmartCouponModalProps) {
   const [selectedMatchForAnalysis, setSelectedMatchForAnalysis] = useState<any | null>(null);
   
-  // Her maç için seçilen seçeneği tut
+  const getRecommendationLabel = (type: string) => {
+    if (type === 'MS1') return 'Ev Sahibi';
+    if (type === 'MSX') return 'Beraberlik';
+    if (type === 'MS2') return 'Deplasman';
+    return type;
+  };
+
+  // Her maç için seçilen seçeneği tut - ilk değer direkt hesaplanıyor
   const [matchSelections, setMatchSelections] = useState<Record<number, {
     main: any;
     alternatives: any[];
-  }>>({});
+  }>>(() => {
+    const selections: Record<number, any> = {};
+    initialRecommendations.forEach((rec, idx) => {
+      selections[idx] = {
+        main: {
+          type: rec.recommendation,
+          label: getRecommendationLabel(rec.recommendation),
+          odds: rec.recommended_odds,
+          rate: rec.win_rate,
+          count: null,
+          total: null
+        },
+        alternatives: rec.additional_insights || []
+      };
+    });
+    return selections;
+  });
 
-  // İlk yüklemede ana öneri + alternatifleri ayarla
-  useState(() => {
+  // Recommendations değiştiğinde state'i güncelle
+  useEffect(() => {
     const selections: Record<number, any> = {};
     initialRecommendations.forEach((rec, idx) => {
       selections[idx] = {
@@ -63,16 +86,9 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
       };
     });
     setMatchSelections(selections);
-  });
+  }, [initialRecommendations]);
   
   if (!isOpen) return null;
-
-  const getRecommendationLabel = (type: string) => {
-    if (type === 'MS1') return 'Ev Sahibi';
-    if (type === 'MSX') return 'Beraberlik';
-    if (type === 'MS2') return 'Deplasman';
-    return type;
-  };
 
   const getRecommendationColor = (type: string) => {
     if (type === 'MS1') return 'bg-[#00E99A]/20 text-[#00E99A] border-[#00E99A]/40';
@@ -81,7 +97,7 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
     return 'bg-gray-500/20 text-gray-400 border-gray-500/40';
   };
 
-  // Seçenek değiştir
+  // Seçenek değiştir (animasyonlu)
   const handleSwapOption = (matchIndex: number, clickedAlternative: any) => {
     setMatchSelections(prev => {
       const current = prev[matchIndex];
@@ -179,12 +195,12 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
                     {/* ANA ÖNERİ */}
                     <div className="mb-3">
                       <p className="text-[#A5A5C5] text-[10px] mb-2">📌 Ana Öneri:</p>
-                      <div className="bg-[#101027] rounded-lg p-3 border border-[rgba(139,76,255,0.2)]">
+                      <div className="bg-[#101027] rounded-lg p-3 border border-[rgba(139,76,255,0.2)] transition-all duration-300 ease-in-out">
                         <div className="flex gap-2 items-center">
-                          <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold flex-1 ${getRecommendationColor(mainOption.type)}`}>
+                          <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold flex-1 transition-all duration-300 ${getRecommendationColor(mainOption.type)}`}>
                             {mainOption.label}
                           </div>
-                          <div className="bg-[#813BFF]/20 border border-[#813BFF]/40 text-[#813BFF] font-black px-3 py-1.5 rounded-lg text-xs">
+                          <div className="bg-[#813BFF]/20 border border-[#813BFF]/40 text-[#813BFF] font-black px-3 py-1.5 rounded-lg text-xs transition-all duration-300">
                             {mainOption.odds?.toFixed(2) || 'N/A'}
                           </div>
                         </div>
@@ -197,7 +213,7 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
                         <p className="text-[#A5A5C5] text-[10px] mb-2">💡 Bu Maçlarda Ayrıca:</p>
                         <div className="space-y-2">
                           {alternatives.map((alt, idx) => (
-                            <div key={idx} className="bg-[#101027]/50 rounded-lg p-2.5 border border-white/[0.05] flex items-center justify-between gap-2 group hover:border-[#813BFF]/30 transition-colors">
+                            <div key={`${alt.type}-${idx}`} className="bg-[#101027]/50 rounded-lg p-2.5 border border-white/[0.05] flex items-center justify-between gap-2 group hover:border-[#813BFF]/30 transition-all duration-200">
                               <div className="flex-1">
                                 <p className="text-white text-xs font-semibold">{alt.label}</p>
                                 <p className="text-[#00E99A] text-[10px] font-bold">
@@ -206,9 +222,9 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
                               </div>
                               <button
                                 onClick={() => handleSwapOption(i, alt)}
-                                className="flex items-center gap-1 px-2.5 py-1.5 bg-[#813BFF]/10 hover:bg-[#813BFF]/20 text-[#813BFF] rounded-lg text-[10px] font-bold transition-all border border-[#813BFF]/20 hover:border-[#813BFF]/40"
+                                className="flex items-center gap-1 px-2.5 py-1.5 bg-[#813BFF]/10 hover:bg-[#813BFF]/20 text-[#813BFF] rounded-lg text-[10px] font-bold transition-all duration-200 border border-[#813BFF]/20 hover:border-[#813BFF]/40 active:scale-95"
                               >
-                                <RefreshCw size={12} />
+                                <RefreshCw size={12} className="transition-transform duration-300 group-hover:rotate-180" />
                                 <span>Değiştir</span>
                               </button>
                             </div>
