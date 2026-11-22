@@ -20,18 +20,50 @@ export default function CouponSheet({ isOpen, onClose, selections, totalOdds, on
   const [showToast, setShowToast] = useState(false);
   const [toastData, setToastData] = useState({ title: '', message: '', type: 'success' as const });
 
-  const getPredictionLabel = (prediction: '1' | 'X' | '2') => {
-    return prediction;
+  const getPredictionLabel = (prediction: BetSelection['prediction']) => {
+    const labels: Record<BetSelection['prediction'], string> = {
+      '1': '1',
+      'X': 'X',
+      '2': '2',
+      'GG': 'KG Var',
+      'GG_NO': 'KG Yok',
+      'OVER_25': '2.5 Üst',
+      'UNDER_25': '2.5 Alt',
+      'OVER_35': '3.5 Üst',
+      'UNDER_35': '3.5 Alt',
+      'HT_OVER_05': 'İY 0.5 Üst',
+      'HT_UNDER_05': 'İY 0.5 Alt',
+      'HT_OVER_15': 'İY 1.5 Üst',
+      'HT_UNDER_15': 'İY 1.5 Alt',
+      'HT_GG_YES': 'İY KG Var',
+      'HT_GG_NO': 'İY KG Yok'
+    };
+    return labels[prediction] || prediction;
+  };
+
+  const getPredictionCategory = (prediction: BetSelection['prediction']) => {
+    if (['1', 'X', '2'].includes(prediction)) return 'Maç Sonucu';
+    if (['GG', 'GG_NO'].includes(prediction)) return 'Karşılıklı Gol';
+    if (['OVER_25', 'UNDER_25', 'OVER_35', 'UNDER_35'].includes(prediction)) return 'Alt/Üst';
+    if (prediction.startsWith('HT_')) return 'İlk Yarı';
+    return 'Diğer';
   };
 
   const getOddsForSelection = (selection: BetSelection) => {
+    // Önce customOdds varsa onu kullan (akıllı kupondan)
+    if (selection.customOdds) {
+      return selection.customOdds;
+    }
+
     const { match, prediction } = selection;
     if (!match.odds) return 1.50;
     
+    // Sadece MS1/MSX/MS2 için maçın oranlarını kullan
     switch (prediction) {
       case '1': return parseFloat(match.odds.home);
       case 'X': return parseFloat(match.odds.draw);
       case '2': return parseFloat(match.odds.away);
+      default: return 1.50; // Alternatifler için varsayılan (custom olmalı)
     }
   };
 
@@ -259,7 +291,7 @@ export default function CouponSheet({ isOpen, onClose, selections, totalOdds, on
                               </div>
                               <div className="flex items-center gap-1 mt-0.5">
                                 <div className="h-0.5 w-0.5 bg-[#19E98B] rounded-full"></div>
-                                <span className="text-[9px] text-gray-400">Maç Sonucu</span>
+                                <span className="text-[9px] text-gray-400">{getPredictionCategory(selection.prediction)}</span>
                                 <span className="text-[9px] text-gray-600">•</span>
                                 <span className="text-[9px] font-bold text-white">{getPredictionLabel(selection.prediction)}</span>
                               </div>

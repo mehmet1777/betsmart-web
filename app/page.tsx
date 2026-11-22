@@ -207,6 +207,7 @@ export default function Home() {
 
   const handleSmartCouponAdd = (recommendations: any[]) => {
     console.log('🎯 handleSmartCouponAdd çağrıldı, öneri sayısı:', recommendations.length);
+    console.log('📊 Öneriler:', recommendations.map(r => ({ type: r.recommendation, odds: r.recommended_odds })));
     
     // Akıllı kupon önerilerini bet slip'e ekle
     const newSelections: BetSelection[] = recommendations.map(rec => {
@@ -218,10 +219,34 @@ export default function Home() {
         return null;
       }
 
+      // Öneri tipine göre prediction belirle
+      let prediction = '1'; // varsayılan
+      
+      // Maç Sonucu
+      if (rec.recommendation === 'MS1') prediction = '1';
+      else if (rec.recommendation === 'MSX') prediction = 'X';
+      else if (rec.recommendation === 'MS2') prediction = '2';
+      // Karşılıklı Gol
+      else if (rec.recommendation === 'GG_YES') prediction = 'GG';
+      else if (rec.recommendation === 'GG_NO') prediction = 'GG_NO';
+      // Alt/Üst
+      else if (rec.recommendation === 'OVER_25') prediction = 'OVER_25';
+      else if (rec.recommendation === 'UNDER_25') prediction = 'UNDER_25';
+      else if (rec.recommendation === 'OVER_35') prediction = 'OVER_35';
+      else if (rec.recommendation === 'UNDER_35') prediction = 'UNDER_35';
+      // İlk Yarı
+      else if (rec.recommendation === 'HT_OVER_05') prediction = 'HT_OVER_05';
+      else if (rec.recommendation === 'HT_UNDER_05') prediction = 'HT_UNDER_05';
+      else if (rec.recommendation === 'HT_OVER_15') prediction = 'HT_OVER_15';
+      else if (rec.recommendation === 'HT_UNDER_15') prediction = 'HT_UNDER_15';
+      else if (rec.recommendation === 'HT_GG_YES') prediction = 'HT_GG_YES';
+      else if (rec.recommendation === 'HT_GG_NO') prediction = 'HT_GG_NO';
+
       return {
         matchId: match.id,
         match: match,
-        prediction: rec.recommendation === 'MS1' ? '1' : rec.recommendation === 'MSX' ? 'X' : '2'
+        prediction: prediction,
+        customOdds: rec.recommended_odds // Özel oran bilgisini ekle
       };
     }).filter(Boolean) as BetSelection[];
 

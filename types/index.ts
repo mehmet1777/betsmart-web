@@ -30,7 +30,9 @@ export interface Match {
 export interface BetSelection {
   matchId: number;
   match: Match;
-  prediction: '1' | 'X' | '2'; // 1: Ev sahibi, X: Beraberlik, 2: Deplasman
+  prediction: '1' | 'X' | '2' | 'GG' | 'GG_NO' | 'OVER_25' | 'UNDER_25' | 'OVER_35' | 'UNDER_35' | 
+              'HT_OVER_05' | 'HT_UNDER_05' | 'HT_OVER_15' | 'HT_UNDER_15' | 'HT_GG_YES' | 'HT_GG_NO';
+  customOdds?: number; // Akıllı kupondan gelen özel oran
 }
 
 // Kupon
