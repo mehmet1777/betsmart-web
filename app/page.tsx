@@ -43,6 +43,7 @@ export default function Home() {
   const [sortBy, setSortBy] = useState<'time' | 'league'>('league');
   const [activeTab, setActiveTab] = useState('home');
   const [isCouponSheetOpen, setIsCouponSheetOpen] = useState(false);
+  const [isCouponMinimized, setIsCouponMinimized] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isLeagueModalOpen, setIsLeagueModalOpen] = useState(false);
   const [isSmartCouponOpen, setIsSmartCouponOpen] = useState(false);
@@ -203,6 +204,17 @@ export default function Home() {
   const clearBetSlip = () => {
     setBetSlip([]);
     setIsCouponSheetOpen(false);
+    setIsCouponMinimized(false);
+  };
+
+  const handleMinimizeCoupon = () => {
+    setIsCouponSheetOpen(false);
+    setIsCouponMinimized(true);
+  };
+
+  const handleExpandCoupon = () => {
+    setIsCouponMinimized(false);
+    setIsCouponSheetOpen(true);
   };
 
   const handleSmartCouponAdd = (recommendations: any[]) => {
@@ -759,6 +771,8 @@ export default function Home() {
         totalOdds={totalOdds}
         onRemove={removeFromBetSlip}
         onClear={clearBetSlip}
+        onMinimize={handleMinimizeCoupon}
+        onExpand={handleExpandCoupon}
       />
       </>
       )}

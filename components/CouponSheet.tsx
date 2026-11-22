@@ -12,9 +12,11 @@ interface CouponSheetProps {
   totalOdds: number;
   onRemove: (matchId: number) => void;
   onClear: () => void;
+  onMinimize?: () => void; // Küçült butonu için
+  onExpand?: () => void; // Minimize bar'dan genişlet için
 }
 
-export default function CouponSheet({ isOpen, onClose, selections, totalOdds, onRemove, onClear }: CouponSheetProps) {
+export default function CouponSheet({ isOpen, onClose, selections, totalOdds, onRemove, onClear, onMinimize, onExpand }: CouponSheetProps) {
   const [betAmount, setBetAmount] = useState<number>(100);
   const [isSaving, setIsSaving] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -176,6 +178,42 @@ export default function CouponSheet({ isOpen, onClose, selections, totalOdds, on
         duration={4000}
       />
 
+      {/* Minimized Coupon Bar - Ana sayfa altında */}
+      {!isOpen && selections.length > 0 && (
+        <div 
+          onClick={onExpand}
+          className="fixed bottom-[72px] left-0 right-0 z-[45] mx-4 mb-2 cursor-pointer animate-in slide-in-from-bottom duration-300"
+        >
+          <div className="bg-gradient-to-r from-[#0D2820] to-[#0A1A15] rounded-2xl p-3 border border-[#19E98B]/30 shadow-xl backdrop-blur-sm">
+            <div className="flex items-center justify-between">
+              {/* Sol: Maç sayısı */}
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 bg-[#19E98B] rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-lg font-black text-[#0A0E13]">{selections.length}</span>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">Kuponunuz Hazır</p>
+                  <p className="text-[10px] text-gray-400">{selections.length} maç seçildi</p>
+                </div>
+              </div>
+
+              {/* Sağ: Toplam oran + açma ikonu */}
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <p className="text-[10px] text-gray-400">Toplam Oran</p>
+                  <p className="text-lg font-black text-[#19E98B]">{totalOdds.toFixed(2)}</p>
+                </div>
+                <div className="w-8 h-8 bg-[#19E98B]/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-5 h-5 text-[#19E98B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Backdrop Overlay */}
       {isOpen && (
         <div 
@@ -208,13 +246,24 @@ export default function CouponSheet({ isOpen, onClose, selections, totalOdds, on
                 <p className="text-[10px] text-gray-400 font-medium">Seçtiğiniz maçlar kuponunuzda</p>
               </div>
             </div>
-            <button
-              onClick={onClear}
-              className="px-2.5 py-1.5 bg-gray-900/60 hover:bg-gray-800/80 text-white text-[10px] font-semibold rounded-lg border border-gray-700/50 transition-all flex items-center gap-1"
-            >
-              <Trash2 className="w-3 h-3" />
-              Temizle
-            </button>
+            <div className="flex items-center gap-2">
+              {onMinimize && (
+                <button
+                  onClick={onMinimize}
+                  className="px-2.5 py-1.5 bg-gray-900/60 hover:bg-gray-800/80 text-white text-[10px] font-semibold rounded-lg border border-gray-700/50 transition-all flex items-center gap-1"
+                >
+                  <Minus className="w-3 h-3" />
+                  Küçült
+                </button>
+              )}
+              <button
+                onClick={onClear}
+                className="px-2.5 py-1.5 bg-gray-900/60 hover:bg-gray-800/80 text-white text-[10px] font-semibold rounded-lg border border-gray-700/50 transition-all flex items-center gap-1"
+              >
+                <Trash2 className="w-3 h-3" />
+                Temizle
+              </button>
+            </div>
           </div>
         </div>
 
