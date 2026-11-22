@@ -283,6 +283,42 @@ export default function Home() {
     const analyzeInBackground = async () => {
       if (filteredMatches.length === 0 || analyzing) return;
 
+      // Cache kontrolü - 10 dakika
+      const CACHE_DURATION = 10 * 60 * 1000; // 10 dakika
+      const now = Date.now();
+      
+      if (typeof window !== 'undefined') {
+        const lastAnalysisTime = localStorage.getItem('lastAnalysisTime');
+        const cachedResults = localStorage.getItem('cachedAnalysisResults');
+        
+        // Cache varsa ve 10 dakika geçmemişse, cache'den yükle
+        if (lastAnalysisTime && cachedResults) {
+          const elapsed = now - parseInt(lastAnalysisTime);
+          
+          if (elapsed < CACHE_DURATION) {
+            console.log(`♻️ Cache'den yükleniyor (${Math.round(elapsed / 1000 / 60)} dakika önce analiz edildi)`);
+            
+            try {
+              const cached = JSON.parse(cachedResults);
+              setSmartRecommendations(cached.recommendations || []);
+              setAnalyzedCount(cached.analyzed_count || 0);
+              
+              // Öneri varsa bildirim göster
+              if (cached.recommendations?.length > 0 && !isNotificationOpen) {
+                setIsNotificationOpen(true);
+              }
+              
+              return; // Cache'den yüklendi, analiz yapma
+            } catch (e) {
+              console.warn('⚠️ Cache parse hatası, yeniden analiz yapılıyor');
+            }
+          } else {
+            console.log(`🔄 Cache süresi doldu (${Math.round(elapsed / 1000 / 60)} dakika), yeniden analiz ediliyor`);
+          }
+        }
+      }
+
+      // Cache yoksa veya süresi dolmuşsa, yeni analiz yap
       setAnalyzing(true);
       console.log('🤖 Arka planda analiz başlatılıyor:', filteredMatches.length, 'maç');
 
@@ -311,6 +347,17 @@ export default function Home() {
           setSmartRecommendations(data.recommendations || []);
           setAnalyzedCount(data.analyzed_count || 0);
 
+          // Cache'e kaydet
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('lastAnalysisTime', now.toString());
+            localStorage.setItem('cachedAnalysisResults', JSON.stringify({
+              recommendations: data.recommendations,
+              analyzed_count: data.analyzed_count,
+              timestamp: now
+            }));
+            console.log('💾 Sonuçlar cache\'e kaydedildi');
+          }
+
           // Eğer öneri varsa ve bildirim açık değilse, otomatik aç
           if (data.recommended_count > 0 && !isNotificationOpen) {
             setIsNotificationOpen(true);
@@ -323,7 +370,7 @@ export default function Home() {
       }
     };
 
-    // Debounce: 1 saniye bekle, sonra analiz et
+    // Debounce: 1 saniye bekle, sonra analiz et (veya cache'den yükle)
     const timer = setTimeout(() => {
       analyzeInBackground();
     }, 1000);
