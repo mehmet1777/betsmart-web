@@ -24,6 +24,7 @@ export interface Match {
     draw: string;
     away: string;
   };
+  match_uuid?: string; // Sahadan match UUID (H2H ve form verileri için)
 }
 
 // Kupon seçimi

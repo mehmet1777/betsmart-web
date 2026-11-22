@@ -269,9 +269,12 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
             {oddsAvailable ? (
               <button
                 onClick={() => setShowAnalysis(true)}
-                className="bg-accent-primary/10 hover:bg-accent-primary/20 text-accent-primary px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                className="bg-accent-primary/10 hover:bg-accent-primary/20 text-accent-primary px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
               >
                 📊 Analiz
+                {match.match_uuid && (
+                  <span className="text-sm" title="Detaylı H2H ve form verileri mevcut">✨</span>
+                )}
               </button>
             ) : (
               <span className="bg-bg-elevated/50 text-text-muted/60 px-3 py-1.5 rounded-lg text-base border border-border-color/30">

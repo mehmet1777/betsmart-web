@@ -112,6 +112,8 @@ export async function GET() {
           draw: match.odd_x > 1.01 ? match.odd_x.toFixed(2) : '-',
           away: match.odd_2 > 1.01 ? match.odd_2.toFixed(2) : '-'
         },
+        // Sahadan match UUID (detaylı analiz için)
+        match_uuid: match.match_uuid || undefined,
         // Extra bilgiler (isteğe bağlı kullanım için)
         overUnder: {
           over: match.over_25 > 1.01 ? match.over_25.toFixed(2) : '-',
