@@ -276,6 +276,9 @@ def parse_sahadan_match(item, league_name, league_time='', date_str=None):
         # BetSmart formatına dönüştür (Mackolik ile uyumlu)
         datetime_str = f"{formatted_date} {time}"  # "21.11.2026 04:00"
         
+        # UUID'yi sakla (match details için)
+        match_uuid = item.get('uuid', None)
+        
         match = {
             'datetime': datetime_str,  # Supabase için datetime key'i (Mackolik formatında)
             'date': formatted_date,
@@ -291,7 +294,8 @@ def parse_sahadan_match(item, league_name, league_time='', date_str=None):
             'over_25': None,
             'under_25': None,
             'gg_yes': None,
-            'gg_no': None
+            'gg_no': None,
+            'uuid': match_uuid  # Match details için
         }
         
         return match

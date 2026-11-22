@@ -133,7 +133,8 @@ def sync_matches_to_supabase(matches: List[Dict]) -> tuple:
                     'odd_x': float(match.get('odd_x') or 0),
                     'odd_2': float(match.get('odd_2') or 0),
                     'over_25': float(match.get('over_25') or 0),
-                    'under_25': float(match.get('under_25') or 0)
+                    'under_25': float(match.get('under_25') or 0),
+                    'match_uuid': match.get('uuid', None)  # Match details için UUID
                 }
                 
                 # UPSERT: Aynı datetime+home_team+away_team varsa güncelle, yoksa ekle
