@@ -30,6 +30,7 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const badgeRef = useRef<HTMLButtonElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const [hasMatchDetails, setHasMatchDetails] = useState(false);
 
   useEffect(() => {
     // Oran değişikliklerini fetch et
@@ -56,8 +57,32 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
       }
     };
 
+    // Sahadan match details kontrolü
+    const checkMatchDetails = async () => {
+      if (!match.match_uuid) {
+        setHasMatchDetails(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/match-details', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ match_uuid: match.match_uuid })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setHasMatchDetails(data.success && data.details !== null);
+        }
+      } catch (err) {
+        setHasMatchDetails(false);
+      }
+    };
+
     fetchOddsChanges();
-  }, [match.home.name, match.away.name]);
+    checkMatchDetails();
+  }, [match.home.name, match.away.name, match.match_uuid]);
 
   // Tooltip pozisyonunu hesapla
   useEffect(() => {
@@ -272,7 +297,7 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
                 className="bg-accent-primary/10 hover:bg-accent-primary/20 text-accent-primary px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
               >
                 📊 Analiz
-                {match.match_uuid && (
+                {hasMatchDetails && (
                   <span className="text-sm" title="Detaylı H2H ve form verileri mevcut">✨</span>
                 )}
               </button>
