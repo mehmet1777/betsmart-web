@@ -40,7 +40,7 @@ export default function Home() {
     return `${year}-${month}-${day}`;
   });
   const [filterMode, setFilterMode] = useState<'single' | 'popular' | 'favorites'>('single');
-  const [sortBy, setSortBy] = useState<'time' | 'league' | 'recommended'>('league');
+  const [sortBy, setSortBy] = useState<'time' | 'league' | 'recommended'>('time');
   const [activeTab, setActiveTab] = useState('home');
   const [isCouponSheetOpen, setIsCouponSheetOpen] = useState(false);
   const [isCouponMinimized, setIsCouponMinimized] = useState(false);

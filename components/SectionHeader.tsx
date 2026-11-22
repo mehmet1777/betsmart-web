@@ -92,17 +92,6 @@ export default function SectionHeader({ title, matchCount, selectedDate, onDateC
               <span className="text-base">🕐</span>
             </button>
             <button
-              onClick={() => onSortChange('league')}
-              className={`p-1.5 rounded transition-all ${
-                sortBy === 'league' 
-                  ? 'bg-accent-primary text-white' 
-                  : 'text-text-secondary hover:text-text-primary'
-              }`}
-              title="Lige Göre"
-            >
-              <span className="text-base">🏆</span>
-            </button>
-            <button
               onClick={() => onSortChange('recommended')}
               className={`p-1.5 rounded transition-all ${
                 sortBy === 'recommended' 
