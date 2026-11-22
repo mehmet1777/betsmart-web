@@ -166,8 +166,8 @@ export default function Settings() {
                 
                 <input
                   type="range"
-                  min="0.005"
-                  max="0.050"
+                  min="0.01"
+                  max="0.25"
                   step="0.005"
                   value={smartCouponTolerance}
                   onChange={(e) => handleToleranceChange('smartCoupon', parseFloat(e.target.value))}
@@ -175,9 +175,9 @@ export default function Settings() {
                 />
                 
                 <div className="flex justify-between text-xs text-text-muted mt-2">
-                  <span>0.005</span>
-                  <span>0.027</span>
-                  <span>0.050</span>
+                  <span>0.010</span>
+                  <span>0.130</span>
+                  <span>0.250</span>
                 </div>
               </div>
 
