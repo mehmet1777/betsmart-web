@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
 
           // KG Var
           const ggYesRate = (stats.ggYes / stats.totalValid) * 100;
-          if (ggYesRate >= 60) {
+          if (ggYesRate >= 75) {
             additionalInsights.push({
               type: 'GG_YES',
               label: '⚽ Karşılıklı Gol Var',
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
 
           // KG Yok
           const ggNoRate = (stats.ggNo / stats.totalValid) * 100;
-          if (ggNoRate >= 60) {
+          if (ggNoRate >= 75) {
             additionalInsights.push({
               type: 'GG_NO',
               label: '🚫 Karşılıklı Gol Yok',
@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
 
           // 2.5 Üst
           const over25Rate = (stats.over_25 / stats.totalValid) * 100;
-          if (over25Rate >= 60) {
+          if (over25Rate >= 75) {
             additionalInsights.push({
               type: 'OVER_25',
               label: '📈 2.5 Üst',
@@ -231,7 +231,7 @@ export async function POST(request: NextRequest) {
 
           // 3.5 Üst
           const over35Rate = (stats.over_35 / stats.totalValid) * 100;
-          if (over35Rate >= 60) {
+          if (over35Rate >= 75) {
             additionalInsights.push({
               type: 'OVER_35',
               label: '📈 3.5 Üst',
@@ -244,7 +244,7 @@ export async function POST(request: NextRequest) {
           // İlk Yarı 0.5 Üst
           if (stats.totalWithHalfTime >= 3) {
             const htOver05Rate = (stats.ht_over_05 / stats.totalWithHalfTime) * 100;
-            if (htOver05Rate >= 60) {
+            if (htOver05Rate >= 75) {
               additionalInsights.push({
                 type: 'HT_OVER_05',
                 label: '🕐 İlk Yarı 0.5 Üst',
@@ -258,7 +258,7 @@ export async function POST(request: NextRequest) {
           // İlk Yarı 1.5 Üst
           if (stats.totalWithHalfTime >= 3) {
             const htOver15Rate = (stats.ht_over_15 / stats.totalWithHalfTime) * 100;
-            if (htOver15Rate >= 60) {
+            if (htOver15Rate >= 75) {
               additionalInsights.push({
                 type: 'HT_OVER_15',
                 label: '🕐 İlk Yarı 1.5 Üst',
@@ -272,7 +272,7 @@ export async function POST(request: NextRequest) {
           // İlk Yarı KG Var
           if (stats.totalWithHalfTime >= 3) {
             const htGGRate = (stats.ht_gg_yes / stats.totalWithHalfTime) * 100;
-            if (htGGRate >= 60) {
+            if (htGGRate >= 75) {
               additionalInsights.push({
                 type: 'HT_GG_YES',
                 label: '🕐⚽ İlk Yarı KG Var',
