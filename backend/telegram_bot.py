@@ -411,6 +411,43 @@ class TelegramBotManager:
                     parse_mode='HTML'
                 )
                 
+                # Match details fetch et (H2H ve form verileri)
+                details_status = ""
+                try:
+                    from fetch_all_match_details import fetch_all_match_details_for_future_matches
+                    
+                    await status_msg.edit_text(
+                        f"✅ <b>Maçlar Kaydedildi!</b>\n\n"
+                        f"{cleanup_msg}"
+                        f"📊 <b>{success_count}</b> maç kaydedildi\n\n"
+                        f"🔄 İlk oranlar kaydediliyor...\n"
+                        f"📊 Maç detayları çekiliyor (H2H, form)...",
+                        parse_mode='HTML'
+                    )
+                    
+                    # Match details fetch (thread'de çalıştır, 1-2 dakika sürebilir)
+                    details_result = await loop.run_in_executor(
+                        None, 
+                        fetch_all_match_details_for_future_matches
+                    )
+                    
+                    if details_result['success']:
+                        success_detail_count = details_result['success_count']
+                        failed_detail_count = details_result['failed_count']
+                        
+                        if success_detail_count > 0:
+                            details_status = f"📊 {success_detail_count} maç detayı eklendi\n"
+                            if failed_detail_count > 0:
+                                details_status += f"⚠️ {failed_detail_count} maç detayı alınamadı\n"
+                        else:
+                            details_status = "⚠️ Maç detayları alınamadı\n"
+                    else:
+                        details_status = "⚠️ Maç detayı hatası\n"
+                        
+                except Exception as e:
+                    print(f"Match details hatası: {e}")
+                    details_status = "⚠️ Maç detayı hatası\n"
+                
                 # İlk oranları odds_changes'e kaydet (Sahadan'dan tekrar çekmeden!)
                 try:
                     def save_initial_odds():
@@ -498,7 +535,8 @@ class TelegramBotManager:
                     f"📊 <b>{success_count}</b> maç kaydedildi\n"
                     f"☁️ Supabase'e yüklendi\n"
                     f"🌐 Web sitesinde görünür\n"
-                    f"{odds_status}\n\n"
+                    f"{odds_status}\n"
+                    f"{details_status}\n"
                     f"📅 <b>Tarih Dağılımı:</b>\n"
                     f"   • Bugün: {today_matches} maç\n"
                     f"   • Yarın: {tomorrow_matches} maç\n"
