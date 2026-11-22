@@ -393,20 +393,26 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                     </div>
 
                     <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
-                      {matchDetails.h2h_data.matches.map((m, idx) => {
-                        if (!m.score || !m.score.includes('-')) return null;
-                        const [homeScore, awayScore] = m.score.split('-').map(s => parseInt(s.trim()));
+                      {matchDetails.h2h_data.matches.map((m: any, idx: number) => {
+                        // Sahadan API formatı: score_home ve score_away
+                        const homeScore = m.score_home;
+                        const awayScore = m.score_away;
+                        
+                        if (homeScore === undefined || awayScore === undefined || isNaN(homeScore) || isNaN(awayScore)) {
+                          return null;
+                        }
+                        
                         const result = homeScore > awayScore ? 'home' : homeScore < awayScore ? 'away' : 'draw';
                         
                         return (
                           <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-3 border border-white/[0.04]">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-[#9295AC] text-xs">{m.date}</span>
-                              <span className="text-[#6366F1] text-xs">{m.competition}</span>
+                              <span className="text-[#6366F1] text-xs">{m.competition || 'Turnuva'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                               <span className={`text-sm ${result === 'home' ? 'text-white font-bold' : 'text-[#9295AC]'}`}>
-                                {m.home_team}
+                                {m.home}
                               </span>
                               <div className="px-3 py-1 bg-[#0D0E1F] rounded-lg border border-white/[0.06]">
                                 <span className={`font-bold ${
@@ -414,11 +420,11 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                                   result === 'away' ? 'text-[#EF4444]' : 
                                   'text-[#F59E0B]'
                                 }`}>
-                                  {m.score}
+                                  {homeScore} - {awayScore}
                                 </span>
                               </div>
                               <span className={`text-sm ${result === 'away' ? 'text-white font-bold' : 'text-[#9295AC]'}`}>
-                                {m.away_team}
+                                {m.away}
                               </span>
                             </div>
                           </div>
@@ -428,15 +434,11 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                     {/* H2H İstatistik */}
                     {(() => {
-                      const validMatches = matchDetails.h2h_data.matches.filter(m => m.score && m.score.includes('-'));
-                      const homeWins = validMatches.filter(m => {
-                        const [h, a] = m.score.split('-').map(s => parseInt(s.trim()));
-                        return !isNaN(h) && !isNaN(a) && h > a;
-                      }).length;
-                      const draws = validMatches.filter(m => {
-                        const [h, a] = m.score.split('-').map(s => parseInt(s.trim()));
-                        return !isNaN(h) && !isNaN(a) && h === a;
-                      }).length;
+                      const validMatches = matchDetails.h2h_data.matches.filter((m: any) => 
+                        m.score_home !== undefined && m.score_away !== undefined
+                      );
+                      const homeWins = validMatches.filter((m: any) => m.score_home > m.score_away).length;
+                      const draws = validMatches.filter((m: any) => m.score_home === m.score_away).length;
                       const awayWins = validMatches.length - homeWins - draws;
 
                       return (
@@ -463,7 +465,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                 )}
 
                 {/* Ev Sahibi Formu */}
-                {matchDetails.form_home && matchDetails.form_home.length > 0 && (
+                {matchDetails.form_home && matchDetails.form_home.matches && matchDetails.form_home.matches.length > 0 && (
                   <div className="relative bg-gradient-to-br from-[#22C55E]/10 to-transparent border border-[#22C55E]/20 rounded-[18px] p-4 sm:p-5 shadow-lg">
                     <div className="flex items-center gap-2.5 mb-4">
                       <div className="w-1.5 h-1.5 bg-[#22C55E] rounded-full shadow-lg shadow-green-500/50"></div>
@@ -473,11 +475,13 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                     </div>
 
                     <div className="space-y-2">
-                      {matchDetails.form_home.slice(0, 5).map((m, idx) => {
-                        if (!m.score || !m.score.includes('-')) return null;
-                        const isHome = m.home_team === matchDetails.home_team;
-                        const [homeScore, awayScore] = m.score.split('-').map(s => parseInt(s.trim()));
-                        if (isNaN(homeScore) || isNaN(awayScore)) return null;
+                      {matchDetails.form_home.matches.slice(0, 5).map((m: any, idx: number) => {
+                        const homeScore = m.score_home;
+                        const awayScore = m.score_away;
+                        
+                        if (homeScore === undefined || awayScore === undefined) return null;
+                        
+                        const isHome = m.home === matchDetails.home_team;
                         const won = isHome ? homeScore > awayScore : awayScore > homeScore;
                         const draw = homeScore === awayScore;
                         
@@ -486,11 +490,11 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                             <div className="flex-1">
                               <div className="text-xs text-[#9295AC] mb-1">{m.date}</div>
                               <div className="text-sm text-white">
-                                {m.home_team} vs {m.away_team}
+                                {m.home} vs {m.away}
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-bold text-white">{m.score}</span>
+                              <span className="text-sm font-bold text-white">{homeScore} - {awayScore}</span>
                               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                                 won ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
                                 draw ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
@@ -507,7 +511,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                 )}
 
                 {/* Deplasman Formu */}
-                {matchDetails.form_away && matchDetails.form_away.length > 0 && (
+                {matchDetails.form_away && matchDetails.form_away.matches && matchDetails.form_away.matches.length > 0 && (
                   <div className="relative bg-gradient-to-br from-[#3B82F6]/10 to-transparent border border-[#3B82F6]/20 rounded-[18px] p-4 sm:p-5 shadow-lg">
                     <div className="flex items-center gap-2.5 mb-4">
                       <div className="w-1.5 h-1.5 bg-[#3B82F6] rounded-full shadow-lg shadow-blue-500/50"></div>
@@ -517,11 +521,13 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                     </div>
 
                     <div className="space-y-2">
-                      {matchDetails.form_away.slice(0, 5).map((m, idx) => {
-                        if (!m.score || !m.score.includes('-')) return null;
-                        const isHome = m.home_team === matchDetails.away_team;
-                        const [homeScore, awayScore] = m.score.split('-').map(s => parseInt(s.trim()));
-                        if (isNaN(homeScore) || isNaN(awayScore)) return null;
+                      {matchDetails.form_away.matches.slice(0, 5).map((m: any, idx: number) => {
+                        const homeScore = m.score_home;
+                        const awayScore = m.score_away;
+                        
+                        if (homeScore === undefined || awayScore === undefined) return null;
+                        
+                        const isHome = m.home === matchDetails.away_team;
                         const won = isHome ? homeScore > awayScore : awayScore > homeScore;
                         const draw = homeScore === awayScore;
                         
@@ -530,11 +536,11 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                             <div className="flex-1">
                               <div className="text-xs text-[#9295AC] mb-1">{m.date}</div>
                               <div className="text-sm text-white">
-                                {m.home_team} vs {m.away_team}
+                                {m.home} vs {m.away}
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-bold text-white">{m.score}</span>
+                              <span className="text-sm font-bold text-white">{homeScore} - {awayScore}</span>
                               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                                 won ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
                                 draw ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
