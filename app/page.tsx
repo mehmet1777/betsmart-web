@@ -40,7 +40,7 @@ export default function Home() {
     return `${year}-${month}-${day}`;
   });
   const [filterMode, setFilterMode] = useState<'single' | 'popular' | 'favorites'>('single');
-  const [sortBy, setSortBy] = useState<'time' | 'league'>('league');
+  const [sortBy, setSortBy] = useState<'time' | 'league' | 'recommended'>('league');
   const [activeTab, setActiveTab] = useState('home');
   const [isCouponSheetOpen, setIsCouponSheetOpen] = useState(false);
   const [isCouponMinimized, setIsCouponMinimized] = useState(false);
@@ -447,8 +447,24 @@ export default function Home() {
     ? filteredMatches.filter(m => m.status.started && !m.status.finished)
     : filteredMatches;
 
-  // Maçları akıllı sırala: 1) Canlı olanlar önce, 2) Saate göre yakın olanlar
+  // Maçları akıllı sırala: 1) Önerilen önce (eğer seçiliyse), 2) Canlı olanlar önce, 3) Saate göre
   const sortedMatches = [...displayMatches].sort((a, b) => {
+    // Eğer "Önerilen Önce" seçiliyse
+    if (sortBy === 'recommended') {
+      const aRecommended = smartRecommendations.some(r => r.match.id === a.id);
+      const bRecommended = smartRecommendations.some(r => r.match.id === b.id);
+      
+      if (aRecommended && !bRecommended) return -1;
+      if (!aRecommended && bRecommended) return 1;
+      
+      // İkisi de önerilen veya değilse, başarı oranına göre sırala
+      if (aRecommended && bRecommended) {
+        const aRate = smartRecommendations.find(r => r.match.id === a.id)?.win_rate || 0;
+        const bRate = smartRecommendations.find(r => r.match.id === b.id)?.win_rate || 0;
+        return bRate - aRate; // Yüksekten düşüğe
+      }
+    }
+
     // Canlı maçlar önce
     const aLive = a.status.started && !a.status.finished;
     const bLive = b.status.started && !b.status.finished;

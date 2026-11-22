@@ -7,8 +7,8 @@ interface SectionHeaderProps {
   matchCount: number;
   selectedDate?: string;
   onDateChange?: (date: string) => void;
-  sortBy?: 'time' | 'league';
-  onSortChange?: (sort: 'time' | 'league') => void;
+  sortBy?: 'time' | 'league' | 'recommended';
+  onSortChange?: (sort: 'time' | 'league' | 'recommended') => void;
   matches?: any[];  // Maç listesi - tarih gruplama için
 }
 
@@ -77,17 +77,43 @@ export default function SectionHeader({ title, matchCount, selectedDate, onDateC
       </div>
       
       <div className="flex items-center gap-2">
-        {/* Sort Toggle Button */}
+        {/* Sort Toggle Buttons */}
         {onSortChange && (
-          <button
-            onClick={() => onSortChange(sortBy === 'time' ? 'league' : 'time')}
-            className="p-2 bg-bg-elevated border border-border-color rounded-lg hover:border-accent-primary transition-colors"
-            title={sortBy === 'time' ? 'Lige Göre Sırala' : 'Saate Göre Sırala'}
-          >
-            <span className="text-base">
-              {sortBy === 'time' ? '🕐' : '🏆'}
-            </span>
-          </button>
+          <div className="flex items-center gap-1 bg-bg-elevated border border-border-color rounded-lg p-1">
+            <button
+              onClick={() => onSortChange('time')}
+              className={`p-1.5 rounded transition-all ${
+                sortBy === 'time' 
+                  ? 'bg-accent-primary text-white' 
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+              title="Saate Göre"
+            >
+              <span className="text-base">🕐</span>
+            </button>
+            <button
+              onClick={() => onSortChange('league')}
+              className={`p-1.5 rounded transition-all ${
+                sortBy === 'league' 
+                  ? 'bg-accent-primary text-white' 
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+              title="Lige Göre"
+            >
+              <span className="text-base">🏆</span>
+            </button>
+            <button
+              onClick={() => onSortChange('recommended')}
+              className={`p-1.5 rounded transition-all ${
+                sortBy === 'recommended' 
+                  ? 'bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white shadow-lg' 
+                  : 'text-text-secondary hover:text-text-primary'
+              }`}
+              title="Önerilen Önce"
+            >
+              <span className="text-base">⭐</span>
+            </button>
+          </div>
         )}
       
       {selectedDate && onDateChange ? (
