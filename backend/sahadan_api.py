@@ -229,6 +229,8 @@ def parse_sahadan_match(item, league_name, league_time='', date_str=None):
         
         # Maç Sonucu (MS) oranlarını bul
         # market i:1 = MS
+        # BOOKMAKER 14 = NESİNE (düşük oranlar)
+        # BOOKMAKER 15 = OLEY (yüksek oranlar)
         odd_1 = '-'
         odd_x = '-'
         odd_2 = '-'
@@ -237,8 +239,20 @@ def parse_sahadan_match(item, league_name, league_time='', date_str=None):
         for market in markets:
             if market.get('i') == 1:  # MS (Maç Sonucu)
                 options = market.get('o', [])
-                if options:
-                    outcomes = options[0].get('l', [])
+                
+                # NESİNE oranlarını al (bookmaker_id = 14)
+                nesine_option = None
+                for option in options:
+                    if option.get('b') == 14:
+                        nesine_option = option
+                        break
+                
+                # Eğer bookmaker 14 yoksa, fallback olarak options[0] kullan
+                if nesine_option is None and options:
+                    nesine_option = options[0]
+                
+                if nesine_option:
+                    outcomes = nesine_option.get('l', [])
                     for outcome in outcomes:
                         name = outcome.get('n', '')
                         value = outcome.get('v', '-')
