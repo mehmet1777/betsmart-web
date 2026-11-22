@@ -38,12 +38,25 @@ export default function BetSlipPanel({ selections, onRemove, onClear, isMobileOp
     }
   };
 
-  const getPredictionText = (prediction: '1' | 'X' | '2') => {
-    switch (prediction) {
-      case '1': return 'Ev Sahibi';
-      case 'X': return 'Beraberlik';
-      case '2': return 'Deplasman';
-    }
+  const getPredictionText = (prediction: BetSelection['prediction']) => {
+    const labels: Record<BetSelection['prediction'], string> = {
+      '1': 'Ev Sahibi',
+      'X': 'Beraberlik',
+      '2': 'Deplasman',
+      'GG': 'KG Var',
+      'GG_NO': 'KG Yok',
+      'OVER_25': '2.5 Üst',
+      'UNDER_25': '2.5 Alt',
+      'OVER_35': '3.5 Üst',
+      'UNDER_35': '3.5 Alt',
+      'HT_OVER_05': 'İY 0.5 Üst',
+      'HT_UNDER_05': 'İY 0.5 Alt',
+      'HT_OVER_15': 'İY 1.5 Üst',
+      'HT_UNDER_15': 'İY 1.5 Alt',
+      'HT_GG_YES': 'İY KG Var',
+      'HT_GG_NO': 'İY KG Yok'
+    };
+    return labels[prediction] || prediction;
   };
 
   return (

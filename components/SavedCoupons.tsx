@@ -5,13 +5,15 @@ import { Ticket, Calendar, Trophy, Trash2, ChevronDown, ChevronUp, CheckCircle2,
 
 interface SavedBetSelection {
   matchId: number;
-  prediction: '1' | 'X' | '2';
+  prediction: '1' | 'X' | '2' | 'GG' | 'GG_NO' | 'OVER_25' | 'UNDER_25' | 'OVER_35' | 'UNDER_35' | 
+              'HT_OVER_05' | 'HT_UNDER_05' | 'HT_OVER_15' | 'HT_UNDER_15' | 'HT_GG_YES' | 'HT_GG_NO';
   match: {
     home: { name: string };
     away: { name: string };
     time: string;
     odds?: { home: string; draw: string; away: string };
   };
+  customOdds?: number;
 }
 
 type CouponStatus = 'pending' | 'won' | 'lost';
@@ -110,12 +112,39 @@ export default function SavedCoupons() {
   };
 
   const getOddsForSelection = (selection: SavedBetSelection) => {
+    // Önce customOdds varsa onu kullan
+    if (selection.customOdds) {
+      return selection.customOdds;
+    }
+    
     if (!selection.match.odds) return 1.50;
     switch (selection.prediction) {
       case '1': return parseFloat(selection.match.odds.home);
       case 'X': return parseFloat(selection.match.odds.draw);
       case '2': return parseFloat(selection.match.odds.away);
+      default: return 1.50; // Alternatifler için varsayılan
     }
+  };
+
+  const getPredictionLabel = (prediction: SavedBetSelection['prediction']) => {
+    const labels: Record<SavedBetSelection['prediction'], string> = {
+      '1': '1',
+      'X': 'X',
+      '2': '2',
+      'GG': 'KG Var',
+      'GG_NO': 'KG Yok',
+      'OVER_25': '2.5 Üst',
+      'UNDER_25': '2.5 Alt',
+      'OVER_35': '3.5 Üst',
+      'UNDER_35': '3.5 Alt',
+      'HT_OVER_05': 'İY 0.5 Üst',
+      'HT_UNDER_05': 'İY 0.5 Alt',
+      'HT_OVER_15': 'İY 1.5 Üst',
+      'HT_UNDER_15': 'İY 1.5 Alt',
+      'HT_GG_YES': 'İY KG Var',
+      'HT_GG_NO': 'İY KG Yok'
+    };
+    return labels[prediction] || prediction;
   };
 
   const formatDate = (dateStr: string) => {
@@ -398,11 +427,11 @@ export default function SavedCoupons() {
                               {/* Prediction + Odds - Right */}
                               <div className="flex items-center gap-1.5 flex-shrink-0">
                                 <div className="text-right">
-                                  <p className="text-[9px] text-gray-500 mb-0.5">Maç Sonucu</p>
+                                  <p className="text-[9px] text-gray-500 mb-0.5">Seçim</p>
                                   <div className="flex items-center gap-1.5">
-                                    <div className="w-7 h-7 bg-transparent rounded-md flex items-center justify-center border border-accent-primary">
-                                      <span className="text-sm font-black text-accent-primary">
-                                        {selection.prediction}
+                                    <div className="px-2 py-1 bg-transparent rounded-md flex items-center justify-center border border-accent-primary">
+                                      <span className="text-xs font-black text-accent-primary">
+                                        {getPredictionLabel(selection.prediction)}
                                       </span>
                                     </div>
                                     <span className="text-base font-bold text-accent-primary">
