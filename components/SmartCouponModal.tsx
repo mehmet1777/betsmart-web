@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Sparkles, BarChart3, Ticket, TrendingUp } from 'lucide-react';
+import { X, Sparkles, BarChart3, Ticket, TrendingUp, RefreshCw } from 'lucide-react';
 import OddsAnalysisModal from './OddsAnalysisModal';
 
 interface SmartCouponRecommendation {
@@ -37,8 +37,33 @@ interface SmartCouponModalProps {
   onAddToCoupon: (recommendations: SmartCouponRecommendation[]) => void;
 }
 
-export default function SmartCouponModal({ isOpen, onClose, recommendations, analyzedCount, onAddToCoupon }: SmartCouponModalProps) {
+export default function SmartCouponModal({ isOpen, onClose, recommendations: initialRecommendations, analyzedCount, onAddToCoupon }: SmartCouponModalProps) {
   const [selectedMatchForAnalysis, setSelectedMatchForAnalysis] = useState<any | null>(null);
+  
+  // Her maç için seçilen seçeneği tut
+  const [matchSelections, setMatchSelections] = useState<Record<number, {
+    main: any;
+    alternatives: any[];
+  }>>({});
+
+  // İlk yüklemede ana öneri + alternatifleri ayarla
+  useState(() => {
+    const selections: Record<number, any> = {};
+    initialRecommendations.forEach((rec, idx) => {
+      selections[idx] = {
+        main: {
+          type: rec.recommendation,
+          label: getRecommendationLabel(rec.recommendation),
+          odds: rec.recommended_odds,
+          rate: rec.win_rate,
+          count: null,
+          total: null
+        },
+        alternatives: rec.additional_insights || []
+      };
+    });
+    setMatchSelections(selections);
+  });
   
   if (!isOpen) return null;
 
@@ -56,11 +81,48 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
     return 'bg-gray-500/20 text-gray-400 border-gray-500/40';
   };
 
-  const totalOdds = recommendations.reduce((acc, rec) => acc * rec.recommended_odds, 1);
+  // Seçenek değiştir
+  const handleSwapOption = (matchIndex: number, clickedAlternative: any) => {
+    setMatchSelections(prev => {
+      const current = prev[matchIndex];
+      if (!current) return prev;
+
+      // Eski ana, alternatiflere gitsin
+      const newAlternatives = [
+        current.main,
+        ...current.alternatives.filter(a => a.type !== clickedAlternative.type)
+      ];
+
+      return {
+        ...prev,
+        [matchIndex]: {
+          main: clickedAlternative,
+          alternatives: newAlternatives
+        }
+      };
+    });
+  };
+
+  const totalOdds = Object.values(matchSelections).reduce((acc, selection) => {
+    return acc * (selection?.main?.odds || 1);
+  }, 1);
 
   const handleAddAll = () => {
+    // Seçili ana önerileri kupona ekle
+    const updatedRecommendations = initialRecommendations.map((rec, idx) => {
+      const selection = matchSelections[idx];
+      if (!selection) return rec;
+
+      return {
+        ...rec,
+        recommendation: selection.main.type,
+        recommended_odds: selection.main.odds,
+        win_rate: selection.main.rate
+      };
+    });
+
     onClose();
-    setTimeout(() => onAddToCoupon(recommendations), 200);
+    setTimeout(() => onAddToCoupon(updatedRecommendations), 200);
   };
 
   return (
@@ -83,7 +145,7 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          {recommendations.length === 0 ? (
+          {initialRecommendations.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-5xl mb-3">😔</div>
               <h3 className="text-lg font-bold text-white mb-2">Öneri Bulunamadı</h3>
@@ -91,69 +153,95 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
             </div>
           ) : (
             <div className="space-y-3">
-              {recommendations.map((rec, i) => (
-                <div key={i} className="bg-[#171633] border border-[rgba(139,76,255,0.25)] rounded-xl p-4">
-                  <div className="flex justify-between gap-2 mb-3">
-                    <div className="flex-1">
-                      <p className="text-[#A5A5C5] text-[10px] mb-1">{rec.match.league}</p>
-                      <p className="text-white font-bold text-sm">{rec.match.home_team} - {rec.match.away_team}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[#A5A5C5] text-[10px]">Başarı</p>
-                      <p className="text-[#00E99A] text-3xl font-black">%{rec.win_rate}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 mb-3">
-                    <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold ${getRecommendationColor(rec.recommendation)}`}>
-                      {getRecommendationLabel(rec.recommendation)}
-                    </div>
-                    <div className="bg-[#813BFF]/20 border border-[#813BFF]/40 text-[#813BFF] font-black px-3 py-1.5 rounded-lg text-xs">
-                      {rec.recommended_odds.toFixed(2)}
-                    </div>
-                  </div>
-                  <div className="bg-[#101027] rounded-lg p-2.5 border border-[rgba(139,76,255,0.15)]">
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <BarChart3 size={12} className="text-[#A5A5C5]" />
-                      <p className="text-[#A5A5C5] text-[10px]">{rec.exact_matches} benzer maç</p>
-                    </div>
-                    
-                    <div className="flex items-center justify-between text-xs mb-2">
-                      {/* Maç Sonuçları */}
-                      <div className="flex gap-3">
-                        <span className="text-[#00E99A] font-semibold">🏠 {rec.statistics.home_wins}</span>
-                        <span className="text-[#F59E0B] font-semibold">🤝 {rec.statistics.draws}</span>
-                        <span className="text-[#3B82F6] font-semibold">✈️ {rec.statistics.away_wins}</span>
+              {initialRecommendations.map((rec, i) => {
+                const selection = matchSelections[i];
+                const mainOption = selection?.main || {
+                  type: rec.recommendation,
+                  label: getRecommendationLabel(rec.recommendation),
+                  odds: rec.recommended_odds,
+                  rate: rec.win_rate
+                };
+                const alternatives = selection?.alternatives || rec.additional_insights || [];
+
+                return (
+                  <div key={i} className="bg-[#171633] border border-[rgba(139,76,255,0.25)] rounded-xl p-4">
+                    <div className="flex justify-between gap-2 mb-3">
+                      <div className="flex-1">
+                        <p className="text-[#A5A5C5] text-[10px] mb-1">{rec.match.league}</p>
+                        <p className="text-white font-bold text-sm">{rec.match.home_team} - {rec.match.away_team}</p>
                       </div>
-                      
-                      {/* Ayırıcı */}
-                      <span className="text-[#A5A5C5]">|</span>
-                      
-                      {/* KG */}
-                      <div className="flex gap-2">
-                        <span className="text-[#22C55E] font-semibold">⚽ Var: {rec.statistics.gg_yes}</span>
-                        <span className="text-[#EF4444] font-semibold">⚽ Yok: {rec.statistics.gg_no}</span>
+                      <div className="text-right">
+                        <p className="text-[#A5A5C5] text-[10px]">Başarı</p>
+                        <p className="text-[#00E99A] text-3xl font-black">%{mainOption.rate}</p>
                       </div>
                     </div>
-                    
-                    {/* Ek Bilgiler */}
-                    {rec.additional_insights && rec.additional_insights.length > 0 && (
-                      <div className="mt-2 pt-2 border-t border-white/[0.05]">
-                        <p className="text-[#A5A5C5] text-[10px] mb-1.5 font-semibold">💡 Bu Maçlarda Ayrıca:</p>
-                        <div className="space-y-1">
-                          {rec.additional_insights.map((insight, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-[10px]">
-                              <span className="text-white/80">{insight.label}</span>
-                              <span className="text-[#00E99A] font-bold">
-                                %{insight.rate} ({insight.count}/{insight.total})
-                              </span>
+
+                    {/* ANA ÖNERİ */}
+                    <div className="mb-3">
+                      <p className="text-[#A5A5C5] text-[10px] mb-2">📌 Ana Öneri:</p>
+                      <div className="bg-[#101027] rounded-lg p-3 border border-[rgba(139,76,255,0.2)]">
+                        <div className="flex gap-2 items-center">
+                          <div className={`px-3 py-1.5 rounded-lg border text-xs font-bold flex-1 ${getRecommendationColor(mainOption.type)}`}>
+                            {mainOption.label}
+                          </div>
+                          <div className="bg-[#813BFF]/20 border border-[#813BFF]/40 text-[#813BFF] font-black px-3 py-1.5 rounded-lg text-xs">
+                            {mainOption.odds?.toFixed(2) || 'N/A'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* ALTERNATİFLER */}
+                    {alternatives.length > 0 && (
+                      <div>
+                        <p className="text-[#A5A5C5] text-[10px] mb-2">💡 Bu Maçlarda Ayrıca:</p>
+                        <div className="space-y-2">
+                          {alternatives.map((alt, idx) => (
+                            <div key={idx} className="bg-[#101027]/50 rounded-lg p-2.5 border border-white/[0.05] flex items-center justify-between gap-2 group hover:border-[#813BFF]/30 transition-colors">
+                              <div className="flex-1">
+                                <p className="text-white text-xs font-semibold">{alt.label}</p>
+                                <p className="text-[#00E99A] text-[10px] font-bold">
+                                  %{alt.rate} ({alt.count}/{alt.total})
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => handleSwapOption(i, alt)}
+                                className="flex items-center gap-1 px-2.5 py-1.5 bg-[#813BFF]/10 hover:bg-[#813BFF]/20 text-[#813BFF] rounded-lg text-[10px] font-bold transition-all border border-[#813BFF]/20 hover:border-[#813BFF]/40"
+                              >
+                                <RefreshCw size={12} />
+                                <span>Değiştir</span>
+                              </button>
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
+
+                    {/* İSTATİSTİKLER */}
+                    <div className="bg-[#101027] rounded-lg p-2.5 border border-[rgba(139,76,255,0.15)] mt-3">
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <BarChart3 size={12} className="text-[#A5A5C5]" />
+                        <p className="text-[#A5A5C5] text-[10px]">{rec.exact_matches} benzer maç</p>
+                      </div>
+                      
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex gap-3">
+                          <span className="text-[#00E99A] font-semibold">🏠 {rec.statistics.home_wins}</span>
+                          <span className="text-[#F59E0B] font-semibold">🤝 {rec.statistics.draws}</span>
+                          <span className="text-[#3B82F6] font-semibold">✈️ {rec.statistics.away_wins}</span>
+                        </div>
+                        
+                        <span className="text-[#A5A5C5]">|</span>
+                        
+                        <div className="flex gap-2">
+                          <span className="text-[#22C55E] font-semibold">⚽ Var: {rec.statistics.gg_yes}</span>
+                          <span className="text-[#EF4444] font-semibold">⚽ Yok: {rec.statistics.gg_no}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -161,11 +249,11 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations, ana
         <div className="bg-[#101027] border-t border-[rgba(139,76,255,0.25)] p-4 flex-shrink-0">
           <button
             onClick={handleAddAll}
-            disabled={recommendations.length === 0}
+            disabled={initialRecommendations.length === 0}
             className="w-full bg-gradient-to-r from-[#813BFF] to-[#A04BFF] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <Ticket size={18} />
-            <span>Kupona Ekle ({recommendations.length} Maç)</span>
+            <span>Kupona Ekle ({initialRecommendations.length} Maç)</span>
           </button>
         </div>
 
