@@ -40,6 +40,9 @@ interface SmartCouponModalProps {
 export default function SmartCouponModal({ isOpen, onClose, recommendations: initialRecommendations, analyzedCount, onAddToCoupon }: SmartCouponModalProps) {
   const [selectedMatchForAnalysis, setSelectedMatchForAnalysis] = useState<any | null>(null);
   
+  // Seçili maçları tut (index bazlı)
+  const [selectedMatches, setSelectedMatches] = useState<Set<number>>(new Set());
+  
   const getRecommendationLabel = (type: string) => {
     if (type === 'MS1') return 'Ev Sahibi';
     if (type === 'MSX') return 'Beraberlik';
@@ -119,6 +122,10 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
       };
     });
     setMatchSelections(selections);
+    
+    // İlk yüklemede tüm maçları seçili yap
+    const allIndexes = new Set(initialRecommendations.map((_, idx) => idx));
+    setSelectedMatches(allIndexes);
   }, [initialRecommendations]);
   
   if (!isOpen) return null;
@@ -152,26 +159,49 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
     });
   };
 
-  const totalOdds = Object.values(matchSelections).reduce((acc, selection) => {
+  // Maç seçimi toggle
+  const toggleMatchSelection = (matchIndex: number) => {
+    setSelectedMatches(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(matchIndex)) {
+        newSet.delete(matchIndex);
+      } else {
+        newSet.add(matchIndex);
+      }
+      return newSet;
+    });
+  };
+
+  const totalOdds = Array.from(selectedMatches).reduce((acc, idx) => {
+    const selection = matchSelections[idx];
     return acc * (selection?.main?.odds || 1);
   }, 1);
 
   const handleAddAll = () => {
-    // Seçili ana önerileri kupona ekle
-    const updatedRecommendations = initialRecommendations.map((rec, idx) => {
-      const selection = matchSelections[idx];
-      if (!selection) return rec;
+    // Sadece seçili maçları kupona ekle
+    const selectedRecommendations = initialRecommendations
+      .map((rec, idx) => {
+        if (!selectedMatches.has(idx)) return null;
+        
+        const selection = matchSelections[idx];
+        if (!selection) return rec;
 
-      return {
-        ...rec,
-        recommendation: selection.main.type,
-        recommended_odds: selection.main.odds,
-        win_rate: selection.main.rate
-      };
-    });
+        return {
+          ...rec,
+          recommendation: selection.main.type,
+          recommended_odds: selection.main.odds,
+          win_rate: selection.main.rate
+        };
+      })
+      .filter(Boolean) as SmartCouponRecommendation[];
+
+    if (selectedRecommendations.length === 0) {
+      alert('Lütfen en az bir maç seçin');
+      return;
+    }
 
     onClose();
-    setTimeout(() => onAddToCoupon(updatedRecommendations), 200);
+    setTimeout(() => onAddToCoupon(selectedRecommendations), 200);
   };
 
   return (
@@ -211,9 +241,29 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
                   rate: rec.win_rate
                 };
                 const alternatives = selection?.alternatives || rec.additional_insights || [];
+                const isSelected = selectedMatches.has(i);
 
                 return (
-                  <div key={i} className="bg-[#171633] border border-[rgba(139,76,255,0.25)] rounded-xl p-4">
+                  <div 
+                    key={i} 
+                    onClick={() => toggleMatchSelection(i)}
+                    className={`
+                      relative rounded-xl p-4 cursor-pointer transition-all duration-300
+                      ${isSelected 
+                        ? 'bg-[#171633] border-2 border-[#00E99A] shadow-[0_0_20px_rgba(0,233,154,0.3)]' 
+                        : 'bg-[#171633] border border-[rgba(139,76,255,0.25)] hover:border-[rgba(139,76,255,0.5)]'
+                      }
+                    `}
+                  >
+                    {/* Seçili Badge - Sağ üst köşe */}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 bg-[#00E99A] text-[#0A0E13] rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
+                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+
                     <div className="flex justify-between gap-2 mb-3">
                       <div className="flex-1">
                         <p className="text-[#A5A5C5] text-[10px] mb-1">{rec.match.league}</p>
@@ -221,7 +271,7 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
                       </div>
                       <div className="text-right">
                         <p className="text-[#A5A5C5] text-[10px]">Başarı</p>
-                        <p className="text-[#00E99A] text-3xl font-black">%{mainOption.rate}</p>
+                        <p className={`text-3xl font-black ${isSelected ? 'text-[#00E99A]' : 'text-[#00E99A]'}`}>%{mainOption.rate}</p>
                       </div>
                     </div>
 
@@ -261,7 +311,10 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
                                 </p>
                               </div>
                               <button
-                                onClick={() => handleSwapOption(i, alt)}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Kartın seçimini tetikleme
+                                  handleSwapOption(i, alt);
+                                }}
                                 className="flex items-center gap-1 px-2.5 py-1.5 bg-[#813BFF]/10 hover:bg-[#813BFF]/20 text-[#813BFF] rounded-lg text-[10px] font-bold transition-all duration-200 border border-[#813BFF]/20 hover:border-[#813BFF]/40 active:scale-95"
                               >
                                 <RefreshCw size={12} className="transition-transform duration-300 group-hover:rotate-180" />
@@ -303,13 +356,25 @@ export default function SmartCouponModal({ isOpen, onClose, recommendations: ini
         </div>
 
         <div className="bg-[#101027] border-t border-[rgba(139,76,255,0.25)] p-4 flex-shrink-0">
+          {/* Seçim bilgisi */}
+          {initialRecommendations.length > 0 && (
+            <div className="mb-3 flex items-center justify-between text-sm">
+              <span className="text-[#A5A5C5]">
+                <span className="text-white font-bold">{selectedMatches.size}</span> / {initialRecommendations.length} maç seçildi
+              </span>
+              <span className="text-[#00E99A] font-bold">
+                Toplam Oran: {totalOdds.toFixed(2)}
+              </span>
+            </div>
+          )}
+          
           <button
             onClick={handleAddAll}
-            disabled={initialRecommendations.length === 0}
-            className="w-full bg-gradient-to-r from-[#813BFF] to-[#A04BFF] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"
+            disabled={selectedMatches.size === 0}
+            className="w-full bg-gradient-to-r from-[#813BFF] to-[#A04BFF] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             <Ticket size={18} />
-            <span>Kupona Ekle ({initialRecommendations.length} Maç)</span>
+            <span>Kupona Ekle ({selectedMatches.size} Maç)</span>
           </button>
         </div>
 
