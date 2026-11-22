@@ -733,6 +733,7 @@ export default function Home() {
                   isLive={isLive}
                   isRecommended={isRecommended}
                   recommendedWinRate={recommendedWinRate}
+                  recommendation={recommendation}
                 />
               );
             })}
@@ -789,6 +790,7 @@ export default function Home() {
                       isLive={isLive}
                       isRecommended={isRecommended}
                       recommendedWinRate={recommendedWinRate}
+                      recommendation={recommendation}
                     />
                   );
                 })}

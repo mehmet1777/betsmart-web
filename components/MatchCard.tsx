@@ -20,11 +20,13 @@ interface MatchCardProps {
   isLive?: boolean;
   isRecommended?: boolean;
   recommendedWinRate?: number;
+  recommendation?: any; // Tam recommendation objesi
 }
 
-export default function MatchCard({ match, leagueName, leagueIcon, onSelect, selectedPrediction, isLive, isRecommended, recommendedWinRate }: MatchCardProps) {
+export default function MatchCard({ match, leagueName, leagueIcon, onSelect, selectedPrediction, isLive, isRecommended, recommendedWinRate, recommendation }: MatchCardProps) {
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [latestChange, setLatestChange] = useState<OddsChange | null>(null);
+  const [showRecommendationTooltip, setShowRecommendationTooltip] = useState(false);
 
   useEffect(() => {
     // Oran değişikliklerini fetch et
@@ -84,13 +86,95 @@ export default function MatchCard({ match, leagueName, leagueIcon, onSelect, sel
     <>
       <div className="bg-bg-card rounded-2xl p-4 mx-4 mb-3 relative">
         {/* Önerilen Badge */}
-        {isRecommended && (
+        {isRecommended && recommendation && (
           <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
-            <div className="bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowRecommendationTooltip(!showRecommendationTooltip);
+              }}
+              className="bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1 hover:shadow-xl transition-all cursor-pointer"
+            >
               <span>⭐</span>
               <span>Önerilen</span>
               {recommendedWinRate && <span className="text-[#FFD700]">%{recommendedWinRate}</span>}
-            </div>
+            </button>
+            
+            {/* Tooltip */}
+            {showRecommendationTooltip && (
+              <>
+                {/* Backdrop - dışarı tıklayınca kapat */}
+                <div 
+                  className="fixed inset-0 z-[45]" 
+                  onClick={() => setShowRecommendationTooltip(false)}
+                />
+                
+                {/* Tooltip Content */}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-72 bg-[#1a1a2e] border-2 border-[#8B5CF6] rounded-xl shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  {/* Arrow */}
+                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-4 bg-[#8B5CF6] rotate-45"></div>
+                  
+                  <div className="relative z-10">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-white font-bold text-sm flex items-center gap-1">
+                        ⭐ Akıllı Kupon Önerisi
+                      </h4>
+                      <button
+                        onClick={() => setShowRecommendationTooltip(false)}
+                        className="text-gray-400 hover:text-white transition-colors"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    
+                    {/* Ana Öneri */}
+                    <div className="bg-[#0f0f1e] rounded-lg p-3 mb-3 border border-[#8B5CF6]/30">
+                      <p className="text-[#A5A5C5] text-[10px] mb-1">📌 Ana Öneri</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-bold">
+                          {recommendation.recommendation === 'MS1' ? 'Ev Sahibi' : 
+                           recommendation.recommendation === 'MSX' ? 'Beraberlik' : 
+                           recommendation.recommendation === 'MS2' ? 'Deplasman' : 
+                           recommendation.recommendation}
+                        </span>
+                        <span className="text-[#00E99A] text-xl font-black">%{recommendation.win_rate}</span>
+                      </div>
+                      <div className="text-[#A5A5C5] text-[10px] mt-1">
+                        Oran: {recommendation.recommended_odds?.toFixed(2)}
+                      </div>
+                    </div>
+                    
+                    {/* İstatistikler */}
+                    <div className="bg-[#0f0f1e] rounded-lg p-2.5 mb-3 border border-[#8B5CF6]/20">
+                      <p className="text-[#A5A5C5] text-[10px] mb-2">📊 {recommendation.exact_matches} benzer maç</p>
+                      <div className="flex items-center justify-between text-[10px]">
+                        <div className="flex gap-2">
+                          <span className="text-[#00E99A]">🏠 {recommendation.statistics.home_wins}</span>
+                          <span className="text-[#F59E0B]">🤝 {recommendation.statistics.draws}</span>
+                          <span className="text-[#3B82F6]">✈️ {recommendation.statistics.away_wins}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Alternatifler */}
+                    {recommendation.additional_insights && recommendation.additional_insights.length > 0 && (
+                      <div>
+                        <p className="text-[#A5A5C5] text-[10px] mb-2">💡 Ek Öneriler</p>
+                        <div className="space-y-1.5">
+                          {recommendation.additional_insights.slice(0, 3).map((alt: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between text-[10px] bg-[#0f0f1e] rounded p-2">
+                              <span className="text-white">{alt.label}</span>
+                              <span className="text-[#00E99A] font-bold">%{alt.rate}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
         
