@@ -50,26 +50,47 @@ interface MatchDetails {
   h2h_data: {
     matches: Array<{
       date: string;
-      home_team: string;
-      away_team: string;
-      score: string;
-      competition: string;
+      home: string;
+      away: string;
+      score_home: number;
+      score_away: number;
+      competition?: string;
+      winner?: string;
     }>;
+    draws?: number;
+    home_wins?: number;
+    away_wins?: number;
   };
-  form_home: Array<{
-    date: string;
-    home_team: string;
-    away_team: string;
-    score: string;
-    competition: string;
-  }>;
-  form_away: Array<{
-    date: string;
-    home_team: string;
-    away_team: string;
-    score: string;
-    competition: string;
-  }>;
+  form_home: {
+    matches: Array<{
+      date: string;
+      home: string;
+      away: string;
+      score_home: number;
+      score_away: number;
+      competition?: string;
+    }>;
+    serie?: string;
+    btts?: number;
+    over_25?: number;
+    goals_for?: number;
+    goals_against?: number;
+  };
+  form_away: {
+    matches: Array<{
+      date: string;
+      home: string;
+      away: string;
+      score_home: number;
+      score_away: number;
+      competition?: string;
+    }>;
+    serie?: string;
+    btts?: number;
+    over_25?: number;
+    goals_for?: number;
+    goals_against?: number;
+  };
 }
 
 interface OddsAnalysisModalProps {
