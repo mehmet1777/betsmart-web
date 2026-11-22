@@ -7,6 +7,7 @@ export default function Settings() {
   // Tolerans ayarları - localStorage'dan yükle
   const [exactTolerance, setExactTolerance] = useState(0.01);
   const [similarTolerance, setSimilarTolerance] = useState(0.02);
+  const [smartCouponTolerance, setSmartCouponTolerance] = useState(0.015);
   const [hasChanges, setHasChanges] = useState(false);
 
   // Component mount olduğunda localStorage'dan yükle
@@ -14,18 +15,22 @@ export default function Settings() {
     if (typeof window !== 'undefined') {
       const storedExact = localStorage.getItem('exactTolerance');
       const storedSimilar = localStorage.getItem('similarTolerance');
+      const storedSmartCoupon = localStorage.getItem('smartCouponTolerance');
       
       if (storedExact) setExactTolerance(parseFloat(storedExact));
       if (storedSimilar) setSimilarTolerance(parseFloat(storedSimilar));
+      if (storedSmartCoupon) setSmartCouponTolerance(parseFloat(storedSmartCoupon));
     }
   }, []);
 
   // Tolerans değiştiğinde
-  const handleToleranceChange = (type: 'exact' | 'similar', value: number) => {
+  const handleToleranceChange = (type: 'exact' | 'similar' | 'smartCoupon', value: number) => {
     if (type === 'exact') {
       setExactTolerance(value);
-    } else {
+    } else if (type === 'similar') {
       setSimilarTolerance(value);
+    } else {
+      setSmartCouponTolerance(value);
     }
     setHasChanges(true);
   };
@@ -34,6 +39,7 @@ export default function Settings() {
   const resetToDefaults = () => {
     setExactTolerance(0.01);
     setSimilarTolerance(0.02);
+    setSmartCouponTolerance(0.015);
     setHasChanges(true);
   };
 
@@ -42,6 +48,7 @@ export default function Settings() {
     if (typeof window !== 'undefined') {
       localStorage.setItem('exactTolerance', exactTolerance.toString());
       localStorage.setItem('similarTolerance', similarTolerance.toString());
+      localStorage.setItem('smartCouponTolerance', smartCouponTolerance.toString());
       setHasChanges(false);
       
       // Cache'i sil - yeni toleransla analiz yapılsın
@@ -142,6 +149,35 @@ export default function Settings() {
                   <span>0.020</span>
                   <span>0.110</span>
                   <span>0.200</span>
+                </div>
+              </div>
+
+              {/* Akıllı Kupon Toleransı Slider - YENİ */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-text-primary">Kupon Öneri Toleransı</h3>
+                    <p className="text-xs text-text-secondary mt-1">Akıllı kupon önerileri için</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-[#A04BFF]">±{smartCouponTolerance.toFixed(3)}</span>
+                  </div>
+                </div>
+                
+                <input
+                  type="range"
+                  min="0.005"
+                  max="0.050"
+                  step="0.005"
+                  value={smartCouponTolerance}
+                  onChange={(e) => handleToleranceChange('smartCoupon', parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#A04BFF] slider"
+                />
+                
+                <div className="flex justify-between text-xs text-text-muted mt-2">
+                  <span>0.005</span>
+                  <span>0.027</span>
+                  <span>0.050</span>
                 </div>
               </div>
 

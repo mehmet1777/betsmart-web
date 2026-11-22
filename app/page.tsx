@@ -385,18 +385,18 @@ export default function Home() {
         }));
 
         // Kullanıcının tolerans ayarlarını al
-        const exactTolerance = typeof window !== 'undefined'
-          ? parseFloat(localStorage.getItem('exactTolerance') || '0.01')
-          : 0.01;
+        const smartCouponTolerance = typeof window !== 'undefined'
+          ? parseFloat(localStorage.getItem('smartCouponTolerance') || '0.015')
+          : 0.015;
 
-        console.log(`🎚️ Kullanılan tolerans: ±${exactTolerance}`);
+        console.log(`🎚️ Kupon toleransı: ±${smartCouponTolerance}`);
 
         const response = await fetch('/api/smart-coupon', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             matches: matchData,
-            exactTolerance 
+            smartCouponTolerance 
           })
         });
 
