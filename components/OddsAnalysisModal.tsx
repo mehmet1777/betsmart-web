@@ -413,9 +413,8 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
             {activeTab === 'history' && analysis && !loading && (
               <div className="space-y-3">
                 {analysis.total_count > 0 ? (
-              <div className="space-y-3">
-                {/* H2H Karşılaşmalar */}
-                {matchDetails.h2h_data?.matches && matchDetails.h2h_data.matches.length > 0 && (
+                  <div className="space-y-3">
+                    {/* EXACT MATCHES */}
                   <div className="relative bg-gradient-to-br from-[#8B5CF6]/10 via-[#6366F1]/5 to-transparent border border-[#8B5CF6]/20 rounded-[18px] p-3 shadow-lg shadow-purple-900/10">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -613,6 +612,9 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
             {/* TAKIM KARŞILAŞTIRMA SEKMESİ */}
             {activeTab === 'sahadan' && matchDetails && !loading && (
+              <div className="space-y-3">
+                {/* H2H Karşılaşmalar */}
+                {matchDetails.h2h_data?.matches && matchDetails.h2h_data.matches.length > 0 && (
               <div className="space-y-3">
                 {analysis.total_count > 0 ? (
                   <div className="space-y-3">
