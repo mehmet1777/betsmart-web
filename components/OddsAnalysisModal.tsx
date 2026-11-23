@@ -351,7 +351,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                       : 'text-[#9295AC] hover:text-white'
                   }`}
                 >
-                  ✨ Sahadan Detay
+                  ⚔️ Takım Karşılaştırma
                 </button>
                 <button
                   onClick={() => setActiveTab('history')}
