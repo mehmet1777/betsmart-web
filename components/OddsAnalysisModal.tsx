@@ -425,21 +425,18 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                       const awayWins = validMatches.length - homeWins - draws;
 
                       return (
-                        <div className="grid grid-cols-3 gap-2 mb-3">
-                          <div className="bg-[#0D0E1F]/50 rounded-lg p-2 text-center border border-white/[0.04]">
-                            <p className="text-lg mb-0.5">🏠</p>
-                            <p className="text-white font-bold text-base">{homeWins}</p>
-                            <p className="text-[9px] text-[#9295AC]">Ev</p>
+                        <div className="flex items-center justify-center gap-4 mb-3 py-2 bg-[#0D0E1F]/30 rounded-lg border border-white/[0.04]">
+                          <div className="flex flex-col items-center">
+                            <span className="text-base mb-0.5">🏠</span>
+                            <span className="text-white font-bold text-lg">{homeWins}</span>
                           </div>
-                          <div className="bg-[#0D0E1F]/50 rounded-lg p-2 text-center border border-white/[0.04]">
-                            <p className="text-lg mb-0.5">🤝</p>
-                            <p className="text-white font-bold text-base">{draws}</p>
-                            <p className="text-[9px] text-[#9295AC]">Beraberlik</p>
+                          <div className="flex flex-col items-center">
+                            <span className="text-base mb-0.5">🤝</span>
+                            <span className="text-white font-bold text-lg">{draws}</span>
                           </div>
-                          <div className="bg-[#0D0E1F]/50 rounded-lg p-2 text-center border border-white/[0.04]">
-                            <p className="text-lg mb-0.5">✈️</p>
-                            <p className="text-white font-bold text-base">{awayWins}</p>
-                            <p className="text-[9px] text-[#9295AC]">Dep</p>
+                          <div className="flex flex-col items-center">
+                            <span className="text-base mb-0.5">✈️</span>
+                            <span className="text-white font-bold text-lg">{awayWins}</span>
                           </div>
                         </div>
                       );
