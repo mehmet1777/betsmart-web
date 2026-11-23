@@ -106,7 +106,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
   const [matchDetails, setMatchDetails] = useState<MatchDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [detailsModal, setDetailsModal] = useState<'exact' | 'similar' | null>(null);
-  const [activeTab, setActiveTab] = useState<'history' | 'sahadan'>('sahadan');
+  const [activeTab, setActiveTab] = useState<'history' | 'sahadan'>('history');
 
   useEffect(() => {
     if (isOpen) {
@@ -615,7 +615,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
               <div className="space-y-3">
                 {/* H2H Karşılaşmalar */}
                 {matchDetails.h2h_data?.matches && matchDetails.h2h_data.matches.length > 0 && (
-              <div className="space-y-3">
+                  <div className="relative bg-gradient-to-br from-[#8B5CF6]/10 via-[#6366F1]/5 to-transparent border border-[#8B5CF6]/20 rounded-[18px] p-3 shadow-lg shadow-purple-900/10">
                 {analysis.total_count > 0 ? (
                   <div className="space-y-3">
                     {/* EXACT MATCHES */}
