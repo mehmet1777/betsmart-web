@@ -106,7 +106,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
   const [matchDetails, setMatchDetails] = useState<MatchDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [detailsModal, setDetailsModal] = useState<'exact' | 'similar' | null>(null);
-  const [activeTab, setActiveTab] = useState<'history' | 'sahadan'>('sahadan');
+  const [activeTab, setActiveTab] = useState<'history' | 'sahadan'>('history');
 
   useEffect(() => {
     if (isOpen) {
@@ -236,8 +236,8 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
         if (data.success && data.details) {
           setMatchDetails(data.details);
           console.log('✅ Sahadan match details yüklendi:', data.details);
-          // Sahadan verisi varsa önce onu göster
-          setActiveTab('sahadan');
+          // Sahadan verisi varsa bile Geçmiş Analiz önce gösterilsin
+          setActiveTab('history');
         } else {
           setMatchDetails(null);
           setActiveTab('history');
@@ -344,16 +344,6 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
             <div className="flex-shrink-0 px-4 sm:px-6 pt-3 pb-0 bg-gradient-to-b from-[#15152D] to-transparent">
               <div className="flex gap-2 bg-[#0D0E1F]/50 p-1 rounded-xl border border-white/[0.06]">
                 <button
-                  onClick={() => setActiveTab('sahadan')}
-                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                    activeTab === 'sahadan'
-                      ? 'bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white shadow-lg'
-                      : 'text-[#9295AC] hover:text-white'
-                  }`}
-                >
-                  ⚔️ Takım Karşılaştırma
-                </button>
-                <button
                   onClick={() => setActiveTab('history')}
                   className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                     activeTab === 'history'
@@ -362,6 +352,16 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                   }`}
                 >
                   📊 Geçmiş Analiz
+                </button>
+                <button
+                  onClick={() => setActiveTab('sahadan')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                    activeTab === 'sahadan'
+                      ? 'bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white shadow-lg'
+                      : 'text-[#9295AC] hover:text-white'
+                  }`}
+                >
+                  ⚔️ Takım Karşılaştırma
                 </button>
               </div>
             </div>
