@@ -50,47 +50,26 @@ interface MatchDetails {
   h2h_data: {
     matches: Array<{
       date: string;
-      home: string;
-      away: string;
-      score_home: number;
-      score_away: number;
-      competition?: string;
-      winner?: string;
+      home_team: string;
+      away_team: string;
+      score: string;
+      competition: string;
     }>;
-    draws?: number;
-    home_wins?: number;
-    away_wins?: number;
   };
-  form_home: {
-    matches: Array<{
-      date: string;
-      home: string;
-      away: string;
-      score_home: number;
-      score_away: number;
-      competition?: string;
-    }>;
-    serie?: string;
-    btts?: number;
-    over_25?: number;
-    goals_for?: number;
-    goals_against?: number;
-  };
-  form_away: {
-    matches: Array<{
-      date: string;
-      home: string;
-      away: string;
-      score_home: number;
-      score_away: number;
-      competition?: string;
-    }>;
-    serie?: string;
-    btts?: number;
-    over_25?: number;
-    goals_for?: number;
-    goals_against?: number;
-  };
+  form_home: Array<{
+    date: string;
+    home_team: string;
+    away_team: string;
+    score: string;
+    competition: string;
+  }>;
+  form_away: Array<{
+    date: string;
+    home_team: string;
+    away_team: string;
+    score: string;
+    competition: string;
+  }>;
 }
 
 interface OddsAnalysisModalProps {
@@ -236,8 +215,8 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
         if (data.success && data.details) {
           setMatchDetails(data.details);
           console.log('✅ Sahadan match details yüklendi:', data.details);
-          // Geçmiş Analiz önce açılsın
-          setActiveTab('history');
+          // Sahadan verisi varsa önce onu göster
+          setActiveTab('sahadan');
         } else {
           setMatchDetails(null);
           setActiveTab('history');
@@ -344,6 +323,16 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
             <div className="flex-shrink-0 px-4 sm:px-6 pt-3 pb-0 bg-gradient-to-b from-[#15152D] to-transparent">
               <div className="flex gap-2 bg-[#0D0E1F]/50 p-1 rounded-xl border border-white/[0.06]">
                 <button
+                  onClick={() => setActiveTab('sahadan')}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
+                    activeTab === 'sahadan'
+                      ? 'bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white shadow-lg'
+                      : 'text-[#9295AC] hover:text-white'
+                  }`}
+                >
+                  ✨ Sahadan Detay
+                </button>
+                <button
                   onClick={() => setActiveTab('history')}
                   className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                     activeTab === 'history'
@@ -353,25 +342,6 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                 >
                   📊 Geçmiş Analiz
                 </button>
-                <button
-                  onClick={() => setActiveTab('sahadan')}
-                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                    activeTab === 'sahadan'
-                      ? 'bg-gradient-to-r from-[#8B5CF6] to-[#6366F1] text-white shadow-lg'
-                      : 'text-[#9295AC] hover:text-white'
-                  }`}
-                >
-                  ⚔️ Takım Karşılaştırma
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Tabs - Sahadan verisi yoksa */}
-          {!loading && !error && !matchDetails && (
-            <div className="flex-shrink-0 px-4 sm:px-6 pt-3 pb-0">
-              <div className="text-center py-2">
-                <span className="text-xs text-[#8B5CF6] font-semibold">📊 Geçmiş Analiz</span>
               </div>
             </div>
           )}
@@ -409,53 +379,22 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
               </div>
             )}
 
-            {/* GEÇMİŞ ANALİZ SEKMESİ - Önce bu */}
-            {activeTab === 'history' && analysis && !loading && (
-              <div className="space-y-3">
-                {analysis.total_count > 0 ? (
+            {/* SAHADAN DETAY SEKMESİ */}
+            {activeTab === 'sahadan' && matchDetails && !loading && (
               <div className="space-y-3">
                 {/* H2H Karşılaşmalar */}
                 {matchDetails.h2h_data?.matches && matchDetails.h2h_data.matches.length > 0 && (
-                  <div className="relative bg-gradient-to-br from-[#8B5CF6]/10 via-[#6366F1]/5 to-transparent border border-[#8B5CF6]/20 rounded-[18px] p-3 shadow-lg shadow-purple-900/10">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-1 h-1 bg-[#8B5CF6] rounded-full"></div>
-                        <h4 className="text-xs font-bold text-[#8B5CF6] uppercase">
-                          Aralarındaki Maçlar ({matchDetails.h2h_data.matches.length})
-                        </h4>
-                      </div>
+                  <div className="relative bg-gradient-to-br from-[#8B5CF6]/10 via-[#6366F1]/5 to-transparent border border-[#8B5CF6]/20 rounded-[18px] p-4 sm:p-5 shadow-lg shadow-purple-900/10">
+                    <div className="flex items-center gap-2.5 mb-4">
+                      <div className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full shadow-lg shadow-purple-500/50"></div>
+                      <h4 className="text-xs font-bold text-[#8B5CF6] uppercase tracking-wider">
+                        🤼 Kafa Kafaya ({matchDetails.h2h_data.matches.length} Maç)
+                      </h4>
                     </div>
 
-                    {/* H2H İstatistik - Minimal */}
-                    {(() => {
-                      const validMatches = matchDetails.h2h_data.matches.filter((m: any) => 
-                        m.score_home !== undefined && m.score_away !== undefined
-                      );
-                      const homeWins = validMatches.filter((m: any) => m.score_home > m.score_away).length;
-                      const draws = validMatches.filter((m: any) => m.score_home === m.score_away).length;
-                      const awayWins = validMatches.length - homeWins - draws;
-
-                      return (
-                        <div className="flex items-center justify-center gap-6 mb-2 py-1">
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm">🏠</span>
-                            <span className="text-white font-bold text-base">{homeWins}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm">🤝</span>
-                            <span className="text-white font-bold text-base">{draws}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm">✈️</span>
-                            <span className="text-white font-bold text-base">{awayWins}</span>
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    {/* Kompakt H2H Liste */}
-                    <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                    <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
                       {matchDetails.h2h_data.matches.map((m: any, idx: number) => {
+                        // Sahadan API formatı: score_home ve score_away
                         const homeScore = m.score_home;
                         const awayScore = m.score_away;
                         
@@ -466,53 +405,76 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                         const result = homeScore > awayScore ? 'home' : homeScore < awayScore ? 'away' : 'draw';
                         
                         return (
-                          <div key={idx} className="bg-[#1a1a35]/50 rounded-lg p-2 border border-white/[0.04]">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                              <span className="text-[9px] text-[#9295AC]">{m.date}</span>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                result === 'home' ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
-                                result === 'away' ? 'bg-[#EF4444]/20 text-[#EF4444]' : 
-                                'bg-[#F59E0B]/20 text-[#F59E0B]'
-                              }`}>
-                                {homeScore} - {awayScore}
-                              </span>
+                          <div key={idx} className="bg-[#1a1a35]/50 rounded-xl p-3 border border-white/[0.04]">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[#9295AC] text-xs">{m.date}</span>
+                              <span className="text-[#6366F1] text-xs">{m.competition || 'Turnuva'}</span>
                             </div>
-                            <div className="text-[11px] text-[#9295AC] truncate">
-                              {m.home} vs {m.away}
+                            <div className="flex items-center justify-between">
+                              <span className={`text-sm ${result === 'home' ? 'text-white font-bold' : 'text-[#9295AC]'}`}>
+                                {m.home}
+                              </span>
+                              <div className="px-3 py-1 bg-[#0D0E1F] rounded-lg border border-white/[0.06]">
+                                <span className={`font-bold ${
+                                  result === 'home' ? 'text-[#22C55E]' : 
+                                  result === 'away' ? 'text-[#EF4444]' : 
+                                  'text-[#F59E0B]'
+                                }`}>
+                                  {homeScore} - {awayScore}
+                                </span>
+                              </div>
+                              <span className={`text-sm ${result === 'away' ? 'text-white font-bold' : 'text-[#9295AC]'}`}>
+                                {m.away}
+                              </span>
                             </div>
                           </div>
                         );
                       })}
                     </div>
+
+                    {/* H2H İstatistik */}
+                    {(() => {
+                      const validMatches = matchDetails.h2h_data.matches.filter((m: any) => 
+                        m.score_home !== undefined && m.score_away !== undefined
+                      );
+                      const homeWins = validMatches.filter((m: any) => m.score_home > m.score_away).length;
+                      const draws = validMatches.filter((m: any) => m.score_home === m.score_away).length;
+                      const awayWins = validMatches.length - homeWins - draws;
+
+                      return (
+                        <div className="mt-4 grid grid-cols-3 gap-3">
+                          <div className="bg-[#0D0E1F]/50 rounded-xl p-3 text-center border border-white/[0.04]">
+                            <p className="text-xl mb-1">🏠</p>
+                            <p className="text-white font-bold text-lg">{homeWins}</p>
+                            <p className="text-xs text-[#9295AC] mt-1">Ev Sahibi</p>
+                          </div>
+                          <div className="bg-[#0D0E1F]/50 rounded-xl p-3 text-center border border-white/[0.04]">
+                            <p className="text-xl mb-1">🤝</p>
+                            <p className="text-white font-bold text-lg">{draws}</p>
+                            <p className="text-xs text-[#9295AC] mt-1">Beraberlik</p>
+                          </div>
+                          <div className="bg-[#0D0E1F]/50 rounded-xl p-3 text-center border border-white/[0.04]">
+                            <p className="text-xl mb-1">✈️</p>
+                            <p className="text-white font-bold text-lg">{awayWins}</p>
+                            <p className="text-xs text-[#9295AC] mt-1">Deplasman</p>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
 
                 {/* Ev Sahibi Formu */}
                 {matchDetails.form_home && matchDetails.form_home.matches && matchDetails.form_home.matches.length > 0 && (
-                  <div className="relative bg-gradient-to-br from-[#22C55E]/10 to-transparent border border-[#22C55E]/20 rounded-[18px] p-3 shadow-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-1 h-1 bg-[#22C55E] rounded-full"></div>
-                        <h4 className="text-xs font-bold text-[#22C55E] uppercase">
-                          🏠 {matchDetails.home_team.length > 15 ? matchDetails.home_team.substring(0, 15) + '...' : matchDetails.home_team}
-                        </h4>
-                      </div>
-                      {matchDetails.form_home.serie && (
-                        <div className="flex gap-0.5">
-                          {matchDetails.form_home.serie.split('').slice(0, 5).map((s, i) => (
-                            <span key={i} className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
-                              s === 'W' ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
-                              s === 'D' ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
-                              'bg-[#EF4444]/20 text-[#EF4444]'
-                            }`}>
-                              {s === 'W' ? 'G' : s === 'D' ? 'B' : 'M'}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                  <div className="relative bg-gradient-to-br from-[#22C55E]/10 to-transparent border border-[#22C55E]/20 rounded-[18px] p-4 sm:p-5 shadow-lg">
+                    <div className="flex items-center gap-2.5 mb-4">
+                      <div className="w-1.5 h-1.5 bg-[#22C55E] rounded-full shadow-lg shadow-green-500/50"></div>
+                      <h4 className="text-xs font-bold text-[#22C55E] uppercase tracking-wider">
+                        🏠 {matchDetails.home_team} Formu
+                      </h4>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {matchDetails.form_home.matches.slice(0, 5).map((m: any, idx: number) => {
                         const homeScore = m.score_home;
                         const awayScore = m.score_away;
@@ -524,16 +486,16 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                         const draw = homeScore === awayScore;
                         
                         return (
-                          <div key={idx} className="bg-[#1a1a35]/50 rounded-lg p-2 border border-white/[0.04] flex items-center justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="text-[11px] text-white truncate">
+                          <div key={idx} className="bg-[#1a1a35]/50 rounded-lg p-2.5 border border-white/[0.04] flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="text-xs text-[#9295AC] mb-1">{m.date}</div>
+                              <div className="text-sm text-white">
                                 {m.home} vs {m.away}
                               </div>
-                              <div className="text-[9px] text-[#9295AC]">{m.date}</div>
                             </div>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <span className="text-xs font-bold text-white">{homeScore}-{awayScore}</span>
-                              <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-white">{homeScore} - {awayScore}</span>
+                              <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                                 won ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
                                 draw ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
                                 'bg-[#EF4444]/20 text-[#EF4444]'
@@ -550,30 +512,15 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                 {/* Deplasman Formu */}
                 {matchDetails.form_away && matchDetails.form_away.matches && matchDetails.form_away.matches.length > 0 && (
-                  <div className="relative bg-gradient-to-br from-[#3B82F6]/10 to-transparent border border-[#3B82F6]/20 rounded-[18px] p-3 shadow-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-1 h-1 bg-[#3B82F6] rounded-full"></div>
-                        <h4 className="text-xs font-bold text-[#3B82F6] uppercase">
-                          ✈️ {matchDetails.away_team.length > 15 ? matchDetails.away_team.substring(0, 15) + '...' : matchDetails.away_team}
-                        </h4>
-                      </div>
-                      {matchDetails.form_away.serie && (
-                        <div className="flex gap-0.5">
-                          {matchDetails.form_away.serie.split('').slice(0, 5).map((s, i) => (
-                            <span key={i} className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
-                              s === 'W' ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
-                              s === 'D' ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
-                              'bg-[#EF4444]/20 text-[#EF4444]'
-                            }`}>
-                              {s === 'W' ? 'G' : s === 'D' ? 'B' : 'M'}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                  <div className="relative bg-gradient-to-br from-[#3B82F6]/10 to-transparent border border-[#3B82F6]/20 rounded-[18px] p-4 sm:p-5 shadow-lg">
+                    <div className="flex items-center gap-2.5 mb-4">
+                      <div className="w-1.5 h-1.5 bg-[#3B82F6] rounded-full shadow-lg shadow-blue-500/50"></div>
+                      <h4 className="text-xs font-bold text-[#3B82F6] uppercase tracking-wider">
+                        ✈️ {matchDetails.away_team} Formu
+                      </h4>
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {matchDetails.form_away.matches.slice(0, 5).map((m: any, idx: number) => {
                         const homeScore = m.score_home;
                         const awayScore = m.score_away;
@@ -585,16 +532,16 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                         const draw = homeScore === awayScore;
                         
                         return (
-                          <div key={idx} className="bg-[#1a1a35]/50 rounded-lg p-2 border border-white/[0.04] flex items-center justify-between gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="text-[11px] text-white truncate">
+                          <div key={idx} className="bg-[#1a1a35]/50 rounded-lg p-2.5 border border-white/[0.04] flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="text-xs text-[#9295AC] mb-1">{m.date}</div>
+                              <div className="text-sm text-white">
                                 {m.home} vs {m.away}
                               </div>
-                              <div className="text-[9px] text-[#9295AC]">{m.date}</div>
                             </div>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <span className="text-xs font-bold text-white">{homeScore}-{awayScore}</span>
-                              <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-bold text-white">{homeScore} - {awayScore}</span>
+                              <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                                 won ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
                                 draw ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
                                 'bg-[#EF4444]/20 text-[#EF4444]'
@@ -611,8 +558,8 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
               </div>
             )}
 
-            {/* TAKIM KARŞILAŞTIRMA SEKMESİ */}
-            {activeTab === 'sahadan' && matchDetails && !loading && (
+            {/* GEÇMİŞ ANALİZ SEKMESİ */}
+            {activeTab === 'history' && analysis && !loading && (
               <div className="space-y-3">
                 {analysis.total_count > 0 ? (
                   <div className="space-y-3">
