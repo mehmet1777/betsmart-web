@@ -406,16 +406,16 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                 {/* H2H Karşılaşmalar */}
                 {matchDetails.h2h_data?.matches && matchDetails.h2h_data.matches.length > 0 && (
                   <div className="relative bg-gradient-to-br from-[#8B5CF6]/10 via-[#6366F1]/5 to-transparent border border-[#8B5CF6]/20 rounded-[18px] p-3 shadow-lg shadow-purple-900/10">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <div className="w-1 h-1 bg-[#8B5CF6] rounded-full"></div>
                         <h4 className="text-xs font-bold text-[#8B5CF6] uppercase">
-                          🤼 Kafa Kafaya ({matchDetails.h2h_data.matches.length})
+                          Aralarındaki Maçlar ({matchDetails.h2h_data.matches.length})
                         </h4>
                       </div>
                     </div>
 
-                    {/* H2H İstatistik - Önce göster */}
+                    {/* H2H İstatistik - Minimal */}
                     {(() => {
                       const validMatches = matchDetails.h2h_data.matches.filter((m: any) => 
                         m.score_home !== undefined && m.score_away !== undefined
@@ -425,18 +425,18 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                       const awayWins = validMatches.length - homeWins - draws;
 
                       return (
-                        <div className="flex items-center justify-center gap-4 mb-3 py-2 bg-[#0D0E1F]/30 rounded-lg border border-white/[0.04]">
-                          <div className="flex flex-col items-center">
-                            <span className="text-base mb-0.5">🏠</span>
-                            <span className="text-white font-bold text-lg">{homeWins}</span>
+                        <div className="flex items-center justify-center gap-6 mb-2 py-1">
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm">🏠</span>
+                            <span className="text-white font-bold text-base">{homeWins}</span>
                           </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-base mb-0.5">🤝</span>
-                            <span className="text-white font-bold text-lg">{draws}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm">🤝</span>
+                            <span className="text-white font-bold text-base">{draws}</span>
                           </div>
-                          <div className="flex flex-col items-center">
-                            <span className="text-base mb-0.5">✈️</span>
-                            <span className="text-white font-bold text-lg">{awayWins}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm">✈️</span>
+                            <span className="text-white font-bold text-base">{awayWins}</span>
                           </div>
                         </div>
                       );
