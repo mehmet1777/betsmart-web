@@ -415,33 +415,6 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                       </div>
                     </div>
 
-                    {/* H2H İstatistik - Minimal */}
-                    {(() => {
-                      const validMatches = matchDetails.h2h_data.matches.filter((m: any) => 
-                        m.score_home !== undefined && m.score_away !== undefined
-                      );
-                      const homeWins = validMatches.filter((m: any) => m.score_home > m.score_away).length;
-                      const draws = validMatches.filter((m: any) => m.score_home === m.score_away).length;
-                      const awayWins = validMatches.length - homeWins - draws;
-
-                      return (
-                        <div className="flex items-center justify-center gap-6 mb-2 py-1">
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm">🏠</span>
-                            <span className="text-white font-bold text-base">{homeWins}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm">🤝</span>
-                            <span className="text-white font-bold text-base">{draws}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="text-sm">✈️</span>
-                            <span className="text-white font-bold text-base">{awayWins}</span>
-                          </div>
-                        </div>
-                      );
-                    })()}
-
                     {/* Kompakt H2H Liste */}
                     <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
                       {matchDetails.h2h_data.matches.map((m: any, idx: number) => {
