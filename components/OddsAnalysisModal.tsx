@@ -410,7 +410,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                       <div className="flex items-center gap-2">
                         <div className="w-1 h-1 bg-[#8B5CF6] rounded-full"></div>
                         <h4 className="text-xs font-bold text-[#8B5CF6] uppercase">
-                          Aralarındaki Maçlar ({matchDetails.h2h_data.matches.length})
+                          🤼 Aralarındaki Maçlar ({matchDetails.h2h_data.matches.length})
                         </h4>
                       </div>
                     </div>
