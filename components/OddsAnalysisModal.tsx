@@ -618,22 +618,21 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                   <div className="space-y-3">
                     {/* EXACT MATCHES */}
                     {analysis.exact.length > 0 && exactStats && exactStats.total > 0 && (
-                      <div className="relative bg-gradient-to-br from-[#8B5CF6]/10 via-[#6366F1]/5 to-transparent border border-[#8B5CF6]/20 rounded-[18px] p-4 sm:p-5 shadow-lg shadow-purple-900/10">
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/5 to-transparent rounded-[18px] opacity-50"></div>
+                      <div className="relative bg-gradient-to-br from-[#8B5CF6]/10 via-[#6366F1]/5 to-transparent border border-[#8B5CF6]/20 rounded-[16px] p-3 shadow-lg">
                         
-                        <div className="relative flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-1.5 h-1.5 bg-[#8B5CF6] rounded-full shadow-lg shadow-purple-500/50"></div>
-                            <h4 className="text-xs font-bold text-[#8B5CF6] uppercase tracking-wider">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1 h-1 bg-[#8B5CF6] rounded-full"></div>
+                            <h4 className="text-xs font-bold text-[#8B5CF6] uppercase">
                               Aynı Oranlar ({analysis.exact.length})
                             </h4>
                           </div>
                           <button
                             onClick={() => setDetailsModal('exact')}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-lg transition-colors group border border-[#8B5CF6]/20"
+                            className="flex items-center gap-1 px-2 py-1 bg-[#8B5CF6]/10 hover:bg-[#8B5CF6]/20 text-[#8B5CF6] rounded-lg transition-colors border border-[#8B5CF6]/20"
                           >
-                            <span className="text-xs font-semibold">📊 İstatistikler</span>
-                            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                            <span className="text-[10px] font-semibold">Detay</span>
+                            <ChevronRight className="w-3 h-3" />
                           </button>
                         </div>
 
@@ -644,41 +643,32 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                             { type: 'away', count: exactStats.away, label: 'Deplasman', odds: match.odds?.away }
                           ];
 
-                          // En yüksek olanı bul (öneri için)
                           const sortedResults = [...results].sort((a, b) => b.count - a.count);
                           const best = sortedResults[0];
                           const percentage = ((best.count / exactStats.total) * 100).toFixed(0);
                           
                           return (
-                            <div className="relative bg-gradient-to-br from-[#1a1a35] to-[#15152D] rounded-[14px] p-5 mb-4 border border-white/[0.08] shadow-xl">
-                              <div className="absolute inset-0 bg-gradient-to-br from-[#8B5CF6]/5 to-transparent rounded-[14px]"></div>
-                              
-                              <div className="relative flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B5CF6]/20 to-[#6366F1]/10 flex items-center justify-center border border-[#8B5CF6]/20">
-                                    <span className="text-2xl">{best.type === 'home' ? '🏠' : best.type === 'draw' ? '🤝' : '✈️'}</span>
-                                  </div>
+                            <div className="bg-[#1a1a35] rounded-lg p-3 mb-2 border border-white/[0.06]">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xl">{best.type === 'home' ? '🏠' : best.type === 'draw' ? '🤝' : '✈️'}</span>
                                   <div>
-                                    <p className="text-[#F8FAFC] font-bold text-base">{best.label}</p>
-                                    <p className="text-[#9295AC] text-xs mt-0.5">{best.odds}</p>
+                                    <p className="text-white font-bold text-sm">{best.label}</p>
+                                    <p className="text-[#9295AC] text-[10px]">{best.odds}</p>
                                   </div>
                                 </div>
                                 <div className="text-right">
-                                  <p className="text-[#22C55E] font-bold text-2xl sm:text-3xl">{percentage}%</p>
-                                  <p className="text-xs text-[#9295AC] mt-0.5">{getStars(parseInt(percentage))}</p>
+                                  <p className="text-[#22C55E] font-bold text-xl">{percentage}%</p>
+                                  <p className="text-[9px] text-[#9295AC]">{exactStats.total} maç</p>
                                 </div>
                               </div>
-                              
-                              <p className="text-[#9295AC] text-xs mb-3">
-                                {exactStats.total} maçta {best.count} kez gerçekleşti
-                              </p>
 
-                              <div className="grid grid-cols-3 gap-3">
+                              <div className="grid grid-cols-3 gap-2">
                                 {results.map((r) => (
-                                  <div key={r.type} className="bg-[#080A18]/40 rounded-xl p-3 text-center border border-white/[0.04]">
-                                    <p className="text-xl mb-1.5">{r.type === 'home' ? '🏠' : r.type === 'draw' ? '🤝' : '✈️'}</p>
-                                    <p className="text-[#F8FAFC] font-bold text-lg">{r.count}</p>
-                                    <p className="text-xs text-[#9295AC] mt-1">
+                                  <div key={r.type} className="bg-[#080A18]/40 rounded-lg p-2 text-center border border-white/[0.04]">
+                                    <p className="text-base mb-0.5">{r.type === 'home' ? '🏠' : r.type === 'draw' ? '🤝' : '✈️'}</p>
+                                    <p className="text-white font-bold text-sm">{r.count}</p>
+                                    <p className="text-[9px] text-[#9295AC] mt-0.5">
                                       {((r.count / exactStats.total) * 100).toFixed(0)}%
                                     </p>
                                   </div>
@@ -692,38 +682,36 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
 
                     {/* SIMILAR MATCHES */}
                     {analysis.similar.length > 0 && similarStats && similarStats.total > 0 && (
-                      <div className="relative bg-gradient-to-br from-[#6366F1]/10 via-[#8B5CF6]/5 to-transparent border border-[#6366F1]/20 rounded-[18px] p-4 sm:p-5 shadow-lg shadow-indigo-900/10">
-                        <div className="absolute inset-0 bg-gradient-to-br from-[#6366F1]/5 to-transparent rounded-[18px] opacity-50"></div>
-                        
-                        <div className="relative flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-1.5 h-1.5 bg-[#6366F1] rounded-full shadow-lg shadow-indigo-500/50"></div>
-                            <h4 className="text-xs font-bold text-[#6366F1] uppercase tracking-wider">
+                      <div className="relative bg-gradient-to-br from-[#6366F1]/10 via-[#8B5CF6]/5 to-transparent border border-[#6366F1]/20 rounded-[16px] p-3 shadow-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-1 h-1 bg-[#6366F1] rounded-full"></div>
+                            <h4 className="text-xs font-bold text-[#6366F1] uppercase">
                               Yakın Oranlar ({analysis.similar.length})
                             </h4>
                           </div>
                           <button
                             onClick={() => setDetailsModal('similar')}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#6366F1]/10 hover:bg-[#6366F1]/20 text-[#6366F1] rounded-lg transition-colors group border border-[#6366F1]/20"
+                            className="flex items-center gap-1 px-2 py-1 bg-[#6366F1]/10 hover:bg-[#6366F1]/20 text-[#6366F1] rounded-lg transition-colors border border-[#6366F1]/20"
                           >
-                            <span className="text-xs font-semibold">📊 İstatistikler</span>
-                            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                            <span className="text-[10px] font-semibold">Detay</span>
+                            <ChevronRight className="w-3 h-3" />
                           </button>
                         </div>
 
-                        <div className="relative space-y-2">
+                        <div className="space-y-1.5">
                           {[
                             { label: 'Ev Sahibi', count: similarStats.home, icon: '🏠' },
                             { label: 'Beraberlik', count: similarStats.draw, icon: '🤝' },
                             { label: 'Deplasman', count: similarStats.away, icon: '✈️' }
                           ].map((item, idx) => (
-                              <div key={idx} className="flex items-center justify-between text-sm bg-[#1a1a35]/50 rounded-xl p-2.5 border border-white/[0.04]">
-                                <div className="flex items-center gap-2.5">
-                                  <span className="text-base">{item.icon}</span>
-                                  <span className="text-[#F8FAFC] font-medium">{item.label}</span>
+                              <div key={idx} className="flex items-center justify-between text-xs bg-[#1a1a35]/50 rounded-lg p-2 border border-white/[0.04]">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm">{item.icon}</span>
+                                  <span className="text-white font-medium">{item.label}</span>
                                 </div>
-                                <span className="text-[#F8FAFC] font-bold">
-                                  {item.count} <span className="text-xs text-[#9295AC] font-normal">({((item.count/similarStats.total)*100).toFixed(0)}%)</span>
+                                <span className="text-white font-bold">
+                                  {item.count} <span className="text-[10px] text-[#9295AC] font-normal">({((item.count/similarStats.total)*100).toFixed(0)}%)</span>
                                 </span>
                               </div>
                             ))}
@@ -732,7 +720,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                     )}
 
                     {/* Summary */}
-                    <div className="relative bg-gradient-to-r from-[#15152D]/80 to-[#1a1a35]/60 rounded-[16px] p-4 text-center border border-white/[0.06] backdrop-blur-sm">
+                    <div className="bg-[#15152D]/50 rounded-lg p-2 text-center border border-white/[0.04]">
                       <p className="text-xs text-[#9295AC]">
                         Toplam <span className="text-[#8B5CF6] font-bold">{(analysis.exact?.length || 0) + (analysis.similar?.length || 0)}</span> maç analiz edildi
                       </p>
