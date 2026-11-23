@@ -466,7 +466,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                                 {homeScore} - {awayScore}
                               </span>
                             </div>
-                            <div className="text-[11px] text-[#9295AC] truncate">
+                            <div className="text-[11px] text-white truncate">
                               {m.home} vs {m.away}
                             </div>
                           </div>
@@ -488,7 +488,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                       </div>
                       {matchDetails.form_home.serie && (
                         <div className="flex gap-0.5">
-                          {matchDetails.form_home.serie.split('').slice(0, 5).map((s, i) => (
+                          {matchDetails.form_home.serie.split('').reverse().slice(0, 5).map((s, i) => (
                             <span key={i} className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
                               s === 'W' ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
                               s === 'D' ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
@@ -549,7 +549,7 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                       </div>
                       {matchDetails.form_away.serie && (
                         <div className="flex gap-0.5">
-                          {matchDetails.form_away.serie.split('').slice(0, 5).map((s, i) => (
+                          {matchDetails.form_away.serie.split('').reverse().slice(0, 5).map((s, i) => (
                             <span key={i} className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
                               s === 'W' ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
                               s === 'D' ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
