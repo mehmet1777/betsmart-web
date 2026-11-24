@@ -250,6 +250,55 @@ try:
                 traceback.print_exc()
         
         @pyqtSlot()
+        def openNesineParser(self):
+            """Nesine parser sayfasını aç"""
+            try:
+                parser_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates', 'nesine_parser.html')
+                self.main_window.web_view.setUrl(QUrl.fromLocalFile(parser_path))
+            except Exception as e:
+                print(f"❌ Parser açılırken hata: {str(e)}")
+                import traceback
+                traceback.print_exc()
+        
+        @pyqtSlot(str)
+        def parseNesineCoupon(self, coupon_data):
+            """Nesine kupon verisini parse et"""
+            try:
+                print("🎯 Nesine kuponu parse ediliyor...")
+                print(f"📋 Veri uzunluğu: {len(coupon_data)} karakter")
+                
+                # Şimdilik basit bir parse - daha sonra geliştirebiliriz
+                lines = coupon_data.strip().split('\n')
+                match_count = 0
+                
+                # Her satırı kontrol et
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    
+                    # Maç satırlarını bul (takım isimleri içeren satırlar)
+                    if '-' in line or 'vs' in line.lower():
+                        match_count += 1
+                        print(f"  {match_count}. {line}")
+                
+                print(f"✅ {match_count} maç bulundu")
+                
+                # JavaScript'e success callback gönder
+                js_code = f"onSuccess({match_count});"
+                self.main_window.web_view.page().runJavaScript(js_code)
+                
+            except Exception as e:
+                error_msg = str(e)
+                print(f"❌ Parse hatası: {error_msg}")
+                import traceback
+                traceback.print_exc()
+                
+                # JavaScript'e error callback gönder
+                js_code = f"onError('{error_msg}');"
+                self.main_window.web_view.page().runJavaScript(js_code)
+        
+        @pyqtSlot()
         def goBack(self):
             """Ana ekrana dön"""
             try:

@@ -266,24 +266,24 @@ class ModernLauncher:
                 self.root.after(0, lambda: self.status_label.config(text="✅ Web arayüzü başlatıldı", fg="#00E676"))
                 time.sleep(0.5)
                 
-                # 3. Oran Takip Sistemi başlat
-                self.root.after(0, lambda: self.status_label.config(text="📊 Oran takip sistemi başlatılıyor...", fg="#00D9FF"))
+                # 3. Birleşik Takip Sistemi başlat (Oran + Maç Detay)
+                self.root.after(0, lambda: self.status_label.config(text="📊 Takip sistemleri başlatılıyor...", fg="#00D9FF"))
                 
                 # Sabit path kullan (EXE temp klasör sorununu çöz)
                 backend_path = r"C:\Users\worda\Desktop\BetSmart\backend"
-                odds_script = os.path.join(backend_path, "odds_tracker.py")
+                unified_script = os.path.join(backend_path, "unified_tracker.py")
                 
-                if os.path.exists(odds_script):
-                    # Python script'i direkt çalıştır
-                    subprocess.Popen(['python', odds_script],
+                if os.path.exists(unified_script):
+                    # Tek terminalde tüm tracker'ları çalıştır
+                    subprocess.Popen(['python', unified_script],
                                    cwd=backend_path,
                                    creationflags=subprocess.CREATE_NEW_CONSOLE)
-                    print("✅ Oran takip başlatıldı")
+                    print("✅ Birleşik takip sistemi başlatıldı")
                 else:
-                    print(f"⚠️ odds_tracker.py bulunamadı: {odds_script}")
+                    print(f"⚠️ unified_tracker.py bulunamadı: {unified_script}")
                 
                 time.sleep(1)
-                self.root.after(0, lambda: self.status_label.config(text="✅ Oran takip sistemi başlatıldı", fg="#00E676"))
+                self.root.after(0, lambda: self.status_label.config(text="✅ Takip sistemleri başlatıldı", fg="#00E676"))
                 time.sleep(0.5)
                 
                 # 4. Telegram bot başlat
@@ -316,7 +316,7 @@ class ModernLauncher:
                     self.root.after(0, lambda: self.status_label.config(text="⚠️ GUI bulunamadı, diğer servisler çalışıyor", fg="#FFA726"))
                 
                 time.sleep(1)
-                self.root.after(0, lambda: self.status_label.config(text="✅ Tüm servisler hazır! (Oran takip: Her 15dk)", fg="#00E676"))
+                self.root.after(0, lambda: self.status_label.config(text="✅ Tüm servisler hazır! (Oran: 15dk, Detay: 10dk)", fg="#00E676"))
                 
                 # Launcher'ı kapat
                 time.sleep(1)
