@@ -106,6 +106,11 @@ def parse_h2h(h2h_data, home_team, away_team):
             half_score_away = match.get('hts_B')  # İlk yarı skoru
             match_date = match.get('date_time_utc', '')[:10]
             
+            # DEBUG: İlk maçta field'ları kontrol et
+            if len(parsed_matches) == 0:
+                print(f"🔍 DEBUG H2H Match Keys: {match.keys()}")
+                print(f"🔍 DEBUG hts_A: {half_score_home}, hts_B: {half_score_away}")
+            
             # Kim kazandı?
             if match_home == home_team:
                 # Ev sahibi bizim ev sahibimiz
@@ -182,6 +187,11 @@ def parse_form(form_data):
             half_score_home = match.get('hts_A')  # İlk yarı skoru
             half_score_away = match.get('hts_B')  # İlk yarı skoru
             match_date = match.get('date_time_utc', '')[:10]
+            
+            # DEBUG: İlk maçta field'ları kontrol et
+            if len(parsed_matches) == 0:
+                print(f"🔍 DEBUG Form Match Keys: {match.keys()}")
+                print(f"🔍 DEBUG hts_A: {half_score_home}, hts_B: {half_score_away}")
             
             parsed_matches.append({
                 'date': match_date,
