@@ -20,14 +20,14 @@ export default function MobileHeader({ onNotificationClick, onSearchClick, notif
         </div>
 
         {/* Right: Analiz Kuponları + Icons */}
-        <div className="flex items-center gap-2">
-          {/* Analiz Kuponları Button */}
+        <div className="flex items-center gap-1">
+          {/* Analiz Kuponları Button - Compact */}
           <Link 
             href="/analiz-kuponlari"
-            className="flex items-center gap-1.5 py-2 px-4 bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-semibold rounded-xl transition-all text-[13px] shadow-lg shadow-green-500/30 border border-green-400/20"
+            className="flex items-center justify-center w-9 h-9 bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white rounded-lg transition-all shadow-lg shadow-green-500/30"
+            title="Analiz Kuponları"
           >
-            <TrendingUp className="w-4 h-4" />
-            <span>Analiz Kuponları</span>
+            <TrendingUp className="w-5 h-5" />
           </Link>
           
           <button 
