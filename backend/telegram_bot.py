@@ -462,15 +462,22 @@ class TelegramBotManager:
                 # 🆕 İlk yarı istatistiklerini senkronize et
                 halftime_status = ""
                 try:
-                    from sync_halftime_stats import sync_halftime_stats
-                    
                     print("\n📊 İlk yarı istatistikleri senkronize ediliyor...")
+                    
+                    # Import'u try içine al
+                    from sync_halftime_stats import sync_halftime_stats
                     sync_halftime_stats()
+                    
                     halftime_status = "✅ İlk yarı istatistikleri güncellendi\n"
                     print("✅ İlk yarı sync tamamlandı")
                     
+                except ImportError as ie:
+                    print(f"⚠️ Halftime sync import hatası: {ie}")
+                    halftime_status = ""
                 except Exception as e:
                     print(f"⚠️ Halftime sync hatası: {e}")
+                    import traceback
+                    traceback.print_exc()
                     halftime_status = ""  # Sessizce hata, mesaja ekleme
                 
                 # İlk oranları odds_changes'e kaydet (Sahadan'dan tekrar çekmeden!)
