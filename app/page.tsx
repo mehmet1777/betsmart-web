@@ -652,7 +652,7 @@ export default function Home() {
       ) : (
         <>
           {/* Main Content */}
-          <main className="pt-32">{/* Header + Button için daha fazla padding */}
+          <main className="pt-16">{/* Normal padding */}
             {/* League Filters */}
             <LeagueFilters
           selectedLeague={selectedLeague}
