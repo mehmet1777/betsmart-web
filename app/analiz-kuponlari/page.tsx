@@ -34,7 +34,10 @@ export default function AnalizKuponlariPage() {
     const fetchCoupons = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/nesine-coupons');
+        // Cache bypass için timestamp ekle
+        const response = await fetch(`/api/nesine-coupons?t=${Date.now()}`, {
+          cache: 'no-store'
+        });
         const data = await response.json();
         
         if (data.coupons) {
@@ -138,9 +141,16 @@ export default function AnalizKuponlariPage() {
 
         {/* Coupon List */}
         {!loading && coupons.filter(c => {
-          if (activeTab === 'kazanan') return c.status === 'won';
-          if (activeTab === 'kaybeden') return c.status === 'lost';
-          return c.status === 'pending'; // Günün kuponları
+          // Önce status'e göre filtrele
+          let statusMatch = false;
+          if (activeTab === 'kazanan') statusMatch = c.status === 'won';
+          else if (activeTab === 'kaybeden') statusMatch = c.status === 'lost';
+          else statusMatch = c.status === 'pending'; // Günün kuponları
+          
+          // Sonra maçı olan kuponları filtrele
+          const hasMatches = c.matches && c.matches.length > 0;
+          
+          return statusMatch && hasMatches;
         }).map((coupon) => (
           <div key={coupon.id} className="bg-card-bg rounded-2xl overflow-hidden border border-border-color">
             {/* Coupon Header */}
@@ -220,9 +230,12 @@ export default function AnalizKuponlariPage() {
 
         {/* Empty State */}
         {!loading && coupons.filter(c => {
-          if (activeTab === 'kazanan') return c.status === 'won';
-          if (activeTab === 'kaybeden') return c.status === 'lost';
-          return c.status === 'pending';
+          let statusMatch = false;
+          if (activeTab === 'kazanan') statusMatch = c.status === 'won';
+          else if (activeTab === 'kaybeden') statusMatch = c.status === 'lost';
+          else statusMatch = c.status === 'pending';
+          const hasMatches = c.matches && c.matches.length > 0;
+          return statusMatch && hasMatches;
         }).length === 0 && (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-card-bg rounded-full flex items-center justify-center mx-auto mb-4">
