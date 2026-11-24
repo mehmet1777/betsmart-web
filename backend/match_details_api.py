@@ -102,7 +102,14 @@ def parse_h2h(h2h_data, home_team, away_team):
             match_away = match.get('team_B', {}).get('name', '')
             score_home = match.get('fts_A', 0)
             score_away = match.get('fts_B', 0)
+            half_score_home = match.get('hts_A')  # İlk yarı skoru
+            half_score_away = match.get('hts_B')  # İlk yarı skoru
             match_date = match.get('date_time_utc', '')[:10]
+            
+            # DEBUG: İlk maçta field'ları kontrol et
+            if len(parsed_matches) == 0:
+                print(f"🔍 DEBUG H2H Match Keys: {match.keys()}")
+                print(f"🔍 DEBUG hts_A: {half_score_home}, hts_B: {half_score_away}")
             
             # Kim kazandı?
             if match_home == home_team:
@@ -136,6 +143,8 @@ def parse_h2h(h2h_data, home_team, away_team):
                 'away': match_away,
                 'score_home': score_home,
                 'score_away': score_away,
+                'half_score_home': half_score_home,
+                'half_score_away': half_score_away,
                 'winner': winner
             })
             
@@ -175,14 +184,23 @@ def parse_form(form_data):
             match_away = match.get('team_B', {}).get('name', '')
             score_home = match.get('fts_A', 0)
             score_away = match.get('fts_B', 0)
+            half_score_home = match.get('hts_A')  # İlk yarı skoru
+            half_score_away = match.get('hts_B')  # İlk yarı skoru
             match_date = match.get('date_time_utc', '')[:10]
+            
+            # DEBUG: İlk maçta field'ları kontrol et
+            if len(parsed_matches) == 0:
+                print(f"🔍 DEBUG Form Match Keys: {match.keys()}")
+                print(f"🔍 DEBUG hts_A: {half_score_home}, hts_B: {half_score_away}")
             
             parsed_matches.append({
                 'date': match_date,
                 'home': match_home,
                 'away': match_away,
                 'score_home': score_home,
-                'score_away': score_away
+                'score_away': score_away,
+                'half_score_home': half_score_home,
+                'half_score_away': half_score_away
             })
         except:
             continue
