@@ -435,12 +435,21 @@ class TelegramBotManager:
                     # Tuple unpack
                     success_detail_count, failed_detail_count, skipped_count = details_result
                     
+                    # success_detail_count: Yeni eklenen + zaten var olanlar
+                    # failed_detail_count: API hatası
+                    # skipped_count: UUID yok
+                    
+                    # Toplam işlenen
+                    total_processed = success_detail_count + failed_detail_count + skipped_count
+                    
                     if success_detail_count > 0:
-                        details_status = f"📊 {success_detail_count} maç detayı eklendi\n"
+                        details_status = f"📊 {success_detail_count} maç detayı başarılı\n"
                         if failed_detail_count > 0:
-                            details_status += f"⚠️ {failed_detail_count} maç detayı alınamadı\n"
+                            details_status += f"⚠️ {failed_detail_count} maç başarısız\n"
+                        if skipped_count > 0:
+                            details_status += f"⏭️  {skipped_count} maç UUID yok\n"
                     elif failed_detail_count > 0:
-                        details_status = f"⚠️ {failed_detail_count} maç detayı alınamadı\n"
+                        details_status = f"⚠️ {failed_detail_count} maç başarısız\n"
                     else:
                         details_status = "⚠️ Maç detayları alınamadı\n"
                         
