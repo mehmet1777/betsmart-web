@@ -163,27 +163,33 @@ export default function AnalizKuponlariPage() {
 
             {/* Matches - İlk 3 maç göster */}
             <div className="p-3 space-y-2">
-              {coupon.matches.slice(0, 3).map((match, idx) => (
-                <div key={idx} className="flex items-center gap-2 p-2 bg-bg-darker rounded-lg">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0">
-                    ⚽
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-text-primary text-sm mb-0.5 truncate">{match.teams}</h4>
-                    {match.tahmin && (
-                      <p className="text-[11px] text-green-400 truncate">{match.tahmin}</p>
-                    )}
-                    {match.skor && (
-                      <p className="text-[10px] text-text-secondary">Skor: {match.skor}</p>
-                    )}
-                  </div>
-                  {match.oran && (
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-base font-bold text-text-primary">{match.oran}</div>
+              {coupon.matches && coupon.matches.length > 0 ? (
+                coupon.matches.slice(0, 3).map((match, idx) => (
+                  <div key={idx} className="flex items-center gap-2 p-2 bg-bg-darker rounded-lg">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0">
+                      ⚽
                     </div>
-                  )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-text-primary text-sm mb-0.5 truncate">{match.teams}</h4>
+                      {match.tahmin && (
+                        <p className="text-[11px] text-green-400 truncate">{match.tahmin}</p>
+                      )}
+                      {match.skor && (
+                        <p className="text-[10px] text-text-secondary">Skor: {match.skor}</p>
+                      )}
+                    </div>
+                    {match.oran && (
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-base font-bold text-text-primary">{match.oran}</div>
+                      </div>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <div className="text-center text-text-secondary text-sm py-4">
+                  Maç bilgisi bulunamadı
                 </div>
-              ))}
+              )}
             </div>
 
             {/* Footer - Toplam Oran */}
@@ -198,7 +204,7 @@ export default function AnalizKuponlariPage() {
             </div>
 
             {/* Action Button - Sadece 4+ maç varsa göster */}
-            {coupon.matches.length > 3 && (
+            {coupon.matches && coupon.matches.length > 3 && (
               <div className="px-4 pb-3">
                 <button 
                   onClick={() => setSelectedCoupon(coupon)}
