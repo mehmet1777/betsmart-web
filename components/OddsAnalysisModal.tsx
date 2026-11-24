@@ -54,6 +54,8 @@ interface MatchDetails {
       away: string;
       score_home: number;
       score_away: number;
+      half_score_home?: number;
+      half_score_away?: number;
       competition?: string;
       winner?: string;
     }>;
@@ -68,6 +70,8 @@ interface MatchDetails {
       away: string;
       score_home: number;
       score_away: number;
+      half_score_home?: number;
+      half_score_away?: number;
       competition?: string;
     }>;
     serie?: string;
@@ -83,6 +87,8 @@ interface MatchDetails {
       away: string;
       score_home: number;
       score_away: number;
+      half_score_home?: number;
+      half_score_away?: number;
       competition?: string;
     }>;
     serie?: string;
@@ -431,13 +437,20 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                           <div key={idx} className="bg-[#1a1a35]/50 rounded-lg p-2 border border-white/[0.04]">
                             <div className="flex items-center justify-between gap-2 mb-1">
                               <span className="text-[9px] text-[#9295AC]">{m.date}</span>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                result === 'home' ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
-                                result === 'away' ? 'bg-[#EF4444]/20 text-[#EF4444]' : 
-                                'bg-[#F59E0B]/20 text-[#F59E0B]'
-                              }`}>
-                                {homeScore} - {awayScore}
-                              </span>
+                              <div className="text-right">
+                                <div className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  result === 'home' ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
+                                  result === 'away' ? 'bg-[#EF4444]/20 text-[#EF4444]' : 
+                                  'bg-[#F59E0B]/20 text-[#F59E0B]'
+                                }`}>
+                                  {homeScore} - {awayScore}
+                                </div>
+                                {m.half_score_home !== undefined && m.half_score_away !== undefined && (
+                                  <div className="text-[8px] text-[#9295AC] mt-0.5">
+                                    İY: {m.half_score_home}-{m.half_score_away}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                             <div className="text-[11px] text-white truncate">
                               {m.home} vs {m.away}
@@ -493,15 +506,22 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                               </div>
                               <div className="text-[9px] text-[#9295AC]">{m.date}</div>
                             </div>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <span className="text-xs font-bold text-white">{homeScore}-{awayScore}</span>
-                              <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
-                                won ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
-                                draw ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
-                                'bg-[#EF4444]/20 text-[#EF4444]'
-                              }`}>
-                                {won ? 'G' : draw ? 'B' : 'M'}
-                              </span>
+                            <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-bold text-white">{homeScore}-{awayScore}</span>
+                                <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
+                                  won ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
+                                  draw ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
+                                  'bg-[#EF4444]/20 text-[#EF4444]'
+                                }`}>
+                                  {won ? 'G' : draw ? 'B' : 'M'}
+                                </span>
+                              </div>
+                              {m.half_score_home !== undefined && m.half_score_away !== undefined && (
+                                <span className="text-[8px] text-[#9295AC]">
+                                  İY: {m.half_score_home}-{m.half_score_away}
+                                </span>
+                              )}
                             </div>
                           </div>
                         );
@@ -554,15 +574,22 @@ export default function OddsAnalysisModal({ isOpen, onClose, match }: OddsAnalys
                               </div>
                               <div className="text-[9px] text-[#9295AC]">{m.date}</div>
                             </div>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <span className="text-xs font-bold text-white">{homeScore}-{awayScore}</span>
-                              <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
-                                won ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
-                                draw ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
-                                'bg-[#EF4444]/20 text-[#EF4444]'
-                              }`}>
-                                {won ? 'G' : draw ? 'B' : 'M'}
-                              </span>
+                            <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-bold text-white">{homeScore}-{awayScore}</span>
+                                <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${
+                                  won ? 'bg-[#22C55E]/20 text-[#22C55E]' : 
+                                  draw ? 'bg-[#F59E0B]/20 text-[#F59E0B]' : 
+                                  'bg-[#EF4444]/20 text-[#EF4444]'
+                                }`}>
+                                  {won ? 'G' : draw ? 'B' : 'M'}
+                                </span>
+                              </div>
+                              {m.half_score_home !== undefined && m.half_score_away !== undefined && (
+                                <span className="text-[8px] text-[#9295AC]">
+                                  İY: {m.half_score_home}-{m.half_score_away}
+                                </span>
+                              )}
                             </div>
                           </div>
                         );

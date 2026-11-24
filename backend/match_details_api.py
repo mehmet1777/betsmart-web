@@ -102,6 +102,8 @@ def parse_h2h(h2h_data, home_team, away_team):
             match_away = match.get('team_B', {}).get('name', '')
             score_home = match.get('fts_A', 0)
             score_away = match.get('fts_B', 0)
+            half_score_home = match.get('hts_A')  # İlk yarı skoru
+            half_score_away = match.get('hts_B')  # İlk yarı skoru
             match_date = match.get('date_time_utc', '')[:10]
             
             # Kim kazandı?
@@ -136,6 +138,8 @@ def parse_h2h(h2h_data, home_team, away_team):
                 'away': match_away,
                 'score_home': score_home,
                 'score_away': score_away,
+                'half_score_home': half_score_home,
+                'half_score_away': half_score_away,
                 'winner': winner
             })
             
@@ -175,6 +179,8 @@ def parse_form(form_data):
             match_away = match.get('team_B', {}).get('name', '')
             score_home = match.get('fts_A', 0)
             score_away = match.get('fts_B', 0)
+            half_score_home = match.get('hts_A')  # İlk yarı skoru
+            half_score_away = match.get('hts_B')  # İlk yarı skoru
             match_date = match.get('date_time_utc', '')[:10]
             
             parsed_matches.append({
@@ -182,7 +188,9 @@ def parse_form(form_data):
                 'home': match_home,
                 'away': match_away,
                 'score_home': score_home,
-                'score_away': score_away
+                'score_away': score_away,
+                'half_score_home': half_score_home,
+                'half_score_away': half_score_away
             })
         except:
             continue
