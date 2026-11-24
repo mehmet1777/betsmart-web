@@ -24,10 +24,10 @@ export default function MobileHeader({ onNotificationClick, onSearchClick, notif
           {/* Analiz Kuponları Button */}
           <Link 
             href="/analiz-kuponlari"
-            className="flex items-center gap-1.5 py-2 px-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-lg transition-all text-sm"
+            className="flex items-center gap-1.5 py-2 px-4 bg-gradient-to-r from-[#10B981] to-[#059669] hover:from-[#059669] hover:to-[#047857] text-white font-semibold rounded-xl transition-all text-[13px] shadow-lg shadow-green-500/30 border border-green-400/20"
           >
             <TrendingUp className="w-4 h-4" />
-            Analiz Kuponları
+            <span>Analiz Kuponları</span>
           </Link>
           
           <button 
