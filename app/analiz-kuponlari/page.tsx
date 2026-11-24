@@ -27,6 +27,7 @@ export default function AnalizKuponlariPage() {
   const [coupons, setCoupons] = useState<ParsedCoupon[]>([]);
   const [activeTab, setActiveTab] = useState<'gunun' | 'kazanan' | 'kaybeden'>('gunun');
   const [loading, setLoading] = useState(true);
+  const [selectedCoupon, setSelectedCoupon] = useState<ParsedCoupon | null>(null);
 
   // Supabase'den kuponları çek
   useEffect(() => {
@@ -153,58 +154,61 @@ export default function AnalizKuponlariPage() {
             )}
 
             {/* Date */}
-            <div className="px-4 pt-4 pb-2 border-b border-border-color">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-text-secondary">
-                  <Calendar className="w-4 h-4" />
-                  {coupon.date}
-                </div>
+            <div className="px-4 pt-3 pb-2 border-b border-border-color">
+              <div className="flex items-center gap-2 text-xs text-text-secondary">
+                <Calendar className="w-3.5 h-3.5" />
+                {coupon.date}
               </div>
             </div>
 
-            {/* Matches */}
-            <div className="p-4 space-y-3">
-              {coupon.matches.map((match, idx) => (
-                <div key={idx} className="flex items-start gap-3 pb-3 border-b border-border-color last:border-0 last:pb-0">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+            {/* Matches - İlk 3 maç göster */}
+            <div className="p-3 space-y-2">
+              {coupon.matches.slice(0, 3).map((match, idx) => (
+                <div key={idx} className="flex items-center gap-2 p-2 bg-bg-darker rounded-lg">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0">
                     ⚽
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-text-primary mb-1">{match.teams}</h4>
+                    <h4 className="font-semibold text-text-primary text-sm mb-0.5 truncate">{match.teams}</h4>
                     {match.tahmin && (
-                      <p className="text-xs text-accent-primary mb-1">{match.tahmin}</p>
+                      <p className="text-[11px] text-green-400 truncate">{match.tahmin}</p>
                     )}
                     {match.skor && (
-                      <p className="text-xs text-text-secondary">Skor: {match.skor}</p>
+                      <p className="text-[10px] text-text-secondary">Skor: {match.skor}</p>
                     )}
                   </div>
                   {match.oran && (
                     <div className="text-right flex-shrink-0">
-                      <div className="text-lg font-bold text-text-primary">{match.oran}</div>
+                      <div className="text-base font-bold text-text-primary">{match.oran}</div>
                     </div>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Footer */}
-            <div className="px-4 py-3 bg-bg-darker border-t border-border-color flex items-center justify-between">
+            {/* Footer - Toplam Oran */}
+            <div className="px-4 py-2.5 bg-bg-darker border-t border-border-color flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                  <TrendingUp className="w-4 h-4 text-white" />
+                <div className="p-1.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                  <TrendingUp className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-sm text-text-secondary">Toplam Oran</span>
+                <span className="text-xs text-text-secondary">Toplam Oran</span>
               </div>
-              <div className="text-2xl font-bold text-green-400">{coupon.totalOdds.toFixed(2)}</div>
+              <div className="text-xl font-bold text-green-400">{coupon.totalOdds.toFixed(2)}</div>
             </div>
 
-            {/* Action Button */}
-            <div className="p-4 bg-bg-darker">
-              <button className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2">
-                <TrendingUp className="w-5 h-5" />
-                Kuponu Görüntüle
-              </button>
-            </div>
+            {/* Action Button - Sadece 4+ maç varsa göster */}
+            {coupon.matches.length > 3 && (
+              <div className="px-4 pb-3">
+                <button 
+                  onClick={() => setSelectedCoupon(coupon)}
+                  className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  Kupon Detayları ({coupon.matches.length} Maç)
+                </button>
+              </div>
+            )}
           </div>
         ))}
 
@@ -242,6 +246,66 @@ export default function AnalizKuponlariPage() {
           </div>
         </div>
       </div>
+
+      {/* Coupon Detail Modal */}
+      {selectedCoupon && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-end justify-center" onClick={() => setSelectedCoupon(null)}>
+          <div className="bg-bg-app rounded-t-3xl w-full max-w-2xl max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-bg-app border-b border-border-color px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-text-primary">Kupon Detayları</h3>
+                <p className="text-sm text-text-secondary">{selectedCoupon.matches.length} Maç</p>
+              </div>
+              <button 
+                onClick={() => setSelectedCoupon(null)}
+                className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-text-primary" />
+              </button>
+            </div>
+
+            {/* All Matches */}
+            <div className="p-4 space-y-2">
+              {selectedCoupon.matches.map((match, idx) => (
+                <div key={idx} className="flex items-center gap-2 p-2 bg-card-bg rounded-lg border border-border-color">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0 text-xs font-bold">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-text-primary text-sm mb-0.5">{match.teams}</h4>
+                    {match.tahmin && (
+                      <p className="text-[11px] text-green-400">{match.tahmin}</p>
+                    )}
+                    {match.skor && (
+                      <p className="text-[10px] text-text-secondary">Skor: {match.skor}</p>
+                    )}
+                  </div>
+                  {match.oran && (
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-base font-bold text-text-primary">{match.oran}</div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-bg-darker border-t border-border-color px-6 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-text-secondary">Toplam Oran</span>
+                <span className="text-2xl font-bold text-green-400">{selectedCoupon.totalOdds.toFixed(2)}</span>
+              </div>
+              <button 
+                onClick={() => setSelectedCoupon(null)}
+                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
