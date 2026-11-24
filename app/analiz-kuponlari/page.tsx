@@ -26,25 +26,50 @@ export default function AnalizKuponlariPage() {
   const router = useRouter();
   const [coupons, setCoupons] = useState<ParsedCoupon[]>([]);
   const [activeTab, setActiveTab] = useState<'gunun' | 'gecmis' | 'analiz'>('gunun');
+  const [loading, setLoading] = useState(true);
 
-  // Demo data - gerçek Supabase'den gelecek
+  // Supabase'den kuponları çek
   useEffect(() => {
-    // TODO: Supabase'den kuponları çek
-    const demoCoupons: ParsedCoupon[] = [
-      {
-        id: '1',
-        date: '25 Kasım 2026, Çarşamba',
-        matches: [
-          { teams: 'Bradford - Barnsley', tahmin: 'MS&Toplam Gol(2,5) 1 & Üst', oran: '1.80', skor: '3-0' },
-          { teams: 'Norwich City - QPR', tahmin: 'MS&Toplam Gol(1,5) 1 & Üst', oran: '2.05', skor: '1-1' },
-          { teams: 'Torquay - Chesham Utd', tahmin: 'MS & KG Var', oran: '2.61', skor: '2-1' },
-        ],
-        totalOdds: 9.63,
-        status: 'pending',
-        featured: true
+    const fetchCoupons = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/nesine-coupons');
+        const data = await response.json();
+        
+        if (data.coupons) {
+          // Supabase verisini ParsedCoupon formatına dönüştür
+          const formattedCoupons: ParsedCoupon[] = data.coupons.map((c: any) => ({
+            id: c.id,
+            date: new Date(c.coupon_date).toLocaleDateString('tr-TR', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric',
+              weekday: 'long'
+            }),
+            matches: c.matches.map((m: any) => ({
+              teams: m.teams,
+              mbs: m.mbs,
+              tahmin: m.tahmin,
+              oran: m.oran,
+              mac_saati: m.mac_saati,
+              skor: m.skor
+            })),
+            totalOdds: parseFloat(c.total_odds),
+            status: c.status,
+            featured: c.featured
+          }));
+          
+          setCoupons(formattedCoupons);
+          console.log('✅ Kuponlar yüklendi:', formattedCoupons.length);
+        }
+      } catch (error) {
+        console.error('❌ Kuponlar yüklenirken hata:', error);
+      } finally {
+        setLoading(false);
       }
-    ];
-    setCoupons(demoCoupons);
+    };
+    
+    fetchCoupons();
   }, []);
 
   return (
@@ -115,8 +140,15 @@ export default function AnalizKuponlariPage() {
           </div>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-2 border-green-500 border-t-transparent"></div>
+          </div>
+        )}
+
         {/* Coupon List */}
-        {coupons.map((coupon) => (
+        {!loading && coupons.map((coupon) => (
           <div key={coupon.id} className="bg-card-bg rounded-2xl overflow-hidden border border-border-color">
             {/* Coupon Header */}
             {coupon.featured && (
@@ -185,7 +217,7 @@ export default function AnalizKuponlariPage() {
         ))}
 
         {/* Empty State */}
-        {coupons.length === 0 && (
+        {!loading && coupons.length === 0 && (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-card-bg rounded-full flex items-center justify-center mx-auto mb-4">
               <Star className="w-10 h-10 text-text-secondary" />
