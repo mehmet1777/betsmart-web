@@ -25,7 +25,7 @@ interface ParsedMatch {
 export default function AnalizKuponlariPage() {
   const router = useRouter();
   const [coupons, setCoupons] = useState<ParsedCoupon[]>([]);
-  const [activeTab, setActiveTab] = useState<'gunun' | 'gecmis' | 'analiz'>('gunun');
+  const [activeTab, setActiveTab] = useState<'gunun' | 'kazanan' | 'kaybeden'>('gunun');
   const [loading, setLoading] = useState(true);
 
   // Supabase'den kuponları çek
@@ -98,48 +98,36 @@ export default function AnalizKuponlariPage() {
             Günün Kuponları
           </button>
           <button
-            onClick={() => setActiveTab('gecmis')}
+            onClick={() => setActiveTab('kazanan')}
             className={`flex-1 py-2.5 px-4 rounded-xl font-medium transition-all ${
-              activeTab === 'gecmis'
+              activeTab === 'kazanan'
                 ? 'bg-gradient-to-r from-accent-primary to-accent-secondary text-white'
                 : 'bg-card-bg text-text-secondary'
             }`}
           >
-            <Calendar className="w-4 h-4 inline mr-1" />
-            Geçmiş Kuponlar
+            <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Kazanan
           </button>
           <button
-            onClick={() => setActiveTab('analiz')}
+            onClick={() => setActiveTab('kaybeden')}
             className={`flex-1 py-2.5 px-4 rounded-xl font-medium transition-all ${
-              activeTab === 'analiz'
+              activeTab === 'kaybeden'
                 ? 'bg-gradient-to-r from-accent-primary to-accent-secondary text-white'
                 : 'bg-card-bg text-text-secondary'
             }`}
           >
-            <TrendingUp className="w-4 h-4 inline mr-1" />
-            Analiz Ekibi
+            <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Kaybeden
           </button>
         </div>
       </div>
 
       {/* Content */}
       <div className="pt-32 px-4 space-y-4">
-        {/* Hero Card */}
-        <div className="relative bg-gradient-to-br from-green-500/10 via-emerald-500/10 to-teal-500/10 border border-green-500/30 rounded-2xl p-6 overflow-hidden">
-          <div className="absolute top-0 right-0 w-48 h-48 bg-green-500/10 rounded-full blur-3xl" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-white" />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-bold text-white">Analiz Kuponları</h2>
-                <p className="text-sm text-green-300">Uzman analiziz ekibimizin hazırladığı en güncel kuponlar burada!</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Loading State */}
         {loading && (
           <div className="flex items-center justify-center py-12">
@@ -148,7 +136,11 @@ export default function AnalizKuponlariPage() {
         )}
 
         {/* Coupon List */}
-        {!loading && coupons.map((coupon) => (
+        {!loading && coupons.filter(c => {
+          if (activeTab === 'kazanan') return c.status === 'won';
+          if (activeTab === 'kaybeden') return c.status === 'lost';
+          return c.status === 'pending'; // Günün kuponları
+        }).map((coupon) => (
           <div key={coupon.id} className="bg-card-bg rounded-2xl overflow-hidden border border-border-color">
             {/* Coupon Header */}
             {coupon.featured && (
@@ -217,13 +209,23 @@ export default function AnalizKuponlariPage() {
         ))}
 
         {/* Empty State */}
-        {!loading && coupons.length === 0 && (
+        {!loading && coupons.filter(c => {
+          if (activeTab === 'kazanan') return c.status === 'won';
+          if (activeTab === 'kaybeden') return c.status === 'lost';
+          return c.status === 'pending';
+        }).length === 0 && (
           <div className="text-center py-12">
             <div className="w-20 h-20 bg-card-bg rounded-full flex items-center justify-center mx-auto mb-4">
               <Star className="w-10 h-10 text-text-secondary" />
             </div>
-            <h3 className="text-lg font-bold text-text-primary mb-2">Henüz Kupon Yok</h3>
-            <p className="text-sm text-text-secondary">Nesine Parser ile kupon ekleyin!</p>
+            <h3 className="text-lg font-bold text-text-primary mb-2">
+              {activeTab === 'kazanan' ? 'Kazanan Kupon Yok' : 
+               activeTab === 'kaybeden' ? 'Kaybeden Kupon Yok' : 
+               'Henüz Kupon Yok'}
+            </h3>
+            <p className="text-sm text-text-secondary">
+              {activeTab === 'gunun' ? 'Nesine Parser ile kupon ekleyin!' : 'Bu kategoride kupon bulunmuyor.'}
+            </p>
           </div>
         )}
       </div>
