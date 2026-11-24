@@ -435,21 +435,12 @@ class TelegramBotManager:
                     # Tuple unpack
                     success_detail_count, failed_detail_count, skipped_count = details_result
                     
-                    # success_detail_count: Yeni eklenen + zaten var olanlar
-                    # failed_detail_count: API hatası
-                    # skipped_count: UUID yok
-                    
-                    # Toplam işlenen
-                    total_processed = success_detail_count + failed_detail_count + skipped_count
-                    
                     if success_detail_count > 0:
-                        details_status = f"📊 {success_detail_count} maç detayı başarılı\n"
+                        details_status = f"📊 {success_detail_count} maç detayı eklendi\n"
                         if failed_detail_count > 0:
-                            details_status += f"⚠️ {failed_detail_count} maç başarısız\n"
-                        if skipped_count > 0:
-                            details_status += f"⏭️  {skipped_count} maç UUID yok\n"
+                            details_status += f"⚠️ {failed_detail_count} maç detayı alınamadı\n"
                     elif failed_detail_count > 0:
-                        details_status = f"⚠️ {failed_detail_count} maç başarısız\n"
+                        details_status = f"⚠️ {failed_detail_count} maç detayı alınamadı\n"
                     else:
                         details_status = "⚠️ Maç detayları alınamadı\n"
                         
@@ -458,27 +449,6 @@ class TelegramBotManager:
                     import traceback
                     traceback.print_exc()
                     details_status = "⚠️ Maç detayı hatası\n"
-                
-                # 🆕 İlk yarı istatistiklerini senkronize et
-                halftime_status = ""
-                try:
-                    print("\n📊 İlk yarı istatistikleri senkronize ediliyor...")
-                    
-                    # Import'u try içine al
-                    from sync_halftime_stats import sync_halftime_stats
-                    sync_halftime_stats()
-                    
-                    halftime_status = "✅ İlk yarı istatistikleri güncellendi\n"
-                    print("✅ İlk yarı sync tamamlandı")
-                    
-                except ImportError as ie:
-                    print(f"⚠️ Halftime sync import hatası: {ie}")
-                    halftime_status = ""
-                except Exception as e:
-                    print(f"⚠️ Halftime sync hatası: {e}")
-                    import traceback
-                    traceback.print_exc()
-                    halftime_status = ""  # Sessizce hata, mesaja ekleme
                 
                 # İlk oranları odds_changes'e kaydet (Sahadan'dan tekrar çekmeden!)
                 try:
@@ -568,8 +538,7 @@ class TelegramBotManager:
                     f"☁️ Supabase'e yüklendi\n"
                     f"🌐 Web sitesinde görünür\n"
                     f"{odds_status}\n"
-                    f"{details_status}"
-                    f"{halftime_status}\n"
+                    f"{details_status}\n"
                     f"📅 <b>Tarih Dağılımı:</b>\n"
                     f"   • Bugün: {today_matches} maç\n"
                     f"   • Yarın: {tomorrow_matches} maç\n"
