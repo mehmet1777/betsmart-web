@@ -267,34 +267,193 @@ try:
                 print("🎯 Nesine kuponu parse ediliyor...")
                 print(f"📋 Veri uzunluğu: {len(coupon_data)} karakter")
                 
-                # Şimdilik basit bir parse - daha sonra geliştirebiliriz
-                lines = coupon_data.strip().split('\n')
-                match_count = 0
+                lines = [l.strip() for l in coupon_data.strip().split('\n') if l.strip()]
+                matches = []
                 
-                # Her satırı kontrol et
-                for line in lines:
-                    line = line.strip()
-                    if not line:
-                        continue
+                # Strategi: Takım isimleri bir satırda, hemen ardından rakamsal veriler (MBS, oran, skor)
+                i = 0
+                while i < len(lines):
+                    line = lines[i]
                     
-                    # Maç satırlarını bul (takım isimleri içeren satırlar)
-                    if '-' in line or 'vs' in line.lower():
-                        match_count += 1
-                        print(f"  {match_count}. {line}")
+                    # Takım ismi pattern'i: "X - Y" formatı, uzunluk 10-50 karakter arası
+                    if ' - ' in line and 10 < len(line) < 50:
+                        
+                        # Kesinlikle ATLANMASI gerekenler
+                        skip_patterns = [
+                            'copyright', 'nesine', 'iddaa', 'milli piyango', 'spor toto',
+                            'anasayfa', 'yardım', 'iletişim', 'hakkımızda', 'bülten',
+                            'kupondaş', 'canlı', 'oyunlar', 'şans', 'at yarış', 'kariyer',
+                            'üye ol', 'giriş yap', 'müşteri', 'kullanım şart', 'politika',
+                            'sponsorluk', 'bizi takip', 'footer', 'header', 'yasal',
+                            'at mı', 'nal mı', 'lana cross', 'altın nal', 'tazılar',
+                            'jokey', 'bingola', 'define', 'ejder', 'kozmik', 'magma',
+                            'şans perisi', 'külçeler', 'amazon', 'serbest vuruş', 'pro lig',
+                            'sanal lig', 'basketbol', 'amerikan futbol', 'euroleague',
+                            'editörler', 'dakika bahis', 'kazanan', 'nesine tv',
+                            'extra', 'para yatır', 'para çek', 'çerez', 'kişisel veri',
+                            'güvenlik', 'toplumu hizmet', 'sorumlu oyun', 'united racing',
+                            'sayısal oyun', 'secure', 'site güven', 'bayi', 'haklar',
+                            'store', 'indirin', 'huawei', 'google', 'app store',
+                            'facebook', 'twitter', 'instagram', 'youtube', 'ngaming'
+                        ]
+                        
+                        if any(pat in line.lower() for pat in skip_patterns):
+                            i += 1
+                            continue
+                        
+                        # Tarih/saat formatı değil mi? (25.11.2026 gibi)
+                        if line[0].isdigit() and ('.' in line or ':' in line):
+                            i += 1
+                            continue
+                        
+                        # Potansiyel takım ismi
+                        teams = line
+                        
+                        # Sonraki 20 satırı tara, maç bilgilerini bul
+                        mbs = None
+                        tahmin = None
+                        oran = None
+                        mac_saati = None
+                        skor = None
+                        
+                        look_ahead = 20
+                        for j in range(1, min(look_ahead, len(lines) - i)):
+                            next_line = lines[i + j]
+                            
+                            # Başka bir takım ismi görüldüyse dur (bir sonraki maça geçtik)
+                            if ' - ' in next_line and 10 < len(next_line) < 50 and j > 3:
+                                break
+                            
+                            # MBS: tek basamaklı rakam (1-9)
+                            if not mbs and len(next_line) == 1 and next_line.isdigit() and next_line != '0':
+                                mbs = next_line
+                            
+                            # Tahmin: MS, KG, Toplam, Üst, Alt, Var içerenler
+                            tahmin_keywords = ['ms&', 'ms ', '& kg', 'toplam', 'üst', 'alt', 'var', 'yok', 'gol']
+                            if not tahmin and 3 < len(next_line) < 60:
+                                if any(kw in next_line.lower() for kw in tahmin_keywords):
+                                    tahmin = next_line
+                            
+                            # Oran: 1.XX veya 2.XX formatı (iki basamaklı noktalı sayı)
+                            if not oran and '.' in next_line and len(next_line) <= 6:
+                                parts = next_line.replace(',', '.').split('.')
+                                if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                                    oran = next_line
+                            
+                            # Maç Saati: Sadece "MS" yazısı
+                            if not mac_saati and next_line.upper() == 'MS':
+                                mac_saati = 'MS'
+                            
+                            # Skor: X-X formatı (0-0, 1-1, 3-0 gibi)
+                            if not skor and '-' in next_line and len(next_line) <= 5:
+                                parts = next_line.split('-')
+                                if len(parts) == 2:
+                                    try:
+                                        int(parts[0])
+                                        int(parts[1])
+                                        skor = next_line
+                                    except:
+                                        pass
+                        
+                        # En az oran bilgisi varsa maç olarak kaydet
+                        if oran or tahmin:
+                            match_info = {
+                                'teams': teams,
+                                'mbs': mbs,
+                                'tahmin': tahmin,
+                                'oran': oran,
+                                'mac_saati': mac_saati,
+                                'skor': skor
+                            }
+                            matches.append(match_info)
+                            
+                            print(f"\n  ✅ {len(matches)}. {teams}")
+                            if mbs:
+                                print(f"     MBS: {mbs}")
+                            if tahmin:
+                                print(f"     Tahmin: {tahmin}")
+                            if oran:
+                                print(f"     Oran: {oran}")
+                            if mac_saati:
+                                print(f"     Durum: {mac_saati} (Maç Sonu)")
+                            if skor:
+                                print(f"     Skor: {skor}")
+                    
+                    i += 1
                 
-                print(f"✅ {match_count} maç bulundu")
+                print(f"\n✅ Toplam {len(matches)} maç bulundu")
                 
-                # JavaScript'e success callback gönder
-                js_code = f"onSuccess({match_count});"
-                self.main_window.web_view.page().runJavaScript(js_code)
+                if len(matches) > 0:
+                    # Supabase'e kaydet
+                    print("💾 Supabase'e kaydediliyor...")
+                    try:
+                        from supabase_sync import get_supabase_client
+                        client = get_supabase_client()
+                        
+                        # Toplam oran hesapla
+                        total_odds = 1.0
+                        for match in matches:
+                            if match['oran']:
+                                try:
+                                    total_odds *= float(match['oran'].replace(',', '.'))
+                                except:
+                                    pass
+                        
+                        # Kupon kaydı oluştur
+                        coupon_data = {
+                            'match_count': len(matches),
+                            'total_odds': round(total_odds, 2),
+                            'status': 'pending',
+                            'featured': False
+                        }
+                        
+                        coupon_result = client.table('nesine_coupons').insert(coupon_data).execute()
+                        
+                        if coupon_result.data and len(coupon_result.data) > 0:
+                            coupon_id = coupon_result.data[0]['id']
+                            print(f"✅ Kupon oluşturuldu: {coupon_id}")
+                            
+                            # Maçları kaydet
+                            match_records = []
+                            for idx, match in enumerate(matches):
+                                match_records.append({
+                                    'coupon_id': coupon_id,
+                                    'teams': match['teams'],
+                                    'mbs': match.get('mbs'),
+                                    'tahmin': match.get('tahmin'),
+                                    'oran': match.get('oran'),
+                                    'mac_saati': match.get('mac_saati'),
+                                    'skor': match.get('skor'),
+                                    'match_order': idx + 1
+                                })
+                            
+                            matches_result = client.table('nesine_coupon_matches').insert(match_records).execute()
+                            print(f"✅ {len(matches)} maç kaydedildi")
+                            
+                            # JavaScript'e success callback gönder
+                            js_code = f"onSuccess({len(matches)});"
+                            self.main_window.web_view.page().runJavaScript(js_code)
+                        else:
+                            raise Exception("Kupon kaydedilemedi")
+                        
+                    except Exception as db_error:
+                        print(f"❌ Veritabanı hatası: {db_error}")
+                        import traceback
+                        traceback.print_exc()
+                        
+                        # Yine de başarılı olarak göster (parse başarılı oldu)
+                        js_code = f"onSuccess({len(matches)});"
+                        self.main_window.web_view.page().runJavaScript(js_code)
+                else:
+                    js_code = "onError('Maç bulunamadı! Nesine kupon sayfasını tamamen kopyalayıp yapıştırın (Ctrl+A, Ctrl+C, Ctrl+V)');"
+                    self.main_window.web_view.page().runJavaScript(js_code)
                 
             except Exception as e:
-                error_msg = str(e)
+                error_msg = str(e).replace("'", "\\'")
                 print(f"❌ Parse hatası: {error_msg}")
                 import traceback
                 traceback.print_exc()
                 
-                # JavaScript'e error callback gönder
                 js_code = f"onError('{error_msg}');"
                 self.main_window.web_view.page().runJavaScript(js_code)
         
