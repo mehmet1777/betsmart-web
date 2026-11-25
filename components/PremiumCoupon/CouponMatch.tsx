@@ -15,58 +15,51 @@ interface CouponMatchProps {
 
 export default function CouponMatch({ match, index }: CouponMatchProps) {
   return (
-    <div className="relative py-4 border-b" style={{ borderColor: 'rgba(0, 230, 118, 0.2)' }}>
-      <div className="flex items-start gap-3">
-        {/* Sol: Futbol İkonu + Numara */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-            <span className="text-lg">⚽</span>
+    <div className="relative py-3 border-b" style={{ borderColor: 'rgba(0, 230, 118, 0.15)' }}>
+      <div className="flex items-start gap-2">
+        {/* Sol: Futbol İkonu + Numara - Çok Kompakt */}
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+            <span className="text-sm">⚽</span>
           </div>
-          <div className="w-8 h-8 rounded bg-green-500 flex items-center justify-center">
-            <span className="text-sm font-bold text-black">{index + 1}</span>
+          <div className="w-6 h-6 rounded bg-green-500 flex items-center justify-center">
+            <span className="text-xs font-bold text-black">{index + 1}</span>
           </div>
         </div>
 
         {/* Orta: Maç Bilgileri */}
         <div className="flex-1 min-w-0">
-          {/* Takım Adı ve Skor */}
-          <div className="flex items-start justify-between mb-2">
+          {/* Takım Adı ve Skor - Üst Satır */}
+          <div className="flex items-start justify-between gap-2 mb-1.5">
             <div className="flex-1 min-w-0">
-              <h3 className="text-base font-bold text-white mb-1">{match.teams}</h3>
-              <p className="text-xs text-gray-400">{match.mac_saati || '24 Kasım 2026 21:00'}</p>
+              <h3 className="text-sm font-bold text-white leading-tight mb-0.5">{match.teams}</h3>
+              <p className="text-[10px] text-gray-500">MS</p>
             </div>
-            {/* Skor - Sağ Üst */}
+            {/* Skor - Sağ Üst Köşe */}
             {match.skor && (
-              <div className="text-right text-xs ml-3">
-                <span className="text-white">MS / {match.skor}</span>
-                {match.ilk_yari_skor && (
-                  <span className="text-green-500 ml-1">(İY: {match.ilk_yari_skor})</span>
-                )}
+              <div className="text-right text-[10px] flex-shrink-0">
+                <div>
+                  <span className="text-white">MS / {match.skor}</span>
+                  {match.ilk_yari_skor && (
+                    <span className="text-green-500 ml-1">(İY: {match.ilk_yari_skor})</span>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
-          {/* Bahis Kartları ve Oran */}
+          {/* Alt Satır: Bahis ve Oran */}
           <div className="flex items-center gap-2">
-            {/* Bahis Kartı 1 */}
-            <div className="bg-gray-800/80 rounded px-3 py-1.5">
-              <span className="text-xs font-medium text-white">
-                {match.tahmin || '1.Y Sonucu & 1.Y KG'}
+            {/* Bahis Kartı - Kompakt */}
+            <div className="bg-gray-800/80 rounded px-2 py-1">
+              <span className="text-[10px] font-medium text-white whitespace-nowrap">
+                {match.tahmin || '1 & Var'}
               </span>
             </div>
 
-            {/* Bahis Kartı 2 */}
-            {match.mbs && (
-              <div className="bg-gray-800/80 rounded px-3 py-1.5">
-                <span className="text-xs font-medium text-white">
-                  {match.mbs} & Var
-                </span>
-              </div>
-            )}
-
             {/* Oran - Büyük ve Yeşil */}
             <div className="ml-auto flex-shrink-0">
-              <span className="text-2xl font-bold text-green-500">
+              <span className="text-xl font-bold text-green-500">
                 {match.oran || '13.00'}
               </span>
             </div>
@@ -74,8 +67,8 @@ export default function CouponMatch({ match, index }: CouponMatchProps) {
         </div>
 
         {/* Sağ: X Butonu */}
-        <button className="flex-shrink-0 p-1 hover:bg-white/5 rounded transition-colors">
-          <X className="w-5 h-5 text-green-500" />
+        <button className="flex-shrink-0 p-0.5 hover:bg-white/5 rounded transition-colors">
+          <X className="w-4 h-4 text-green-500" />
         </button>
       </div>
     </div>
