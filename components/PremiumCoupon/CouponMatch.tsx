@@ -47,12 +47,24 @@ export default function CouponMatch({ match, index }: CouponMatchProps) {
 
           {/* Bahis ve Oran - Tek Satır */}
           <div className="flex items-center gap-1.5">
-            {/* Bahis */}
-            <div className="bg-gray-800/80 rounded px-1.5 py-0.5">
-              <span className="text-[9px] font-medium text-white whitespace-nowrap">
-                {match.tahmin || '1 & Var'}
-              </span>
-            </div>
+            {/* Bahis Kartları - İki tane yan yana */}
+            {match.tahmin && match.tahmin.includes('&') ? (
+              // Eğer tahmin "X & Y" formatında ise ikiye böl
+              match.tahmin.split('&').map((part, idx) => (
+                <div key={idx} className="bg-gray-800/80 rounded px-1.5 py-0.5">
+                  <span className="text-[9px] font-medium text-white whitespace-nowrap">
+                    {part.trim()}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="bg-gray-800/80 rounded px-1.5 py-0.5">
+                <span className="text-[9px] font-medium text-white whitespace-nowrap">
+                  {match.tahmin || '1 & Var'}
+                </span>
+              </div>
+            )}
+            
             {/* Oran */}
             <div className="ml-auto flex-shrink-0">
               <span className="text-lg font-bold text-green-500">
