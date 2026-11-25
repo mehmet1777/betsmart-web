@@ -9,17 +9,12 @@ icon_path = os.path.join(os.path.dirname(__file__), 'icon.ico')
 icon_option = ['--icon', icon_path] if os.path.exists(icon_path) else []
 
 PyInstaller.__main__.run([
-    'launcher.py',
+    'app.py',
     '--name=BetSmart',
-    '--onefile',
-    '--windowed',  # CMD penceresi yok
+    '--onefile',  # Tekrar onefile - daha hızlı
+    '--windowed',
     '--clean',
-    '--noupx',  # UPX kullanma (temp sorunu için)
-    '--log-level=ERROR',  # Sadece hataları göster
-    *icon_option,
-    '--add-data', 'start_api.bat;.',
-    '--add-data', 'start_web.bat;.',
-    '--add-data', 'start_odds_tracker.bat;.',
+    '--add-data', 'templates;templates',
 ])
 
 print("\n✅ BetSmart.exe oluşturuldu!")

@@ -6,6 +6,7 @@ interface ParsedMatch {
   teams: string;
   mbs?: string;
   tahmin?: string;
+  selection?: string;
   oran?: string;
   mac_saati?: string;
   skor?: string;

@@ -19,6 +19,7 @@ interface ParsedMatch {
   teams: string;
   mbs?: string;
   tahmin?: string;
+  selection?: string;  // Yeni: Seçim kartı
   oran?: string;
   mac_saati?: string;
   skor?: string;
@@ -53,6 +54,7 @@ export default function AnalizKuponlariPage() {
               teams: m.teams,
               mbs: m.mbs,
               tahmin: m.tahmin,
+              selection: m.selection,  // Yeni kolon
               oran: m.oran,
               mac_saati: m.mac_saati,
               skor: m.skor,

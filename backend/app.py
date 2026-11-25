@@ -365,8 +365,9 @@ try:
                         teams = line
                         
                         # Sonraki 25 satırı tara, maç bilgilerini bul
-                        mbs = None
-                        tahmin = None
+                        mbs = None  # MBS numarası (1, 2, 3 gibi kırmızı numara)
+                        bet_type = None  # Bahis türü (örn: "1.Y Sonucu & 1.Y KG")
+                        selection = None  # Seçim (örn: "1 & Var")
                         oran = None
                         mac_saati = None
                         skor = None
@@ -384,11 +385,17 @@ try:
                             if not mbs and len(next_line) == 1 and next_line.isdigit() and next_line != '0':
                                 mbs = next_line
                             
-                            # Tahmin: MS, KG, Toplam, Üst, Alt, Var içerenler
-                            tahmin_keywords = ['ms&', 'ms ', '& kg', 'toplam', 'üst', 'alt', 'var', 'yok', 'gol']
-                            if not tahmin and 3 < len(next_line) < 60:
-                                if any(kw in next_line.lower() for kw in tahmin_keywords):
-                                    tahmin = next_line
+                            # Bahis Türü: "1.Y Sonucu & 1.Y KG" veya "1.Y & 1.Y Gol (1,5)" gibi uzun metinler
+                            bet_type_keywords = ['sonucu', 'gol', 'toplam', 'karşılıklı', 'handikap']
+                            if not bet_type and 5 < len(next_line) < 60:
+                                if any(kw in next_line.lower() for kw in bet_type_keywords):
+                                    bet_type = next_line
+                            
+                            # Seçim: "1 & Var", "X & Üst" gibi kısa seçimler
+                            selection_keywords = ['& var', '& yok', '& üst', '& alt', 'var &', 'yok &']
+                            if not selection and 3 < len(next_line) < 20:
+                                if any(kw in next_line.lower() for kw in selection_keywords):
+                                    selection = next_line
                             
                             # Oran: 1.XX veya 2.XX formatı (iki basamaklı noktalı sayı)
                             if not oran and '.' in next_line and len(next_line) <= 6:
@@ -431,11 +438,12 @@ try:
                                                     pass
                         
                         # En az oran bilgisi varsa maç olarak kaydet
-                        if oran or tahmin:
+                        if oran or bet_type or selection:
                             match_info = {
                                 'teams': teams,
-                                'mbs': mbs,
-                                'tahmin': tahmin,
+                                'mbs': mbs,  # MBS numarası
+                                'tahmin': bet_type,  # Bahis türü
+                                'selection': selection,  # Seçim (yeni kolon)
                                 'oran': oran,
                                 'mac_saati': mac_saati,
                                 'skor': skor,
@@ -446,8 +454,10 @@ try:
                             print(f"\n  ✅ {len(matches)}. {teams}")
                             if mbs:
                                 print(f"     MBS: {mbs}")
-                            if tahmin:
-                                print(f"     Tahmin: {tahmin}")
+                            if bet_type:
+                                print(f"     Bahis Türü: {bet_type}")
+                            if selection:
+                                print(f"     Seçim: {selection}")
                             if oran:
                                 print(f"     Oran: {oran}")
                             if mac_saati:
@@ -509,10 +519,11 @@ try:
                                     'teams': match['teams'],
                                     'mbs': match.get('mbs'),
                                     'tahmin': match.get('tahmin'),
+                                    'selection': match.get('selection'),  # Yeni kolon
                                     'oran': match.get('oran'),
                                     'mac_saati': match.get('mac_saati'),
                                     'skor': match.get('skor'),
-                                    'ilk_yari_skor': match.get('ilk_yari_skor'),  # İlk yarı skoru ekle
+                                    'ilk_yari_skor': match.get('ilk_yari_skor'),
                                     'match_order': idx + 1
                                 })
                             
