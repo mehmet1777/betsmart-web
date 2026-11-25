@@ -1030,6 +1030,11 @@ Deplasman: {away_wins} galibiyet
                         # Sayfanın tüm text içeriğini al
                         page_text = driver.find_element("tag name", "body").text
                         
+                        # Debug: İlk 2000 karakteri logla
+                        print(f"📄 Sayfa içeriği (ilk 2000 karakter):")
+                        print(page_text[:2000])
+                        print(f"\n... (toplam {len(page_text)} karakter)\n")
+                        
                         driver.quit()
                         
                         if not page_text or len(page_text) < 100:
@@ -1112,9 +1117,87 @@ Deplasman: {away_wins} galibiyet
                                     if not mbs and len(next_line) == 1 and next_line.isdigit() and next_line != '0':
                                         mbs = next_line
                                     
-                                    bet_keywords = ['sonucu', 'gol', 'toplam', 'karşılıklı', 'handikap']
-                                    if not bet_type and 5 < len(next_line) < 60:
-                                        if any(kw in next_line.lower() for kw in bet_keywords):
+                                    # Nesine'deki TÜM bahis türleri (Futbol, Basketbol, Voleybol, Tenis vs.)
+                                    bet_keywords = [
+                                        # Genel
+                                        'sonucu', 'sonuc',
+                                        'handikap', 'handikapl',
+                                        'çifte şans', 'cifte sans',
+                                        'tek', 'çift', 'cift',
+                                        'alt', 'üst', 'ust',
+                                        'var', 'yok',
+                                        'beraberlik', ' x ',
+                                        'ev sahibi', 'deplasman',
+                                        
+                                        # Futbol - Kombinasyon Bahisleri
+                                        'gol', 'gül',
+                                        'karşılıklı', 'karsilkli', 'kg',
+                                        'ms&', 'ms &', 'ms&kg', 'ms & kg',
+                                        '& kg', '&kg',
+                                        'ms&toplam gol', 'ms&toplam gül',
+                                        'ms&karşılıklı', 'ms&karsilkli',
+                                        'ms&iy sonucu', 'ms&i̇y sonucu',
+                                        'ms&çifte şans', 'ms&cifte sans',
+                                        'ms&tek/çift', 'ms&tek/cift',
+                                        'ms&ilk gol', 'ms&i̇lk gol',
+                                        
+                                        # İlk Yarı Kombinasyonları
+                                        'iy&', 'i̇y&',
+                                        'iy&toplam gol', 'i̇y&toplam gol',
+                                        'iy&karşılıklı', 'i̇y&karşılıklı',
+                                        
+                                        # Temel Futbol
+                                        'toplam gol', 'toplam gül',
+                                        '1.y', 'ilk yarı', 'ilk yari', 'iy', 'i̇y',
+                                        'ikinci yarı', 'ikinci yari',
+                                        'ilk yarı / maç sonucu', 'ilk yari / mac sonucu',
+                                        'iy/ms', 'i̇y/ms',
+                                        'toplam gol sayısı', 'toplam gol sayisi',
+                                        
+                                        # Gol Bazlı
+                                        'ilk gol', 'ilk gül',
+                                        'ilk golü', 'ilk gülü',
+                                        'gol atar', 'gol var/yok',
+                                        'hangi yarıda', 'hangi yarida',
+                                        'ilk yarı gol', 'ikinci yarı gol',
+                                        'ilk yarı 1,5 gol', 'ikinci yarı 1,5 gol',
+                                        'ilk yarı karşılıklı', 'ikinci yarı karşılıklı',
+                                        'ev sahibi gol', 'deplasman gol',
+                                        
+                                        # Skor Tahminleri
+                                        'skor tahmini',
+                                        'ilk yarı skor', 'ikinci yarı skor',
+                                        
+                                        # Korner ve Kartlar
+                                        'korner',
+                                        'toplam korner',
+                                        'kart', 'sarı', 'sari', 'kırmızı', 'kirmizi',
+                                        'toplam kart',
+                                        
+                                        # Basketbol
+                                        'sayı', 'sayi',
+                                        'toplam sayı', 'toplam sayi',
+                                        'çeyrek', 'ceyrek',
+                                        '1.çeyrek', '1.ceyrek',
+                                        '2.çeyrek', '2.ceyrek',
+                                        '3.çeyrek', '3.ceyrek',
+                                        '4.çeyrek', '4.ceyrek',
+                                        '1.yarı', '1.yari',
+                                        '2.yarı', '2.yari',
+                                        
+                                        # Voleybol
+                                        'set',
+                                        'toplam set',
+                                        '1.set', '2.set', '3.set', '4.set', '5.set',
+                                        
+                                        # Tenis
+                                        'game',
+                                        'toplam game',
+                                        'toplam gem'
+                                    ]
+                                    if not bet_type and 5 < len(next_line) < 80:  # Uzunluk sınırını 80'e çıkardık (uzun bahis isimleri için)
+                                        # "Toplam Oran" değilse ve keyword varsa
+                                        if 'toplam oran' not in next_line.lower() and any(kw in next_line.lower() for kw in bet_keywords):
                                             bet_type = next_line
                                     
                                     sel_keywords = ['& var', '& yok', '& üst', '& alt', 'var &', 'yok &']
