@@ -10,7 +10,7 @@ interface ParsedCoupon {
   date: string;
   matches: ParsedMatch[];
   totalOdds: number;
-  status: 'pending' | 'won' | 'lost';
+  status: 'pending' | 'won' | 'lost' | 'active'; // 'active' ekledik
   featured?: boolean;
   sistemInfo?: string;
 }
