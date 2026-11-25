@@ -20,21 +20,21 @@ interface PremiumCouponProps {
 
 export default function PremiumCoupon({ matches, totalOdds, sistemInfo }: PremiumCouponProps) {
   return (
-    <div className="w-full max-w-[430px] mx-auto px-3 sm:px-4">
+    <div className="w-full max-w-[430px] mx-auto px-3">
       {/* Ana Kupon Kartı */}
-      <div className="bg-premium-card border border-premium-border rounded-2xl overflow-hidden shadow-2xl shadow-black/50">
+      <div className="bg-premium-card border border-premium-border rounded-xl overflow-hidden shadow-2xl shadow-black/50">
         {/* Header */}
         <CouponHeader />
 
-        {/* Maçlar */}
-        <div className="p-3 space-y-2">
+        {/* Maçlar - Daha kompakt spacing */}
+        <div className="p-2 space-y-1.5">
           {matches.map((match, index) => (
             <CouponMatch key={index} match={match} index={index} />
           ))}
         </div>
 
         {/* Özet */}
-        <div className="px-3 pb-4">
+        <div className="px-2 pb-2">
           <CouponSummary 
             totalOdds={totalOdds} 
             matchCount={matches.length}
