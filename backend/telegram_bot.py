@@ -969,6 +969,279 @@ Deplasman: {away_wins} galibiyet
             parse_mode='HTML'
         )
     
+    async def handle_text_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        """Text mesaj handler - Nesine kupon linki algılama"""
+        try:
+            if not update.message or not update.message.text:
+                print("⚠️ Mesaj veya text bulunamadı")
+                return
+            
+            text = update.message.text
+            print(f"📩 Text mesaj alındı: {text[:50]}...")
+            
+            # Nesine kupon linki mi? (hem tam link hem kısa link)
+            # Format 1: https://nsn.li/XXXXX
+            # Format 2: https://www.nesine.com/Iddaa/ViewCoupon?t=...
+            # Format 3: https://www.nesine.com/kupon/XXXXX
+            is_nesine_link = (
+                'nsn.li' in text.lower() or
+                ('nesine.com' in text.lower() and ('viewcoupon' in text.lower() or '/kupon/' in text.lower()))
+            )
+            
+            if is_nesine_link:
+                print(f"🔗 Nesine kupon linki algılandı: {text}")
+                
+                # URL'yi temizle (sadece ilk satırı al, boşlukları temizle)
+                url = text.strip().split('\n')[0].split(' ')[0]
+                
+                # HTTP/HTTPS kontrolü
+                if not url.startswith('http'):
+                    url = 'https://' + url
+                
+                print(f"🌐 Temizlenmiş URL: {url}")
+                
+                # Kullanıcıya bilgi ver
+                status_msg = await update.message.reply_text("🎯 Nesine kuponu parse ediliyor...")
+                print("✅ Yanıt mesajı gönderildi")
+                
+                try:
+                    # Selenium ile sayfayı aç ve içeriği al
+                    from selenium import webdriver
+                    from selenium.webdriver.chrome.service import Service
+                    from selenium.webdriver.chrome.options import Options
+                    from selenium.webdriver.common.keys import Keys
+                    from selenium.webdriver.common.action_chains import ActionChains
+                    import time
+                    
+                    # Chrome options
+                    chrome_options = Options()
+                    chrome_options.add_argument('--headless')  # Görünmez mod
+                    chrome_options.add_argument('--no-sandbox')
+                    chrome_options.add_argument('--disable-dev-shm-usage')
+                    
+                    # WebDriver başlat
+                    driver = webdriver.Chrome(options=chrome_options)
+                    
+                    try:
+                        # Sayfayı aç
+                        driver.get(url)
+                        time.sleep(3)  # Sayfa yüklensin
+                        
+                        # Sayfanın tüm text içeriğini al
+                        page_text = driver.find_element("tag name", "body").text
+                        
+                        driver.quit()
+                        
+                        if not page_text or len(page_text) < 100:
+                            await status_msg.edit_text("❌ Sayfa içeriği alınamadı")
+                            return
+                        
+                        # Parse et
+                        await status_msg.edit_text("📋 Kupon parse ediliyor...")
+                        
+                        lines = [l.strip() for l in page_text.strip().split('\n') if l.strip()]
+                        matches = []
+                        sistem_info = None
+                        nesine_total_odds = None
+                        
+                        # Toplam Oran'ı bul
+                        for idx, line in enumerate(lines):
+                            if 'toplam oran' in line.lower():
+                                if idx + 1 < len(lines):
+                                    next_line = lines[idx + 1].strip()
+                                    next_line_clean = next_line.replace('.', '').replace(',', '.')
+                                    try:
+                                        if next_line_clean.replace('.', '').isdigit():
+                                            nesine_total_odds = float(next_line_clean)
+                                            print(f"💰 Toplam Oran: {nesine_total_odds}")
+                                            break
+                                    except:
+                                        pass
+                        
+                        # Sistem bilgisi bul
+                        sistem_found = False
+                        for idx, line in enumerate(lines):
+                            if 'sistem' in line.lower() and not sistem_found:
+                                for j in range(1, min(6, len(lines) - idx)):
+                                    next_line = lines[idx + j].strip()
+                                    if ',' in next_line and len(next_line) < 30:
+                                        clean_line = next_line.replace(' ', '').replace(',', '')
+                                        if clean_line.isdigit():
+                                            numbers = [int(x.strip()) for x in next_line.split(',') if x.strip().isdigit()]
+                                            if len(numbers) >= 2 and all(2 <= n <= 8 for n in numbers):
+                                                sistem_info = f"Sistem: {next_line}"
+                                                print(f"📊 Sistem: {sistem_info}")
+                                                sistem_found = True
+                                                break
+                                if sistem_found:
+                                    break
+                        
+                        # Maçları parse et
+                        i = 0
+                        while i < len(lines):
+                            line = lines[i]
+                            
+                            if ' - ' in line and 10 < len(line) < 50:
+                                skip_patterns = [
+                                    'copyright', 'nesine', 'iddaa', 'milli piyango', 'anasayfa',
+                                    'kupondaş', 'at yarış', 'üye ol', 'müşteri', 'sponsorluk'
+                                ]
+                                
+                                if any(pat in line.lower() for pat in skip_patterns):
+                                    i += 1
+                                    continue
+                                
+                                if line[0].isdigit() and ('.' in line or ':' in line):
+                                    i += 1
+                                    continue
+                                
+                                teams = line
+                                mbs = None
+                                bet_type = None
+                                selection = None
+                                oran = None
+                                skor = None
+                                ilk_yari_skor = None
+                                
+                                for j in range(1, min(25, len(lines) - i)):
+                                    next_line = lines[i + j]
+                                    
+                                    if ' - ' in next_line and 10 < len(next_line) < 50 and j > 3:
+                                        break
+                                    
+                                    if not mbs and len(next_line) == 1 and next_line.isdigit() and next_line != '0':
+                                        mbs = next_line
+                                    
+                                    bet_keywords = ['sonucu', 'gol', 'toplam', 'karşılıklı', 'handikap']
+                                    if not bet_type and 5 < len(next_line) < 60:
+                                        if any(kw in next_line.lower() for kw in bet_keywords):
+                                            bet_type = next_line
+                                    
+                                    sel_keywords = ['& var', '& yok', '& üst', '& alt', 'var &', 'yok &']
+                                    if not selection and 3 < len(next_line) < 20:
+                                        if any(kw in next_line.lower() for kw in sel_keywords):
+                                            selection = next_line
+                                    
+                                    if not oran and '.' in next_line and len(next_line) <= 6:
+                                        parts = next_line.replace(',', '.').split('.')
+                                        if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+                                            oran = next_line
+                                    
+                                    if not skor and '-' in next_line and len(next_line) <= 5:
+                                        parts = next_line.split('-')
+                                        if len(parts) == 2:
+                                            try:
+                                                int(parts[0])
+                                                int(parts[1])
+                                                skor = next_line
+                                            except:
+                                                pass
+                                    
+                                    if not ilk_yari_skor and ('iy' in next_line.lower() or '(' in next_line):
+                                        if '-' in next_line and len(next_line) <= 12:
+                                            if '(' in next_line and ')' in next_line:
+                                                inside = next_line[next_line.find('(')+1:next_line.find(')')]
+                                                inside = inside.replace('İY:', '').replace('IY:', '').strip()
+                                                if '-' in inside:
+                                                    parts = inside.split('-')
+                                                    if len(parts) == 2:
+                                                        try:
+                                                            int(parts[0].strip())
+                                                            int(parts[1].strip())
+                                                            ilk_yari_skor = inside
+                                                        except:
+                                                            pass
+                                
+                                if oran or bet_type or selection:
+                                    matches.append({
+                                        'teams': teams,
+                                        'mbs': mbs,
+                                        'tahmin': bet_type,
+                                        'selection': selection,
+                                        'oran': oran,
+                                        'skor': skor,
+                                        'ilk_yari_skor': ilk_yari_skor
+                                    })
+                            
+                            i += 1
+                        
+                        if not matches:
+                            await status_msg.edit_text("❌ Kuponda maç bulunamadı")
+                            return
+                        
+                        # Veritabanına kaydet
+                        from datetime import datetime
+                        
+                        # Toplam oran hesapla
+                        if nesine_total_odds:
+                            total_odds = nesine_total_odds
+                        else:
+                            total_odds = 1.0
+                            for match in matches:
+                                if match['oran']:
+                                    try:
+                                        total_odds *= float(match['oran'].replace(',', '.'))
+                                    except:
+                                        pass
+                        
+                        # Kuponu kaydet
+                        coupon_id = self.db.save_nesine_coupon(
+                            coupon_date=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            total_odds=round(total_odds, 2),
+                            match_count=len(matches),
+                            sistem_info=sistem_info
+                        )
+                        
+                        # Maçları kaydet
+                        for idx, match in enumerate(matches):
+                            print(f"🔍 Maç {idx+1} kaydediliyor:")
+                            print(f"   Teams: {match.get('teams')}")
+                            print(f"   MBS: {match.get('mbs')}")
+                            print(f"   Tahmin: {match.get('tahmin')}")
+                            print(f"   Selection: {match.get('selection')}")
+                            print(f"   Oran: {match.get('oran')}")
+                            print(f"   Skor: {match.get('skor')}")
+                            print(f"   İlk Yarı: {match.get('ilk_yari_skor')}")
+                            
+                            self.db.save_nesine_match(
+                                coupon_id=coupon_id,
+                                teams=match['teams'],
+                                mbs=match['mbs'],
+                                tahmin=match['tahmin'],
+                                selection=match['selection'],
+                                oran=match['oran'],
+                                mac_saati=None,
+                                skor=match['skor'],
+                                ilk_yari_skor=match['ilk_yari_skor'],
+                                match_order=idx + 1
+                            )
+                        
+                        # Sonuç mesajı
+                        result_text = f"✅ Nesine kuponu kaydedildi!\n\n"
+                        result_text += f"📊 Toplam Maç: {len(matches)}\n"
+                        result_text += f"💰 Toplam Oran: {total_odds:.2f}\n"
+                        if sistem_info:
+                            result_text += f"🎯 {sistem_info}\n"
+                        
+                        await status_msg.edit_text(result_text)
+                        
+                    except Exception as e:
+                        driver.quit()
+                        raise e
+                        
+                except Exception as e:
+                    print(f"❌ Parse hatası: {e}")
+                    import traceback
+                    traceback.print_exc()
+                    await status_msg.edit_text(f"❌ Kupon parse edilemedi: {str(e)}")
+            else:
+                print(f"ℹ️ Nesine linki değil, göz ardı edildi")
+            
+        except Exception as e:
+            print(f"❌ Text handler hatası: {e}")
+            import traceback
+            traceback.print_exc()
+    
     async def handle_photo(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Screenshot analizi"""
         print("="*60)
@@ -1272,6 +1545,9 @@ Deplasman: {away_wins} galibiyet
                 
                 # Photo handler ekle (screenshot analizi)
                 self.app.add_handler(MessageHandler(filters.PHOTO, self.handle_photo))
+                
+                # Text message handler ekle (Nesine kupon linki)
+                self.app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.handle_text_message))
                 
                 # Callback handler'ları ekle
                 self.app.add_handler(CallbackQueryHandler(self.callback_analyze, pattern="^analyze_"))

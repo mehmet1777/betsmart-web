@@ -438,3 +438,92 @@ class Database:
             return 0.30  # Çok geniş
         else:
             return 0.40  # Çok geniş
+    
+    def save_nesine_coupon(self, coupon_date, total_odds, match_count, sistem_info=None):
+        """Nesine kuponu kaydet - Supabase'e gönder"""
+        try:
+            # Supabase config - .env.local'deki ile aynı olmalı
+            import os
+            import requests
+            
+            supabase_url = 'https://sbgcxautbonzwfppgvbd.supabase.co'
+            supabase_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZ2N4YXV0Ym9uendmcHBndmJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0MTUxMjIsImV4cCI6MjEwOTk5MTEyMn0.JxHeI-Z85JG0Yx-4lHINrau2kbFbEloFvHudWy8JXqw'
+            
+            headers = {
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            }
+            
+            data = {
+                'coupon_date': coupon_date,
+                'total_odds': total_odds,
+                'match_count': match_count,
+                'sistem_info': sistem_info,
+                'status': 'pending',  # Frontend 'pending' arıyor
+                'featured': False
+            }
+            
+            response = requests.post(
+                f'{supabase_url}/rest/v1/nesine_coupons',
+                headers=headers,
+                json=data
+            )
+            
+            if response.status_code == 201:
+                coupon = response.json()[0]
+                print(f"✅ Nesine kuponu kaydedildi: ID {coupon['id']}")
+                return coupon['id']
+            else:
+                print(f"❌ Kupon kaydetme hatası: {response.status_code} - {response.text}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ save_nesine_coupon hatası: {e}")
+            return None
+    
+    def save_nesine_match(self, coupon_id, teams, mbs, tahmin, selection, oran, mac_saati, skor, ilk_yari_skor, match_order):
+        """Nesine kupon maçı kaydet - Supabase'e gönder"""
+        try:
+            import os
+            import requests
+            
+            supabase_url = 'https://sbgcxautbonzwfppgvbd.supabase.co'
+            supabase_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZ2N4YXV0Ym9uendmcHBndmJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ0MTUxMjIsImV4cCI6MjEwOTk5MTEyMn0.JxHeI-Z85JG0Yx-4lHINrau2kbFbEloFvHudWy8JXqw'
+            
+            headers = {
+                'apikey': supabase_key,
+                'Authorization': f'Bearer {supabase_key}',
+                'Content-Type': 'application/json'
+            }
+            
+            data = {
+                'coupon_id': coupon_id,
+                'teams': teams,
+                'mbs': mbs,
+                'tahmin': tahmin,
+                'selection': selection,
+                'oran': oran,
+                'mac_saati': mac_saati,
+                'skor': skor,
+                'ilk_yari_skor': ilk_yari_skor,
+                'match_order': match_order
+            }
+            
+            response = requests.post(
+                f'{supabase_url}/rest/v1/nesine_coupon_matches',
+                headers=headers,
+                json=data
+            )
+            
+            if response.status_code == 201:
+                print(f"✅ Maç kaydedildi: {teams}")
+                return True
+            else:
+                print(f"❌ Maç kaydetme hatası: {response.status_code}")
+                return False
+                
+        except Exception as e:
+            print(f"❌ save_nesine_match hatası: {e}")
+            return False

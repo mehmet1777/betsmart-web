@@ -1464,6 +1464,67 @@ try:
             self.dragging = False
             self.offset = None
         
+        def closeEvent(self, event):
+            """Pencere kapanırken tüm process'leri temizle"""
+            print("\n🔴 BetSmart kapatılıyor...")
+            try:
+                # Telegram bot'u durdur
+                if hasattr(self, 'bridge') and hasattr(self.bridge, 'telegram'):
+                    try:
+                        self.bridge.telegram.stop_bot()
+                        print("✅ Telegram bot durduruldu")
+                    except:
+                        pass
+                
+                # Tüm BetSmart ile ilgili Python process'lerini bul ve öldür
+                import psutil
+                current_pid = os.getpid()
+                betsmart_path = r"C:\Users\worda\Desktop\BetSmart"
+                
+                killed_pids = []
+                for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
+                    try:
+                        # Python process mi?
+                        if proc.info['name'] and 'python' in proc.info['name'].lower():
+                            # Bu process değil mi?
+                            if proc.info['pid'] != current_pid:
+                                # Komut satırı veya working directory BetSmart'ta mı?
+                                cmdline = proc.info.get('cmdline', [])
+                                cwd = proc.info.get('cwd', '')
+                                
+                                is_betsmart = False
+                                if cmdline:
+                                    is_betsmart = any(betsmart_path.lower() in str(arg).lower() for arg in cmdline)
+                                if not is_betsmart and cwd:
+                                    is_betsmart = betsmart_path.lower() in cwd.lower()
+                                
+                                if is_betsmart:
+                                    print(f"🔴 Process sonlandırılıyor: {proc.info['name']} (PID: {proc.info['pid']})")
+                                    proc.terminate()
+                                    killed_pids.append(proc.info['pid'])
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        continue
+                
+                # 2 saniye bekle process'lerin kapanması için
+                import time
+                time.sleep(2)
+                
+                # Hala çalışanları zorla öldür
+                for pid in killed_pids:
+                    try:
+                        proc = psutil.Process(pid)
+                        if proc.is_running():
+                            print(f"🔴 Zorla sonlandırılıyor: PID {pid}")
+                            proc.kill()
+                    except (psutil.NoSuchProcess, psutil.AccessDenied):
+                        pass
+                
+                print("✅ Tüm BetSmart process'leri temizlendi")
+            except Exception as e:
+                print(f"⚠️ Temizleme hatası: {e}")
+            
+            event.accept()
+        
         def mousePressEvent(self, event):
             """Pencereyi sürükle"""
             if event.button() == Qt.LeftButton:

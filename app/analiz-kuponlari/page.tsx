@@ -142,7 +142,7 @@ export default function AnalizKuponlariPage() {
           let statusMatch = false;
           if (activeTab === 'kazanan') statusMatch = c.status === 'won';
           else if (activeTab === 'kaybeden') statusMatch = c.status === 'lost';
-          else statusMatch = c.status === 'pending';
+          else statusMatch = (c.status === 'pending' || c.status === 'active'); // 'active' de kabul et
           const hasMatches = c.matches && c.matches.length > 0;
           return statusMatch && hasMatches;
         }).map((coupon) => (

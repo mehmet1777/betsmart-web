@@ -286,17 +286,7 @@ class ModernLauncher:
                 self.root.after(0, lambda: self.status_label.config(text="✅ Takip sistemleri başlatıldı", fg="#00E676"))
                 time.sleep(0.5)
                 
-                # 4. Telegram bot başlat
-                self.root.after(0, lambda: self.status_label.config(text="📱 Telegram bot başlatılıyor...", fg="#00D9FF"))
-                telegram_script = os.path.join(os.path.dirname(__file__), "telegram_bot.py")
-                if os.path.exists(telegram_script):
-                    subprocess.Popen(['pythonw', telegram_script],  # pythonw = pencere yok
-                                   cwd=os.path.dirname(__file__))
-                time.sleep(1)
-                self.root.after(0, lambda: self.status_label.config(text="✅ Telegram bot başlatıldı", fg="#00E676"))
-                time.sleep(0.5)
-                
-                # 5. GUI açılıyor
+                # 4. GUI açılıyor (Telegram bot GUI içinde otomatik başlayacak)
                 self.root.after(0, lambda: self.status_label.config(text="🎯 Masaüstü uygulaması açılıyor...", fg="#00D9FF"))
                 time.sleep(0.5)
                 
@@ -316,7 +306,7 @@ class ModernLauncher:
                     self.root.after(0, lambda: self.status_label.config(text="⚠️ GUI bulunamadı, diğer servisler çalışıyor", fg="#FFA726"))
                 
                 time.sleep(1)
-                self.root.after(0, lambda: self.status_label.config(text="✅ Tüm servisler hazır! (Oran: 15dk, Detay: 10dk)", fg="#00E676"))
+                self.root.after(0, lambda: self.status_label.config(text="✅ BetSmart hazır! (Telegram bot GUI'de aktif)", fg="#00E676"))
                 
                 # Launcher'ı kapat
                 time.sleep(1)
