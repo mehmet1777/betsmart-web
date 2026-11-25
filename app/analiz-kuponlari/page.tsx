@@ -11,6 +11,7 @@ interface ParsedCoupon {
   totalOdds: number;
   status: 'pending' | 'won' | 'lost';
   featured?: boolean;
+  sistemInfo?: string; // Sistem bilgisi
 }
 
 interface ParsedMatch {
@@ -20,6 +21,7 @@ interface ParsedMatch {
   oran?: string;
   mac_saati?: string;
   skor?: string;
+  ilk_yari_skor?: string; // İlk yarı skoru
 }
 
 export default function AnalizKuponlariPage() {
@@ -56,11 +58,13 @@ export default function AnalizKuponlariPage() {
               tahmin: m.tahmin,
               oran: m.oran,
               mac_saati: m.mac_saati,
-              skor: m.skor
+              skor: m.skor,
+              ilk_yari_skor: m.ilk_yari_skor // İlk yarı skoru ekle
             })),
             totalOdds: parseFloat(c.total_odds),
             status: c.status,
-            featured: c.featured
+            featured: c.featured,
+            sistemInfo: c.sistem_info // Sistem bilgisi ekle
           }));
           
           setCoupons(formattedCoupons);
@@ -185,7 +189,12 @@ export default function AnalizKuponlariPage() {
                         <p className="text-[11px] text-green-400 truncate">{match.tahmin}</p>
                       )}
                       {match.skor && (
-                        <p className="text-[10px] text-text-secondary">Skor: {match.skor}</p>
+                        <div className="flex items-center gap-2 text-[10px] text-text-secondary">
+                          <span>MS: {match.skor}</span>
+                          {match.ilk_yari_skor && (
+                            <span className="text-green-400">İY: {match.ilk_yari_skor}</span>
+                          )}
+                        </div>
                       )}
                     </div>
                     {match.oran && (
@@ -208,7 +217,12 @@ export default function AnalizKuponlariPage() {
                 <div className="p-1.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
                   <TrendingUp className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-xs text-text-secondary">Toplam Oran</span>
+                <div>
+                  <span className="text-xs text-text-secondary">Toplam Oran</span>
+                  {coupon.sistemInfo && (
+                    <p className="text-[10px] text-green-400">{coupon.sistemInfo}</p>
+                  )}
+                </div>
               </div>
               <div className="text-xl font-bold text-green-400">{coupon.totalOdds.toFixed(2)}</div>
             </div>
@@ -297,7 +311,12 @@ export default function AnalizKuponlariPage() {
                       <p className="text-[11px] text-green-400">{match.tahmin}</p>
                     )}
                     {match.skor && (
-                      <p className="text-[10px] text-text-secondary">Skor: {match.skor}</p>
+                      <div className="flex items-center gap-2 text-[10px] text-text-secondary">
+                        <span>MS: {match.skor}</span>
+                        {match.ilk_yari_skor && (
+                          <span className="text-green-400">İY: {match.ilk_yari_skor}</span>
+                        )}
+                      </div>
                     )}
                   </div>
                   {match.oran && (
@@ -312,7 +331,12 @@ export default function AnalizKuponlariPage() {
             {/* Modal Footer */}
             <div className="sticky bottom-0 bg-bg-darker border-t border-border-color px-6 py-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm text-text-secondary">Toplam Oran</span>
+                <div>
+                  <span className="text-sm text-text-secondary">Toplam Oran</span>
+                  {selectedCoupon.sistemInfo && (
+                    <p className="text-xs text-green-400 mt-1">{selectedCoupon.sistemInfo}</p>
+                  )}
+                </div>
                 <span className="text-2xl font-bold text-green-400">{selectedCoupon.totalOdds.toFixed(2)}</span>
               </div>
               <button 

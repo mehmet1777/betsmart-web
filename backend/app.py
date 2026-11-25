@@ -269,6 +269,15 @@ try:
                 
                 lines = [l.strip() for l in coupon_data.strip().split('\n') if l.strip()]
                 matches = []
+                sistem_info = None
+                
+                # Sistem bilgisini bul (örn: "11 Sistem")
+                for line in lines:
+                    if 'sistem' in line.lower() and any(c.isdigit() for c in line):
+                        # "11 Sistem" veya "2, 3, 4" gibi formatlar
+                        sistem_info = line.strip()
+                        print(f"📊 Sistem bulundu: {sistem_info}")
+                        break
                 
                 # Strategi: Takım isimleri bir satırda, hemen ardından rakamsal veriler (MBS, oran, skor)
                 i = 0
@@ -309,14 +318,15 @@ try:
                         # Potansiyel takım ismi
                         teams = line
                         
-                        # Sonraki 20 satırı tara, maç bilgilerini bul
+                        # Sonraki 25 satırı tara, maç bilgilerini bul
                         mbs = None
                         tahmin = None
                         oran = None
                         mac_saati = None
                         skor = None
+                        ilk_yari_skor = None
                         
-                        look_ahead = 20
+                        look_ahead = 25
                         for j in range(1, min(look_ahead, len(lines) - i)):
                             next_line = lines[i + j]
                             
@@ -344,7 +354,7 @@ try:
                             if not mac_saati and next_line.upper() == 'MS':
                                 mac_saati = 'MS'
                             
-                            # Skor: X-X formatı (0-0, 1-1, 3-0 gibi)
+                            # Skor: X-X formatı (0-0, 1-1, 3-0 gibi) - İLK BULDUĞUMUZ ana skor
                             if not skor and '-' in next_line and len(next_line) <= 5:
                                 parts = next_line.split('-')
                                 if len(parts) == 2:
@@ -354,6 +364,25 @@ try:
                                         skor = next_line
                                     except:
                                         pass
+                            
+                            # İlk yarı skoru: (İY: 0-2) formatı veya parantez içinde
+                            if not ilk_yari_skor and ('iy' in next_line.lower() or '(' in next_line):
+                                # (İY: 0-2) veya (0-2) formatı
+                                if '-' in next_line and len(next_line) <= 12:
+                                    # Parantez içindeki skoru al
+                                    if '(' in next_line and ')' in next_line:
+                                        inside_parens = next_line[next_line.find('(')+1:next_line.find(')')]
+                                        # İY: prefix'ini temizle
+                                        inside_parens = inside_parens.replace('İY:', '').replace('IY:', '').strip()
+                                        if '-' in inside_parens:
+                                            parts = inside_parens.split('-')
+                                            if len(parts) == 2:
+                                                try:
+                                                    int(parts[0].strip())
+                                                    int(parts[1].strip())
+                                                    ilk_yari_skor = inside_parens
+                                                except:
+                                                    pass
                         
                         # En az oran bilgisi varsa maç olarak kaydet
                         if oran or tahmin:
@@ -363,7 +392,8 @@ try:
                                 'tahmin': tahmin,
                                 'oran': oran,
                                 'mac_saati': mac_saati,
-                                'skor': skor
+                                'skor': skor,
+                                'ilk_yari_skor': ilk_yari_skor
                             }
                             matches.append(match_info)
                             
@@ -378,10 +408,14 @@ try:
                                 print(f"     Durum: {mac_saati} (Maç Sonu)")
                             if skor:
                                 print(f"     Skor: {skor}")
+                            if ilk_yari_skor:
+                                print(f"     İlk Yarı: {ilk_yari_skor}")
                     
                     i += 1
                 
                 print(f"\n✅ Toplam {len(matches)} maç bulundu")
+                if sistem_info:
+                    print(f"📊 Sistem: {sistem_info}")
                 
                 if len(matches) > 0:
                     # Supabase'e kaydet
@@ -404,7 +438,8 @@ try:
                             'match_count': len(matches),
                             'total_odds': round(total_odds, 2),
                             'status': 'pending',
-                            'featured': False
+                            'featured': False,
+                            'sistem_info': sistem_info  # Sistem bilgisi ekle
                         }
                         
                         coupon_result = client.table('nesine_coupons').insert(coupon_data).execute()
@@ -424,6 +459,7 @@ try:
                                     'oran': match.get('oran'),
                                     'mac_saati': match.get('mac_saati'),
                                     'skor': match.get('skor'),
+                                    'ilk_yari_skor': match.get('ilk_yari_skor'),  # İlk yarı skoru ekle
                                     'match_order': idx + 1
                                 })
                             
