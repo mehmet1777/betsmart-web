@@ -19,6 +19,15 @@ const config: Config = {
         'text-primary': '#FFFFFF',
         'text-secondary': '#9CA3AF',
         'text-muted': '#6B7280',
+        // Premium kupon renkleri
+        'premium-bg': '#050806',
+        'premium-card': '#0A100D',
+        'premium-card-secondary': '#111915',
+        'premium-neon': '#00E676',
+        'premium-neon-light': '#65FF9A',
+        'premium-text': '#F5F7F5',
+        'premium-text-secondary': '#9AA69F',
+        'premium-border': 'rgba(0, 230, 118, 0.25)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
