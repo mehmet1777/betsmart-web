@@ -270,14 +270,60 @@ try:
                 lines = [l.strip() for l in coupon_data.strip().split('\n') if l.strip()]
                 matches = []
                 sistem_info = None
+                nesine_total_odds = None
                 
-                # Sistem bilgisini bul (örn: "11 Sistem")
-                for line in lines:
-                    if 'sistem' in line.lower() and any(c.isdigit() for c in line):
-                        # "11 Sistem" veya "2, 3, 4" gibi formatlar
-                        sistem_info = line.strip()
-                        print(f"📊 Sistem bulundu: {sistem_info}")
-                        break
+                # Toplam Oran'ı bul (Nesine'nin hesapladığı değer)
+                for idx, line in enumerate(lines):
+                    if 'toplam oran' in line.lower():
+                        # Bir sonraki satırda veya aynı satırda oran olabilir
+                        if idx + 1 < len(lines):
+                            next_line = lines[idx + 1].strip()
+                            # Oran formatı: 11.268,85 veya 11,268.85
+                            next_line_clean = next_line.replace('.', '').replace(',', '.')
+                            try:
+                                if next_line_clean.replace('.', '').isdigit():
+                                    nesine_total_odds = float(next_line_clean)
+                                    print(f"💰 Nesine Toplam Oran bulundu: {nesine_total_odds}")
+                                    break
+                            except:
+                                pass
+                
+                # Sistem bilgisini bul
+                sistem_found = False
+                for idx, line in enumerate(lines):
+                    # "Sistem" kelimesini ara
+                    if 'sistem' in line.lower() and not sistem_found:
+                        # Bir sonraki satırlarda sayıları ara
+                        sistem_text = line.strip()
+                        print(f"🔍 Sistem kelimesi bulundu satır {idx}: '{sistem_text}'")
+                        print(f"🔍 Sonraki 5 satır:")
+                        for j in range(1, min(6, len(lines) - idx)):
+                            print(f"   [{j}] '{lines[idx + j]}'")
+                            next_line = lines[idx + j].strip()
+                            # Virgüllü sayılar var mı?
+                            if ',' in next_line and len(next_line) < 30:
+                                clean_line = next_line.replace(' ', '').replace(',', '')
+                                print(f"      -> Virgüllü satır bulundu. Clean: '{clean_line}', isdigit: {clean_line.isdigit()}")
+                                if clean_line.isdigit():
+                                    numbers = [int(x.strip()) for x in next_line.split(',') if x.strip().isdigit()]
+                                    print(f"      -> Sayılar: {numbers}")
+                                    if len(numbers) >= 2 and all(2 <= n <= 8 for n in numbers):
+                                        sistem_info = f"{sistem_text}: {next_line}"
+                                        print(f"📊 Sistem bulundu: {sistem_info}")
+                                        sistem_found = True
+                                        break
+                        if sistem_found:
+                            break
+                    # Direkt "2, 3, 4" gibi satır (sistem kelimesi yok)
+                    elif ',' in line and len(line) < 30 and line.count(',') >= 1 and not sistem_found:
+                        clean_line = line.replace(' ', '').replace(',', '')
+                        if clean_line.isdigit() and len(clean_line) >= 2:
+                            numbers = [int(x.strip()) for x in line.split(',') if x.strip().isdigit()]
+                            if len(numbers) >= 2 and all(2 <= n <= 8 for n in numbers):
+                                sistem_info = f"Sistem: {line.strip()}"
+                                print(f"📊 Sistem bulundu: {sistem_info}")
+                                sistem_found = True
+                                break
                 
                 # Strategi: Takım isimleri bir satırda, hemen ardından rakamsal veriler (MBS, oran, skor)
                 i = 0
@@ -432,6 +478,13 @@ try:
                                     total_odds *= float(match['oran'].replace(',', '.'))
                                 except:
                                     pass
+                        
+                        # Eğer Nesine'den toplam oran parse ettikse, onu kullan (sistem kuponları için)
+                        if nesine_total_odds:
+                            total_odds = nesine_total_odds
+                            print(f"✅ Nesine Toplam Oran kullanılıyor: {total_odds}")
+                        else:
+                            print(f"✅ Hesaplanan Toplam Oran: {total_odds}")
                         
                         # Kupon kaydı oluştur
                         coupon_data = {

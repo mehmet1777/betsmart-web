@@ -175,64 +175,96 @@ export default function AnalizKuponlariPage() {
               </div>
             </div>
 
-            {/* Matches - İlk 3 maç göster */}
-            <div className="p-3 space-y-2">
+            {/* Matches - İlk 3 maç göster - Nesine tarzı */}
+            <div className="divide-y divide-border-color">
               {coupon.matches && coupon.matches.length > 0 ? (
                 coupon.matches.slice(0, 3).map((match, idx) => (
-                  <div key={idx} className="flex items-center gap-2 p-2 bg-bg-darker rounded-lg">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0">
-                      ⚽
+                  <div key={idx} className="p-4">
+                    {/* Üst satır: Takımlar ve Oran */}
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex items-start gap-2 flex-1 min-w-0">
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0 text-xs font-bold mt-0.5">
+                          ⚽
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-text-primary text-sm leading-tight mb-1">
+                            {match.teams}
+                          </h4>
+                          {match.mac_saati && (
+                            <p className="text-[11px] text-text-secondary">
+                              {match.mac_saati}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="text-lg font-bold text-text-primary">{match.oran || '-'}</div>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-text-primary text-sm mb-0.5 truncate">{match.teams}</h4>
+
+                    {/* Alt satır: Tahmin + Skorlar */}
+                    <div className="flex items-center gap-2 ml-8">
                       {match.tahmin && (
-                        <p className="text-[11px] text-green-400 truncate">{match.tahmin}</p>
+                        <span className="inline-flex items-center px-2.5 py-1 bg-green-500/20 text-green-400 text-xs font-medium rounded-md">
+                          {match.tahmin}
+                        </span>
+                      )}
+                      {match.mbs && (
+                        <span className="inline-flex items-center px-2 py-0.5 bg-gray-500/20 text-gray-400 text-[10px] font-medium rounded">
+                          {match.mbs} & Var
+                        </span>
                       )}
                       {match.skor && (
-                        <div className="flex items-center gap-2 text-[10px] text-text-secondary">
-                          <span>MS: {match.skor}</span>
+                        <div className="flex items-center gap-1.5 text-[11px]">
+                          <span className="text-text-secondary">MS:</span>
+                          <span className="font-semibold text-text-primary">{match.skor}</span>
                           {match.ilk_yari_skor && (
-                            <span className="text-green-400">İY: {match.ilk_yari_skor}</span>
+                            <>
+                              <span className="text-text-secondary ml-1">İY:</span>
+                              <span className="font-semibold text-green-400">{match.ilk_yari_skor}</span>
+                            </>
                           )}
                         </div>
                       )}
                     </div>
-                    {match.oran && (
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-base font-bold text-text-primary">{match.oran}</div>
-                      </div>
-                    )}
                   </div>
                 ))
               ) : (
-                <div className="text-center text-text-secondary text-sm py-4">
+                <div className="text-center text-text-secondary text-sm py-6">
                   Maç bilgisi bulunamadı
                 </div>
               )}
             </div>
 
-            {/* Footer - Toplam Oran */}
-            <div className="px-4 py-2.5 bg-bg-darker border-t border-border-color flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                  <TrendingUp className="w-3.5 h-3.5 text-white" />
-                </div>
-                <div>
-                  <span className="text-xs text-text-secondary">Toplam Oran</span>
+            {/* Footer - Toplam Oran ve Sistem */}
+            <div className="px-4 py-3 bg-bg-darker border-t border-border-color">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-text-secondary font-medium">Toplam Oran</span>
+                  {coupon.matches && coupon.matches.length > 1 && (
+                    <span className="text-xs text-text-secondary/70">
+                      Misli {coupon.matches.length}
+                    </span>
+                  )}
                   {coupon.sistemInfo && (
-                    <p className="text-[10px] text-green-400">{coupon.sistemInfo}</p>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs font-medium rounded">
+                      <span>📋</span>
+                      {coupon.sistemInfo}
+                    </span>
                   )}
                 </div>
+                <div className="text-2xl font-bold text-green-400">
+                  {coupon.totalOdds.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
               </div>
-              <div className="text-xl font-bold text-green-400">{coupon.totalOdds.toFixed(2)}</div>
             </div>
 
             {/* Action Button - Sadece 4+ maç varsa göster */}
             {coupon.matches && coupon.matches.length > 3 && (
-              <div className="px-4 pb-3">
+              <div className="px-4 pb-4 pt-2">
                 <button 
                   onClick={() => setSelectedCoupon(coupon)}
-                  className="w-full py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+                  className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-500/25"
                 >
                   <TrendingUp className="w-4 h-4" />
                   Kupon Detayları ({coupon.matches.length} Maç)
@@ -299,49 +331,84 @@ export default function AnalizKuponlariPage() {
             </div>
 
             {/* All Matches */}
-            <div className="p-4 space-y-2">
+            <div className="divide-y divide-border-color">
               {selectedCoupon.matches.map((match, idx) => (
-                <div key={idx} className="flex items-center gap-2 p-2 bg-card-bg rounded-lg border border-border-color">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0 text-xs font-bold">
-                    {idx + 1}
+                <div key={idx} className="p-4">
+                  {/* Üst satır: Numara + Takımlar + Oran */}
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-start gap-2 flex-1 min-w-0">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white flex-shrink-0 text-xs font-bold mt-0.5">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-text-primary text-sm leading-tight mb-1">
+                          {match.teams}
+                        </h4>
+                        {match.mac_saati && (
+                          <p className="text-[11px] text-text-secondary">
+                            {match.mac_saati}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-lg font-bold text-text-primary">{match.oran || '-'}</div>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-text-primary text-sm mb-0.5">{match.teams}</h4>
+
+                  {/* Alt satır: Tahmin + Skorlar */}
+                  <div className="flex items-center gap-2 ml-8 flex-wrap">
                     {match.tahmin && (
-                      <p className="text-[11px] text-green-400">{match.tahmin}</p>
+                      <span className="inline-flex items-center px-2.5 py-1 bg-green-500/20 text-green-400 text-xs font-medium rounded-md">
+                        {match.tahmin}
+                      </span>
+                    )}
+                    {match.mbs && (
+                      <span className="inline-flex items-center px-2 py-0.5 bg-gray-500/20 text-gray-400 text-[10px] font-medium rounded">
+                        {match.mbs} & Var
+                      </span>
                     )}
                     {match.skor && (
-                      <div className="flex items-center gap-2 text-[10px] text-text-secondary">
-                        <span>MS: {match.skor}</span>
+                      <div className="flex items-center gap-1.5 text-[11px]">
+                        <span className="text-text-secondary">MS:</span>
+                        <span className="font-semibold text-text-primary">{match.skor}</span>
                         {match.ilk_yari_skor && (
-                          <span className="text-green-400">İY: {match.ilk_yari_skor}</span>
+                          <>
+                            <span className="text-text-secondary ml-1">İY:</span>
+                            <span className="font-semibold text-green-400">{match.ilk_yari_skor}</span>
+                          </>
                         )}
                       </div>
                     )}
                   </div>
-                  {match.oran && (
-                    <div className="text-right flex-shrink-0">
-                      <div className="text-base font-bold text-text-primary">{match.oran}</div>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
 
             {/* Modal Footer */}
             <div className="sticky bottom-0 bg-bg-darker border-t border-border-color px-6 py-4">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <span className="text-sm text-text-secondary">Toplam Oran</span>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-text-secondary font-medium">Toplam Oran</span>
+                  {selectedCoupon.matches && selectedCoupon.matches.length > 1 && (
+                    <span className="text-xs text-text-secondary/70">
+                      Misli {selectedCoupon.matches.length}
+                    </span>
+                  )}
                   {selectedCoupon.sistemInfo && (
-                    <p className="text-xs text-green-400 mt-1">{selectedCoupon.sistemInfo}</p>
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500/20 text-green-400 text-xs font-medium rounded">
+                      <span>📋</span>
+                      {selectedCoupon.sistemInfo}
+                    </span>
                   )}
                 </div>
-                <span className="text-2xl font-bold text-green-400">{selectedCoupon.totalOdds.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-green-400">
+                  {selectedCoupon.totalOdds.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
               </div>
               <button 
                 onClick={() => setSelectedCoupon(null)}
-                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all"
+                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-green-500/25"
               >
                 Kapat
               </button>
