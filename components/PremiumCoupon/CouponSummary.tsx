@@ -1,4 +1,4 @@
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Trophy } from 'lucide-react';
 
 interface CouponSummaryProps {
   totalOdds: number;
@@ -18,51 +18,50 @@ export default function CouponSummary({ totalOdds, matchCount, sistemInfo }: Cou
   };
 
   return (
-    <div className="space-y-1.5">
-      {/* Toplam Oran ve Kupon Tutarı - Yan Yana */}
-      <div className="grid grid-cols-2 gap-1.5">
-        {/* Toplam Oran */}
-        <div className="bg-premium-card-secondary border border-premium-border rounded-lg p-2">
-          <div className="flex items-center gap-1 mb-1">
-            <TrendingUp className="w-2.5 h-2.5 text-premium-neon" />
-            <span className="text-[8px] text-premium-text-secondary uppercase tracking-wide">
-              Toplam Oran
-            </span>
-          </div>
-          <div className="text-sm font-bold text-premium-neon">
-            {formatCurrency(totalOdds)}
-          </div>
-          {sistemInfo && (
-            <div className="text-[7px] text-premium-text-secondary mt-0.5">
-              {sistemInfo}
+    <div className="mt-4 px-4">
+      {/* Üç Bölüm - Grid Layout */}
+      <div className="grid grid-cols-12 gap-3">
+        {/* Sol: Toplam Oran */}
+        <div className="col-span-4 bg-black/40 rounded-xl p-3 border" style={{ borderColor: 'rgba(0, 230, 118, 0.3)' }}>
+          <div className="flex items-start gap-2">
+            <TrendingUp className="w-5 h-5 text-green-500 flex-shrink-0" />
+            <div>
+              <div className="text-[10px] text-gray-400 mb-1">Toplam Oran</div>
+              <div className="text-xl font-bold text-green-500 leading-tight">
+                {formatCurrency(totalOdds)}
+              </div>
+              {sistemInfo && (
+                <div className="text-[9px] text-gray-500 mt-1">{sistemInfo}</div>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Kupon Tutarı */}
-        <div className="bg-premium-card-secondary border border-premium-border rounded-lg p-2">
-          <div className="flex items-center gap-1 mb-1">
-            <svg className="w-2.5 h-2.5 text-premium-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        {/* Orta: Kupon Tutarı */}
+        <div className="col-span-4 bg-black/40 rounded-xl p-3 border" style={{ borderColor: 'rgba(0, 230, 118, 0.3)' }}>
+          <div className="flex items-start gap-2">
+            <svg className="w-5 h-5 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <span className="text-[8px] text-premium-text-secondary uppercase tracking-wide">
-              Kupon Tutarı
-            </span>
-          </div>
-          <div className="text-sm font-bold text-premium-text">
-            {stake} <span className="text-[10px] text-premium-text-secondary">TL</span>
+            <div>
+              <div className="text-[10px] text-gray-400 mb-1">Kupon Tutarı</div>
+              <div className="text-xl font-bold text-white leading-tight">
+                {stake} TL
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Muhtemel Kazanç - Tam Genişlik */}
-      <div className="bg-gradient-to-br from-premium-neon/10 to-premium-neon/5 border border-premium-neon/50 rounded-lg p-2 shadow-lg shadow-premium-neon/10">
-        <div className="flex items-center justify-between">
-          <span className="text-[8px] text-premium-text-secondary uppercase tracking-wide">
-            Muhtemel Kazanç
-          </span>
-          <div className="text-lg font-bold text-premium-neon leading-none">
-            {formatCurrency(potentialWin)} <span className="text-[10px] text-premium-neon/70">TL</span>
+        {/* Sağ: Muhtemel Kazanç - Parlak/Öne Çıkan */}
+        <div className="col-span-4 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-xl p-3 border-2 border-green-500 shadow-lg shadow-green-500/30">
+          <div className="flex items-start gap-2">
+            <Trophy className="w-5 h-5 text-green-500 flex-shrink-0" />
+            <div>
+              <div className="text-[10px] text-green-300 mb-1">Muhtemel Kazanç</div>
+              <div className="text-xl font-bold text-green-500 leading-tight">
+                {formatCurrency(potentialWin)} TL
+              </div>
+            </div>
           </div>
         </div>
       </div>

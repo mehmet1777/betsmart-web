@@ -1,3 +1,5 @@
+import { X } from 'lucide-react';
+
 interface CouponMatchProps {
   match: {
     teams: string;
@@ -13,59 +15,68 @@ interface CouponMatchProps {
 
 export default function CouponMatch({ match, index }: CouponMatchProps) {
   return (
-    <div className="bg-premium-card-secondary border border-premium-border rounded-lg p-2.5 relative overflow-hidden">
-      {/* Hafif glow efekti */}
-      <div className="absolute inset-0 bg-gradient-to-br from-premium-neon/5 to-transparent pointer-events-none" />
-      
-      <div className="relative">
-        {/* Üst Satır: Numara, Takımlar, Skor, Oran */}
-        <div className="flex items-start justify-between gap-2 mb-1.5">
-          <div className="flex items-start gap-1.5 flex-1 min-w-0">
-            {/* Maç Numarası */}
-            <div className="w-5 h-5 rounded bg-premium-neon/20 border border-premium-neon/40 flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-[10px] font-bold text-premium-neon">{index + 1}</span>
-            </div>
-            
-            {/* Takım İsimleri */}
+    <div className="relative py-4 border-b" style={{ borderColor: 'rgba(0, 230, 118, 0.2)' }}>
+      <div className="flex items-start gap-3">
+        {/* Sol: Futbol İkonu + Numara */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+            <span className="text-lg">⚽</span>
+          </div>
+          <div className="w-8 h-8 rounded bg-green-500 flex items-center justify-center">
+            <span className="text-sm font-bold text-black">{index + 1}</span>
+          </div>
+        </div>
+
+        {/* Orta: Maç Bilgileri */}
+        <div className="flex-1 min-w-0">
+          {/* Takım Adı ve Skor */}
+          <div className="flex items-start justify-between mb-2">
             <div className="flex-1 min-w-0">
-              <h4 className="text-xs font-bold text-premium-text leading-tight">
-                {match.teams}
-              </h4>
-              <p className="text-[9px] text-premium-text-secondary mt-0.5">MS</p>
+              <h3 className="text-base font-bold text-white mb-1">{match.teams}</h3>
+              <p className="text-xs text-gray-400">{match.mac_saati || '24 Kasım 2026 21:00'}</p>
+            </div>
+            {/* Skor - Sağ Üst */}
+            {match.skor && (
+              <div className="text-right text-xs ml-3">
+                <span className="text-white">MS / {match.skor}</span>
+                {match.ilk_yari_skor && (
+                  <span className="text-green-500 ml-1">(İY: {match.ilk_yari_skor})</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Bahis Kartları ve Oran */}
+          <div className="flex items-center gap-2">
+            {/* Bahis Kartı 1 */}
+            <div className="bg-gray-800/80 rounded px-3 py-1.5">
+              <span className="text-xs font-medium text-white">
+                {match.tahmin || '1.Y Sonucu & 1.Y KG'}
+              </span>
             </div>
 
-            {/* Skor (sağ üst) */}
-            <div className="text-right flex-shrink-0">
-              {match.skor && (
-                <>
-                  <div className="text-sm font-bold text-premium-text">{match.skor}</div>
-                  {match.ilk_yari_skor && (
-                    <div className="text-[8px] text-premium-neon/70">İY: {match.ilk_yari_skor}</div>
-                  )}
-                </>
-              )}
+            {/* Bahis Kartı 2 */}
+            {match.mbs && (
+              <div className="bg-gray-800/80 rounded px-3 py-1.5">
+                <span className="text-xs font-medium text-white">
+                  {match.mbs} & Var
+                </span>
+              </div>
+            )}
+
+            {/* Oran - Büyük ve Yeşil */}
+            <div className="ml-auto flex-shrink-0">
+              <span className="text-2xl font-bold text-green-500">
+                {match.oran || '13.00'}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Alt Satır: Bahis ve Oran */}
-        <div className="flex items-center justify-between gap-2">
-          {/* Bahis Bilgisi */}
-          <div className="flex-1 min-w-0 bg-premium-neon/10 border border-premium-neon/30 rounded px-2 py-1">
-            <div className="text-[8px] text-premium-text-secondary uppercase">Bahis</div>
-            <div className="text-[10px] font-semibold text-premium-neon leading-tight truncate">
-              {match.tahmin || '1 & Var'}
-            </div>
-          </div>
-
-          {/* Oran */}
-          <div className="bg-premium-neon/15 border border-premium-neon/40 rounded px-2.5 py-1 flex-shrink-0">
-            <div className="text-[8px] text-premium-text-secondary uppercase text-center">Oran</div>
-            <div className="text-base font-bold text-premium-neon leading-tight">
-              {match.oran || '-'}
-            </div>
-          </div>
-        </div>
+        {/* Sağ: X Butonu */}
+        <button className="flex-shrink-0 p-1 hover:bg-white/5 rounded transition-colors">
+          <X className="w-5 h-5 text-green-500" />
+        </button>
       </div>
     </div>
   );
