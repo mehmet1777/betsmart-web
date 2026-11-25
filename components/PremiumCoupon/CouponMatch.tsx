@@ -33,7 +33,6 @@ export default function CouponMatch({ match, index }: CouponMatchProps) {
           <div className="flex items-start justify-between gap-2 mb-1">
             <div className="flex-1 min-w-0">
               <h3 className="text-xs font-bold text-white leading-tight">{match.teams}</h3>
-              <p className="text-[9px] text-gray-500">MS</p>
             </div>
             {/* Skor */}
             {match.skor && (
