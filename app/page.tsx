@@ -81,7 +81,6 @@ export default function Home() {
     window.addEventListener('reAnalyzeMatches', handleReAnalyze);
     
     return () => {
-      clearInterval(interval);
       window.removeEventListener('navigateToSettings', handleNavigateToSettings);
       window.removeEventListener('reAnalyzeMatches', handleReAnalyze);
     };
