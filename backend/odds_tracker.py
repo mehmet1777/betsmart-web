@@ -328,14 +328,14 @@ def check_odds_changes():
 def run_scheduler():
     """Scheduler'ı başlat"""
     print("Oran Takip Sistemi Baslatildi")
-    print(f"Her 10 dakikada bir calisacak")
-    print(f"İlk kontrol 10 dakika sonra yapilacak")
+    print(f"Her 90 dakikada bir calisacak (1.5 saat)")
+    print(f"İlk kontrol 90 dakika sonra yapilacak")
     print(f"Baslangic: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}")
     print()
     
     # İlk kontrolü HEMEN YAPMA - /yeniveri komutu zaten ilk oranları kaydetti
-    # 10 dakika sonra ilk kontrolü yap
-    schedule.every(10).minutes.do(check_odds_changes)
+    # 90 dakika sonra ilk kontrolü yap
+    schedule.every(90).minutes.do(check_odds_changes)
     
     # Sonsuz döngü
     while True:

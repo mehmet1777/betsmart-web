@@ -58,10 +58,8 @@ export default function Home() {
     // İlk yükleme - loader göster
     loadMatches(true);
     
-    // Her 3 dakikada bir sessizce güncelle (loader YOK, scroll korunur)
-    const interval = setInterval(() => {
-      loadMatches(false);
-    }, 180000); // 3 dakika
+    // AUTO-REFRESH KALDIRILDI - Vercel limiti için
+    // Kullanıcı manuel yenileyebilir (pull-to-refresh veya yenile butonu)
     
     // Ayarlar sekmesine yönlendirme event listener
     const handleNavigateToSettings = () => {
@@ -92,8 +90,10 @@ export default function Home() {
   const loadMatches = async (showLoader = true) => {
     if (showLoader) setLoading(true);
     try {
-      // Cache bypass için timestamp ekle
-      const response = await fetch(`/api/matches?t=${Date.now()}`);
+      // Cache 60 dakika - Dengeli: Vercel limiti korunur + Oranlar yeterince güncel
+      const response = await fetch(`/api/matches`, {
+        next: { revalidate: 3600 } // 60 dakika cache (60 × 60 = 3600 saniye)
+      });
       if (response.ok) {
         const data = await response.json();
         
@@ -356,23 +356,31 @@ export default function Home() {
     const analyzeInBackground = async () => {
       if (filteredMatches.length === 0 || analyzing) return;
 
-      // Cache kontrolü - 10 dakika
-      const CACHE_DURATION = 10 * 60 * 1000; // 10 dakika
+      // Kullanıcının tolerans ayarını al
+      const smartCouponTolerance = typeof window !== 'undefined'
+        ? parseFloat(localStorage.getItem('smartCouponTolerance') || '0.05')
+        : 0.05;
+
+      // Cache key: Tarih + Tolerans bazlı
+      const cacheKey = `smartAnalysis_${selectedDate}_${smartCouponTolerance}`;
+      
+      // Cache kontrolü - 90 dakika (backend ile senkron)
+      const CACHE_DURATION = 90 * 60 * 1000; // 90 dakika
       const now = Date.now();
       
       if (typeof window !== 'undefined') {
-        const lastAnalysisTime = localStorage.getItem('lastAnalysisTime');
-        const cachedResults = localStorage.getItem('cachedAnalysisResults');
+        const cachedData = localStorage.getItem(cacheKey);
+        const lastAnalysisTime = localStorage.getItem(`${cacheKey}_time`);
         
-        // Cache varsa ve 10 dakika geçmemişse, cache'den yükle
-        if (lastAnalysisTime && cachedResults) {
+        // Cache varsa ve 90 dakika geçmemişse, cache'den yükle
+        if (lastAnalysisTime && cachedData) {
           const elapsed = now - parseInt(lastAnalysisTime);
           
           if (elapsed < CACHE_DURATION) {
-            console.log(`♻️ Cache'den yükleniyor (${Math.round(elapsed / 1000 / 60)} dakika önce analiz edildi)`);
+            console.log(`♻️ Cache'den yükleniyor: ${selectedDate} (Tolerans: ±${smartCouponTolerance}) - ${Math.round(elapsed / 1000 / 60)} dakika önce`);
             
             try {
-              const cached = JSON.parse(cachedResults);
+              const cached = JSON.parse(cachedData);
               setSmartRecommendations(cached.recommendations || []);
               setAnalyzedCount(cached.analyzed_count || 0);
               
@@ -391,9 +399,9 @@ export default function Home() {
         }
       }
 
-      // Cache noksa veya süresi dolmuşsa, yeni analiz yap
+      // Cache yoksa veya süresi dolmuşsa, yeni analiz yap
       setAnalyzing(true);
-      console.log('🤖 Arka planda analiz başlatılıyor:', filteredMatches.length, 'maç');
+      console.log('🤖 Yeni analiz başlatılıyor:', filteredMatches.length, 'maç (Tolerans: ±' + smartCouponTolerance + ')');
 
       try {
         const matchData = filteredMatches.map(m => ({
@@ -406,11 +414,6 @@ export default function Home() {
           league: m.leagueName,
           time: m.time
         }));
-
-        // Kullanıcının tolerans ayarlarını al
-        const smartCouponTolerance = typeof window !== 'undefined'
-          ? parseFloat(localStorage.getItem('smartCouponTolerance') || '0.015')
-          : 0.015;
 
         console.log(`🎚️ Kupon toleransı: ±${smartCouponTolerance}`);
 
@@ -425,20 +428,20 @@ export default function Home() {
 
         if (response.ok) {
           const data = await response.json();
-          console.log('✅ Arka plan analizi tamamlandı:', data.recommended_count, 'öneri');
+          console.log('✅ Analiz tamamlandı:', data.recommended_count, 'öneri');
           
           setSmartRecommendations(data.recommendations || []);
           setAnalyzedCount(data.analyzed_count || 0);
 
-          // Cache'e kaydet
+          // Cache'e kaydet (Tarih + Tolerans bazlı)
           if (typeof window !== 'undefined') {
-            localStorage.setItem('lastAnalysisTime', now.toString());
-            localStorage.setItem('cachedAnalysisResults', JSON.stringify({
+            localStorage.setItem(cacheKey, JSON.stringify({
               recommendations: data.recommendations,
               analyzed_count: data.analyzed_count,
               timestamp: now
             }));
-            console.log('💾 Sonuçlar cache\'e kaydedildi');
+            localStorage.setItem(`${cacheKey}_time`, now.toString());
+            console.log(`💾 Cache kaydedildi: ${cacheKey} (90 dakika)`);
           }
 
           // Eğer öneri varsa ve bildirim açık değilse, otomatik aç
@@ -447,7 +450,7 @@ export default function Home() {
           }
         }
       } catch (error) {
-        console.error('❌ Arka plan analiz hatası:', error);
+        console.error('❌ Analiz hatası:', error);
       } finally {
         setAnalyzing(false);
       }

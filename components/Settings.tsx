@@ -7,7 +7,7 @@ export default function Settings() {
   // Tolerans ayarları - localStorage'dan yükle
   const [exactTolerance, setExactTolerance] = useState(0.01);
   const [similarTolerance, setSimilarTolerance] = useState(0.02);
-  const [smartCouponTolerance, setSmartCouponTolerance] = useState(0.015);
+  const [smartCouponTolerance, setSmartCouponTolerance] = useState(0.05);
   const [hasChanges, setHasChanges] = useState(false);
 
   // Component mount olduğunda localStorage'dan yükle
@@ -39,7 +39,7 @@ export default function Settings() {
   const resetToDefaults = () => {
     setExactTolerance(0.01);
     setSimilarTolerance(0.02);
-    setSmartCouponTolerance(0.015);
+    setSmartCouponTolerance(0.05); // Default: ±5% (Dengeli)
     setHasChanges(true);
   };
 
@@ -152,32 +152,74 @@ export default function Settings() {
                 </div>
               </div>
 
-              {/* Akıllı Kupon Toleransı Slider - YENİ */}
+              {/* Akıllı Kupon Toleransı - 3 Seçenek */}
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="text-sm font-bold text-text-primary">Kupon Öneri Toleransı</h3>
-                    <p className="text-xs text-text-secondary mt-1">Akıllı kupon önerileri için</p>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-2xl font-bold text-[#A04BFF]">±{smartCouponTolerance.toFixed(3)}</span>
-                  </div>
+                <div className="mb-3">
+                  <h3 className="text-sm font-bold text-text-primary">Kupon Öneri Toleransı</h3>
+                  <p className="text-xs text-text-secondary mt-1">Akıllı kupon önerileri için hassasiyet</p>
                 </div>
                 
-                <input
-                  type="range"
-                  min="0.01"
-                  max="0.25"
-                  step="0.005"
-                  value={smartCouponTolerance}
-                  onChange={(e) => handleToleranceChange('smartCoupon', parseFloat(e.target.value))}
-                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#A04BFF] slider"
-                />
-                
-                <div className="flex justify-between text-xs text-text-muted mt-2">
-                  <span>0.010</span>
-                  <span>0.130</span>
-                  <span>0.250</span>
+                {/* 3 Buton Seçeneği */}
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Düşük - Çok Seçici */}
+                  <button
+                    onClick={() => handleToleranceChange('smartCoupon', 0.01)}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      smartCouponTolerance === 0.01
+                        ? 'border-[#A04BFF] bg-[#A04BFF]/10'
+                        : 'border-border-color bg-bg-card-secondary hover:border-[#A04BFF]/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className={`text-2xl font-bold mb-1 ${
+                        smartCouponTolerance === 0.01 ? 'text-[#A04BFF]' : 'text-text-primary'
+                      }`}>
+                        ±1%
+                      </div>
+                      <div className="text-xs text-text-secondary">Çok Seçici</div>
+                      <div className="text-xs text-text-muted mt-1">Az ama kesin</div>
+                    </div>
+                  </button>
+
+                  {/* Orta - Dengeli */}
+                  <button
+                    onClick={() => handleToleranceChange('smartCoupon', 0.05)}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      smartCouponTolerance === 0.05
+                        ? 'border-[#A04BFF] bg-[#A04BFF]/10'
+                        : 'border-border-color bg-bg-card-secondary hover:border-[#A04BFF]/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className={`text-2xl font-bold mb-1 ${
+                        smartCouponTolerance === 0.05 ? 'text-[#A04BFF]' : 'text-text-primary'
+                      }`}>
+                        ±5%
+                      </div>
+                      <div className="text-xs text-text-secondary">Dengeli</div>
+                      <div className="text-xs text-text-muted mt-1">Önerilen</div>
+                    </div>
+                  </button>
+
+                  {/* Yüksek - Geniş */}
+                  <button
+                    onClick={() => handleToleranceChange('smartCoupon', 0.10)}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      smartCouponTolerance === 0.10
+                        ? 'border-[#A04BFF] bg-[#A04BFF]/10'
+                        : 'border-border-color bg-bg-card-secondary hover:border-[#A04BFF]/50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className={`text-2xl font-bold mb-1 ${
+                        smartCouponTolerance === 0.10 ? 'text-[#A04BFF]' : 'text-text-primary'
+                      }`}>
+                        ±10%
+                      </div>
+                      <div className="text-xs text-text-secondary">Geniş</div>
+                      <div className="text-xs text-text-muted mt-1">Çok öneri</div>
+                    </div>
+                  </button>
                 </div>
               </div>
 

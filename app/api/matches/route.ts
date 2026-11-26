@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Force dynamic rendering - disable all caching
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// Cache enabled - Dengeli: Backend 90dk'da günceller, cache 60dk
+export const revalidate = 3600; // 60 dakika cache (3600 saniye)
 
 // Supabase client
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
