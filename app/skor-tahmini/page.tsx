@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function SkorTahminiPage() {
@@ -8,8 +8,27 @@ export default function SkorTahminiPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const ADMIN_PASSWORD = 'betsmart2024'; // Şifre buradan değiştirilebilir
+
+  // Authentication kontrolü (sadece client-side)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const authTime = localStorage.getItem('skorTahminiAuth');
+      if (authTime) {
+        const timePassed = Date.now() - parseInt(authTime);
+        const oneDayInMs = 24 * 60 * 60 * 1000;
+        
+        if (timePassed < oneDayInMs) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem('skorTahminiAuth');
+        }
+      }
+    }
+    setIsLoading(false);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,27 +37,25 @@ export default function SkorTahminiPage() {
       setIsAuthenticated(true);
       setError('');
       // localStorage'a kaydet (1 gün geçerli)
-      localStorage.setItem('skorTahminiAuth', Date.now().toString());
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('skorTahminiAuth', Date.now().toString());
+      }
     } else {
       setError('Hatalı şifre! Lütfen tekrar deneyin.');
       setPassword('');
     }
   };
 
-  // Authentication kontrolü (sayfa yenilendiğinde)
-  useState(() => {
-    const authTime = localStorage.getItem('skorTahminiAuth');
-    if (authTime) {
-      const timePassed = Date.now() - parseInt(authTime);
-      const oneDayInMs = 24 * 60 * 60 * 1000;
-      
-      if (timePassed < oneDayInMs) {
-        setIsAuthenticated(true);
-      } else {
-        localStorage.removeItem('skorTahminiAuth');
-      }
-    }
-  });
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-bg-app flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block w-8 h-8 border-4 border-[#8B5CF6] border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      </div>
+    );
+  }
 
   if (isAuthenticated) {
     return (
