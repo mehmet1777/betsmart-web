@@ -484,13 +484,27 @@ export default function Home() {
             parseInt(minute)
           );
           const now = new Date();
+          const isUpcoming = matchDateTime > now;
+          
+          // İlk 3 maç için debug
+          if (filteredMatches.indexOf(m) < 3) {
+            console.log(`🔍 Match: ${m.home.name} vs ${m.away.name}`);
+            console.log(`   Time: ${m.time}`);
+            console.log(`   Match DateTime: ${matchDateTime.toLocaleString()}`);
+            console.log(`   Now: ${now.toLocaleString()}`);
+            console.log(`   Is Upcoming: ${isUpcoming}`);
+          }
+          
           // Maç henüz başlamamışsa göster (gelecekteki maçlar)
-          return matchDateTime > now;
+          return isUpcoming;
         } catch (e) {
+          console.error('Parse error:', e, m.time);
           // Parse hatası varsa API'nin status'unu kullan
           return !m.status.started;
         }
       });
+  
+  console.log(`📊 Total filtered: ${filteredMatches.length}, Display (upcoming): ${displayMatches.length}`);
 
   // Maçları akıllı sırala: 1) Önerilen önce (eğer seçiliyse), 2) Canlı olanlar önce, 3) Saate göre
   const sortedMatches = [...displayMatches].sort((a, b) => {
