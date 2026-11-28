@@ -470,7 +470,7 @@ export default function Home() {
   // Canlı maçları filtrele (activeTab === 'live' ise)
   const displayMatches = activeTab === 'live'
     ? filteredMatches.filter(m => m.status.started && !m.status.finished)
-    : filteredMatches;
+    : filteredMatches.filter(m => !m.status.started); // Başlamamış maçlar
 
   // Maçları akıllı sırala: 1) Önerilen önce (eğer seçiliyse), 2) Canlı olanlar önce, 3) Saate göre
   const sortedMatches = [...displayMatches].sort((a, b) => {
