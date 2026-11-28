@@ -59,152 +59,130 @@ export default function SkorTahminiPage() {
 
   if (isAuthenticated) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] relative overflow-hidden">
-        {/* Purple Gradient Blobs */}
-        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-purple-600/30 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-purple-600/30 rounded-full blur-[150px] translate-x-1/2 translate-y-1/2"></div>
-        <div className="absolute top-1/2 right-1/4 w-[600px] h-[300px] bg-purple-700/20 rounded-full blur-[120px] rotate-45"></div>
+      <div className="min-h-screen bg-gradient-to-b from-[#1a0f2e] via-[#1f1333] to-[#2a1a4a] relative overflow-hidden">
+        {/* Purple Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-purple-900/20"></div>
 
-        {/* Header */}
-        <div className="relative z-10 px-6 pt-8 pb-6">
-          <div className="flex items-center justify-between">
+        {/* Content Container */}
+        <div className="relative z-10 max-w-md mx-auto px-4 py-6">
+          
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
             {/* Logo */}
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center rotate-12 shadow-lg">
-                <svg className="w-7 h-7 text-white -rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/50">
+                <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
               <h1 className="text-2xl font-bold">
                 <span className="text-white">Skor</span>
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600">Tahmin</span>
+                <span className="text-purple-400">Tahmin</span>
               </h1>
             </div>
 
             {/* Premium Badge */}
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-yellow-600/30 bg-yellow-600/10 backdrop-blur-sm">
-              <span className="text-xl">👑</span>
-              <span className="text-yellow-500 text-sm font-semibold">Premium Erişim</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Matches List */}
-        <div className="relative z-10 px-6 pb-24 space-y-3">
-          {/* Match Card 1 */}
-          <div className="bg-gradient-to-br from-[#1a1a24]/90 to-[#141420]/90 backdrop-blur-xl border border-gray-800/50 rounded-3xl p-5 hover:border-purple-500/30 transition-all cursor-pointer group">
-            <div className="flex items-center justify-between">
-              {/* Time */}
-              <div className="flex flex-col items-start mr-4">
-                <span className="text-white text-lg font-bold">16:00</span>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <span className="text-gray-400 text-xs">Bugün</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                </div>
-              </div>
-
-              {/* Teams */}
-              <div className="flex items-center gap-4 flex-1">
-                {/* Home Team */}
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="w-12 h-12 rounded-full bg-white/5 border border-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <span className="text-2xl">⚽</span>
-                  </div>
-                  <span className="text-white font-medium">Galatasaray</span>
-                </div>
-
-                {/* VS */}
-                <span className="text-gray-500 text-sm font-semibold px-3">VS</span>
-
-                {/* Away Team */}
-                <div className="flex items-center gap-3 flex-1 justify-end">
-                  <span className="text-white font-medium">Fenerbahçe</span>
-                  <div className="w-12 h-12 rounded-full bg-white/5 border border-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <span className="text-2xl">⚽</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Arrow */}
-              <div className="ml-4 text-purple-500 group-hover:translate-x-1 transition-transform">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-yellow-600/40 bg-gradient-to-r from-yellow-600/10 to-orange-600/10 backdrop-blur-sm">
+              <span className="text-lg">👑</span>
+              <div className="text-sm">
+                <div className="text-yellow-500 font-semibold leading-tight">Premium</div>
+                <div className="text-yellow-600 text-xs leading-tight">Erişim</div>
               </div>
             </div>
           </div>
 
-          {/* Match Card 2 */}
-          <div className="bg-gradient-to-br from-[#1a1a24]/90 to-[#141420]/90 backdrop-blur-xl border border-gray-800/50 rounded-3xl p-5 hover:border-purple-500/30 transition-all cursor-pointer group">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col items-start mr-4">
-                <span className="text-white text-lg font-bold">19:00</span>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <span className="text-gray-400 text-xs">Bugün</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 flex-1">
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="w-12 h-12 rounded-full bg-white/5 border border-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <span className="text-2xl">⚽</span>
-                  </div>
-                  <span className="text-white font-medium">Beşiktaş</span>
-                </div>
-                <span className="text-gray-500 text-sm font-semibold px-3">VS</span>
-                <div className="flex items-center gap-3 flex-1 justify-end">
-                  <span className="text-white font-medium">Trabzonspor</span>
-                  <div className="w-12 h-12 rounded-full bg-white/5 border border-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <span className="text-2xl">⚽</span>
+          {/* Matches List */}
+          <div className="space-y-3">
+            
+            {/* Match Card 1 */}
+            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all">
+              <div className="flex items-center gap-4">
+                {/* Time */}
+                <div className="flex flex-col items-start min-w-[70px]">
+                  <span className="text-white text-xl font-bold">16:00</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-purple-300 text-xs">Bugün</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
                   </div>
                 </div>
+
+                {/* Teams */}
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  {/* Home Logo */}
+                  <div className="w-10 h-10 rounded-full bg-purple-900/30 border border-purple-700/30 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl">⚽</span>
+                  </div>
+
+                  {/* Team Names */}
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className="text-white font-medium text-sm truncate">Galatasaray</span>
+                    <span className="text-purple-400 text-xs font-semibold flex-shrink-0">VS</span>
+                    <span className="text-white font-medium text-sm truncate">Fenerbahçe</span>
+                  </div>
+                </div>
               </div>
-              <div className="ml-4 text-purple-500 group-hover:translate-x-1 transition-transform">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
+            </div>
+
+            {/* Match Card 2 */}
+            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col items-start min-w-[70px]">
+                  <span className="text-white text-xl font-bold">19:00</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-purple-300 text-xs">Bugün</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-purple-900/30 border border-purple-700/30 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl">⚽</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className="text-white font-medium text-sm truncate">Beşiktaş</span>
+                    <span className="text-purple-400 text-xs font-semibold flex-shrink-0">VS</span>
+                    <span className="text-white font-medium text-sm truncate">Trabzonspor</span>
+                  </div>
+                </div>
               </div>
+            </div>
+
+            {/* Match Card 3 */}
+            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all">
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col items-start min-w-[70px]">
+                  <span className="text-white text-xl font-bold">21:45</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-purple-300 text-xs">Bugün</span>
+                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-purple-900/30 border border-purple-700/30 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl">⚽</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <span className="text-white font-medium text-sm truncate">Real Madrid</span>
+                    <span className="text-purple-400 text-xs font-semibold flex-shrink-0">VS</span>
+                    <span className="text-white font-medium text-sm truncate">Barcelona</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Footer Message */}
+          <div className="text-center mt-12">
+            <div className="inline-flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-purple-900/30 border border-purple-700/30 flex items-center justify-center">
+                <span className="text-3xl">⚽</span>
+              </div>
+              <p className="text-purple-300 text-sm">
+                Daha fazla maç yakında eklenecek...
+              </p>
             </div>
           </div>
 
-          {/* Match Card 3 */}
-          <div className="bg-gradient-to-br from-[#1a1a24]/90 to-[#141420]/90 backdrop-blur-xl border border-gray-800/50 rounded-3xl p-5 hover:border-purple-500/30 transition-all cursor-pointer group">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col items-start mr-4">
-                <span className="text-white text-lg font-bold">21:45</span>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <span className="text-gray-400 text-xs">Bugün</span>
-                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 flex-1">
-                <div className="flex items-center gap-3 flex-1">
-                  <div className="w-12 h-12 rounded-full bg-white/5 border border-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <span className="text-2xl">⚽</span>
-                  </div>
-                  <span className="text-white font-medium">Real Madrid</span>
-                </div>
-                <span className="text-gray-500 text-sm font-semibold px-3">VS</span>
-                <div className="flex items-center gap-3 flex-1 justify-end">
-                  <span className="text-white font-medium">Barcelona</span>
-                  <div className="w-12 h-12 rounded-full bg-white/5 border border-gray-800 flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <span className="text-2xl">⚽</span>
-                  </div>
-                </div>
-              </div>
-              <div className="ml-4 text-purple-500 group-hover:translate-x-1 transition-transform">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {/* Coming Soon Cards */}
-          <div className="text-center py-8">
-            <div className="text-4xl mb-3">⚽</div>
-            <p className="text-gray-400 text-sm">Daha fazla maç yakında eklenecek...</p>
-          </div>
         </div>
       </div>
     );
