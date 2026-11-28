@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import MobileHeader from '@/components/MobileHeader';
@@ -711,7 +711,7 @@ export default function Home() {
           onDateChange={setSelectedDate}
           sortBy={sortBy}
           onSortChange={setSortBy}
-          matches={allMatches}
+          matches={displayMatches}
         />
 
         {/* Matches */}
@@ -864,3 +864,4 @@ export default function Home() {
     </div>
   );
 }
+
