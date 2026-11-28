@@ -107,18 +107,18 @@ export default function SectionHeader({ title, matchCount, selectedDate, onDateC
       
       {selectedDate && onDateChange ? (
         <div className="bg-gradient-to-r from-[#8B5CF6]/10 to-[#6366F1]/10 border border-[#8B5CF6]/30 rounded-lg p-1">
-          <div className="flex items-center gap-1.5 px-2 py-1.5">
+          <div className="flex items-center gap-1.5 p-1.5 rounded">
             <Calendar className="w-4 h-4 text-[#8B5CF6]" />
-            <span className="text-sm text-[#A78BFA] font-semibold whitespace-nowrap">
+            <span className="text-base text-[#A78BFA] font-semibold whitespace-nowrap leading-none">
               {getMatchCountForDate(selectedDate)} Maç
             </span>
           </div>
         </div>
       ) : (
         <div className="bg-gradient-to-r from-[#8B5CF6]/10 to-[#6366F1]/10 border border-[#8B5CF6]/30 rounded-lg p-1">
-          <div className="flex items-center gap-1.5 px-2 py-1.5">
+          <div className="flex items-center gap-1.5 p-1.5 rounded">
             <Calendar className="w-4 h-4 text-[#8B5CF6]" />
-            <span className="text-sm text-[#A78BFA] font-semibold whitespace-nowrap">{matchCount} Maç</span>
+            <span className="text-base text-[#A78BFA] font-semibold whitespace-nowrap leading-none">{matchCount} Maç</span>
           </div>
         </div>
       )}
