@@ -10,7 +10,7 @@ export default function SkorTahminiPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const ADMIN_PASSWORD = 'betsmart2024'; // Şifre buradan değiştirilebilir
+  const ADMIN_PASSWORD = 'Bet17'; // Şifre buradan değiştirilebilir
 
   // Authentication kontrolü (sadece client-side)
   useEffect(() => {
