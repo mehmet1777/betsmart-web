@@ -470,7 +470,27 @@ export default function Home() {
   // Canlı maçları filtrele (activeTab === 'live' ise)
   const displayMatches = activeTab === 'live'
     ? filteredMatches.filter(m => m.status.started && !m.status.finished)
-    : filteredMatches.filter(m => !m.status.started); // Başlamamış maçlar
+    : filteredMatches.filter(m => {
+        // Frontend'de maçın başlayıp başlamadığını kontrol et
+        try {
+          const [datePart, timePart] = m.time.split(' ');
+          const [day, month, year] = datePart.split('.');
+          const [hour, minute] = timePart.split(':');
+          const matchDateTime = new Date(
+            parseInt(year),
+            parseInt(month) - 1,
+            parseInt(day),
+            parseInt(hour),
+            parseInt(minute)
+          );
+          const now = new Date();
+          // Maç henüz başlamamışsa göster (gelecekteki maçlar)
+          return matchDateTime > now;
+        } catch (e) {
+          // Parse hatası varsa API'nin status'unu kullan
+          return !m.status.started;
+        }
+      });
 
   // Maçları akıllı sırala: 1) Önerilen önce (eğer seçiliyse), 2) Canlı olanlar önce, 3) Saate göre
   const sortedMatches = [...displayMatches].sort((a, b) => {
