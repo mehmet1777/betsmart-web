@@ -98,9 +98,6 @@ export default function MobileHeader({ onNotificationClick, onSearchClick, notif
                     <div className="font-semibold text-white group-hover:text-green-400 transition-colors">
                       Analiz Kuponları
                     </div>
-                    <div className="text-sm text-text-secondary">
-                      Nesine & Mackolik
-                    </div>
                   </div>
                   <svg className="w-5 h-5 text-text-secondary group-hover:text-green-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -127,9 +124,6 @@ export default function MobileHeader({ onNotificationClick, onSearchClick, notif
                   <div className="flex-1">
                     <div className="font-semibold text-text-secondary">
                       Ayarlar
-                    </div>
-                    <div className="text-sm text-text-secondary/70">
-                      Yakında eklenecek
                     </div>
                   </div>
                 </div>
