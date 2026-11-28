@@ -66,10 +66,10 @@ export default function MobileHeader({ onNotificationClick, onSearchClick, notif
           />
           
           {/* Menu Panel */}
-          <div className="fixed top-0 left-0 bottom-0 w-72 bg-bg-secondary border-r border-border-color z-50 safe-top animate-slide-in-left">
+          <div className="fixed top-0 left-0 bottom-0 w-72 bg-[#0F1419] border-r border-border-color z-50 safe-top animate-slide-in-left shadow-2xl">
             <div className="flex flex-col h-full">
               {/* Menu Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border-color gradient-header">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border-color bg-[#1a1f27]">
                 <BetSmartLogo variant="full" className="h-7" />
                 <button 
                   onClick={closeMenu}
@@ -80,13 +80,13 @@ export default function MobileHeader({ onNotificationClick, onSearchClick, notif
               </div>
 
               {/* Menu Items */}
-              <nav className="flex-1 overflow-y-auto py-4">
+              <nav className="flex-1 overflow-y-auto py-4 bg-[#0F1419]">
                 <Link 
                   href="/analiz-kuponlari"
                   onClick={closeMenu}
-                  className="flex items-center gap-3 px-4 py-3 text-text-primary hover:bg-bg-hover transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 text-text-primary hover:bg-[#1a1f27] transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-[#10B981] to-[#059669] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-[#10B981] to-[#059669] flex items-center justify-center shadow-lg">
                     <span className="text-xl">📈</span>
                   </div>
                   <div>
@@ -102,7 +102,7 @@ export default function MobileHeader({ onNotificationClick, onSearchClick, notif
                 
                 <div className="px-4 py-3 text-text-secondary opacity-50 cursor-not-allowed">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-bg-hover flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-[#1a1f27] flex items-center justify-center">
                       <span className="text-xl">⚙️</span>
                     </div>
                     <div>
@@ -114,7 +114,7 @@ export default function MobileHeader({ onNotificationClick, onSearchClick, notif
               </nav>
 
               {/* Menu Footer */}
-              <div className="border-t border-border-color px-4 py-3">
+              <div className="border-t border-border-color px-4 py-3 bg-[#0F1419]">
                 <div className="text-xs text-text-secondary text-center">
                   BetSmart v1.0
                 </div>
