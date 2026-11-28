@@ -3,16 +3,38 @@
 import { useState, useEffect } from 'react';
 import { X, Lock, Eye, EyeOff } from 'lucide-react';
 
+// Tahmin tipi
+interface ScorePrediction {
+  match_uuid: string;
+  home_team: string;
+  away_team: string;
+  league: string;
+  datetime: string;
+  probability: number;
+  confidence: 'high' | 'medium' | 'low';
+  reasons: string[];
+  predicted_scores: string[];
+}
+
+interface PredictionsData {
+  total_matches: number;
+  matches_with_details: number;
+  predictions: ScorePrediction[];
+  timestamp: string;
+}
+
 export default function SkorTahminiPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [predictionsData, setPredictionsData] = useState<PredictionsData | null>(null);
+  const [dataLoading, setDataLoading] = useState(false);
 
-  const ADMIN_PASSWORD = 'Bet17'; // Şifre buradan değiştirilebilir
+  const ADMIN_PASSWORD = 'Bet17';
 
-  // Authentication kontrolü (sadece client-side)
+  // Authentication kontrolü
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const authTime = localStorage.getItem('skorTahminiAuth');
@@ -29,6 +51,26 @@ export default function SkorTahminiPage() {
     }
     setIsLoading(false);
   }, []);
+
+  // Veri çekme
+  useEffect(() => {
+    if (isAuthenticated && !predictionsData) {
+      fetchPredictions();
+    }
+  }, [isAuthenticated]);
+
+  const fetchPredictions = async () => {
+    setDataLoading(true);
+    try {
+      const response = await fetch('/api/score-predictions');
+      const data = await response.json();
+      setPredictionsData(data);
+    } catch (error) {
+      console.error('Tahminler yüklenemedi:', error);
+    } finally {
+      setDataLoading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,11 +100,11 @@ export default function SkorTahminiPage() {
   }
 
   if (isAuthenticated) {
-    // Mock data - gerçek veriler API'den gelecek
-    const totalMatches = 100;
-    const matchesWithDetails = 60;
-    const predictedMatches = 15;
-    const completionPercentage = Math.round((matchesWithDetails / totalMatches) * 100);
+    // Gerçek API verileri
+    const totalMatches = predictionsData?.total_matches || 0;
+    const matchesWithDetails = predictionsData?.matches_with_details || 0;
+    const predictedMatches = predictionsData?.predictions?.length || 0;
+    const completionPercentage = totalMatches > 0 ? Math.round((matchesWithDetails / totalMatches) * 100) : 0;
     
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#1a0f2e] via-[#1f1333] to-[#2a1a4a] relative overflow-hidden">
@@ -149,100 +191,82 @@ export default function SkorTahminiPage() {
           {/* Matches List */}
           <div className="space-y-3">
             
-            {/* Match Card 1 */}
-            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all cursor-pointer">
-              <div className="flex items-center gap-4">
-                {/* Time */}
-                <div className="flex flex-col items-start min-w-[70px]">
-                  <span className="text-white text-xl font-bold">16:00</span>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-purple-300 text-xs">Bugün</span>
-                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                  </div>
-                </div>
+            {dataLoading ? (
+              <div className="text-center py-12">
+                <div className="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-purple-300 text-sm mt-3">Tahminler yükleniyor...</p>
+              </div>
+            ) : predictionsData && predictionsData.predictions.length > 0 ? (
+              predictionsData.predictions.map((match, index) => {
+                // Olasılığa göre renk belirle
+                const probabilityColor = match.probability >= 80 
+                  ? 'green' 
+                  : match.probability >= 60 
+                    ? 'yellow' 
+                    : 'orange';
+                
+                // Tarih parse et
+                const matchTime = match.datetime.split(' ')[1] || '';
+                const matchDate = match.datetime.split(' ')[0] || '';
+                
+                return (
+                  <div 
+                    key={match.match_uuid || index} 
+                    className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all cursor-pointer"
+                  >
+                    <div className="flex items-center gap-4">
+                      {/* Time */}
+                      <div className="flex flex-col items-start min-w-[70px]">
+                        <span className="text-white text-xl font-bold">{matchTime}</span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-purple-300 text-xs">{matchDate}</span>
+                          <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
+                        </div>
+                      </div>
 
-                {/* Teams */}
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  {/* Home Logo */}
-                  <div className="w-10 h-10 rounded-full bg-purple-900/30 border border-purple-700/30 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">⚽</span>
-                  </div>
+                      {/* Teams */}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {/* Home Logo */}
+                        <div className="w-10 h-10 rounded-full bg-purple-900/30 border border-purple-700/30 flex items-center justify-center flex-shrink-0">
+                          <span className="text-xl">⚽</span>
+                        </div>
 
-                  {/* Team Names */}
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <span className="text-white font-medium text-sm truncate">Galatasaray</span>
-                    <span className="text-purple-400 text-xs font-semibold flex-shrink-0">VS</span>
-                    <span className="text-white font-medium text-sm truncate">Fenerbahçe</span>
-                  </div>
-                </div>
+                        {/* Team Names */}
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-white font-medium text-sm truncate">{match.home_team}</span>
+                          <span className="text-purple-400 text-xs font-semibold flex-shrink-0">VS</span>
+                          <span className="text-white font-medium text-sm truncate">{match.away_team}</span>
+                        </div>
+                      </div>
 
-                {/* Probability Badge */}
-                <div className="flex flex-col items-end flex-shrink-0">
-                  <div className="px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-lg">
-                    <span className="text-green-400 font-bold text-sm">%85</span>
+                      {/* Probability Badge */}
+                      <div className="flex flex-col items-end flex-shrink-0">
+                        <div className={`px-3 py-1 bg-${probabilityColor}-500/20 border border-${probabilityColor}-500/40 rounded-lg`}>
+                          <span className={`text-${probabilityColor}-400 font-bold text-sm`}>%{Math.round(match.probability)}</span>
+                        </div>
+                        <span className="text-purple-300 text-xs mt-1">2-1 / 1-2</span>
+                      </div>
+                    </div>
+
+                    {/* League Info */}
+                    <div className="mt-2 ml-[86px]">
+                      <span className="text-purple-400/70 text-xs">{match.league}</span>
+                    </div>
                   </div>
-                  <span className="text-purple-300 text-xs mt-1">2-1 / 1-2</span>
+                );
+              })
+            ) : (
+              <div className="text-center py-12">
+                <div className="inline-flex flex-col items-center gap-3 p-6 bg-purple-900/20 backdrop-blur-sm border border-purple-700/20 rounded-2xl">
+                  <div className="w-14 h-14 rounded-full bg-purple-600/20 border border-purple-600/30 flex items-center justify-center">
+                    <span className="text-3xl">🔍</span>
+                  </div>
+                  <p className="text-purple-300 text-sm max-w-xs">
+                    Henüz yeterli istatistik yok. Lütfen daha sonra tekrar kontrol edin.
+                  </p>
                 </div>
               </div>
-            </div>
-
-            {/* Match Card 2 */}
-            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-start min-w-[70px]">
-                  <span className="text-white text-xl font-bold">19:00</span>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-purple-300 text-xs">Bugün</span>
-                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-purple-900/30 border border-purple-700/30 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">⚽</span>
-                  </div>
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <span className="text-white font-medium text-sm truncate">Beşiktaş</span>
-                    <span className="text-purple-400 text-xs font-semibold flex-shrink-0">VS</span>
-                    <span className="text-white font-medium text-sm truncate">Trabzonspor</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end flex-shrink-0">
-                  <div className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-lg">
-                    <span className="text-yellow-400 font-bold text-sm">%78</span>
-                  </div>
-                  <span className="text-purple-300 text-xs mt-1">2-1 / 1-2</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Match Card 3 */}
-            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="flex flex-col items-start min-w-[70px]">
-                  <span className="text-white text-xl font-bold">21:45</span>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="text-purple-300 text-xs">Bugün</span>
-                    <div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-purple-900/30 border border-purple-700/30 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">⚽</span>
-                  </div>
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <span className="text-white font-medium text-sm truncate">Real Madrid</span>
-                    <span className="text-purple-400 text-xs font-semibold flex-shrink-0">VS</span>
-                    <span className="text-white font-medium text-sm truncate">Barcelona</span>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end flex-shrink-0">
-                  <div className="px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-lg">
-                    <span className="text-green-400 font-bold text-sm">%92</span>
-                  </div>
-                  <span className="text-purple-300 text-xs mt-1">2-1 / 1-2</span>
-                </div>
-              </div>
-            </div>
+            )}
 
           </div>
 

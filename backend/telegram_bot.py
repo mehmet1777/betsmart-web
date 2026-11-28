@@ -143,7 +143,7 @@ class TelegramBotManager:
             "📸 <b>Screenshot Analizi:</b>\n"
             "Bahis sitesinden screenshot atın,\n"
             "oranları okuyup analiz edelim!\n\n"
-            "💡 /yeniveri ile 2 günlük maçları otomatik çekin!",
+            "💡 /yeniveri ile bugünün maçlarını otomatik çekin!",
             parse_mode='HTML'
         )
     
@@ -208,7 +208,7 @@ class TelegramBotManager:
             
             await update.message.reply_text(
                 f"🔄 <b>Veri Güncelleme</b>\n\n"
-                f"📊 2 günlük maç verisi çekilecek\n"
+                f"📊 Bugünün maçları çekilecek\n"
                 f"⏱️ Süre: Yaklaşık 1 dakika\n"
                 f"🎯 Kalan hak: {remaining}/3 (günlük)\n\n"
                 f"⚠️ <b>Neden sınırlı?</b>\n"
@@ -353,7 +353,7 @@ class TelegramBotManager:
             loop = asyncio.get_event_loop()
             success, matches, error, source = await loop.run_in_executor(
                 None, 
-                lambda: fetch_matches_hybrid(days_ahead=2, status_callback=lambda s: asyncio.run_coroutine_threadsafe(update_status(s), loop))
+                lambda: fetch_matches_hybrid(days_ahead=0, status_callback=lambda s: asyncio.run_coroutine_threadsafe(update_status(s), loop))
             )
             
             if not success:
@@ -1740,7 +1740,7 @@ if __name__ == '__main__':
             print("\n📱 Telegram'dan şu komutları kullanabilirsiniz:")
             print("   /start - Bot'u başlat")
             print("   /durum - Sistem durumu")
-            print("   /yeniveri - Güncel maçları çek (2 günlük)")
+            print("   /yeniveri - Güncel maçları çek (sadece bugün)")
             print("\n⏸️  Durdurmak için CTRL+C yapın")
             print("="*50 + "\n")
         

@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, ChevronDown } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
 interface SectionHeaderProps {
   title: string;
@@ -106,36 +106,17 @@ export default function SectionHeader({ title, matchCount, selectedDate, onDateC
         )}
       
       {selectedDate && onDateChange ? (
-        <div className="relative">
-          <select
-            value={selectedDate}
-            onChange={(e) => onDateChange(e.target.value)}
-            className="appearance-none bg-bg-elevated border border-border-color rounded-lg pl-8 pr-8 py-2 text-sm text-text-secondary font-medium cursor-pointer hover:border-accent-primary transition-colors"
-          >
-            {dates.map(date => {
-              const year = date.getFullYear();
-              const month = String(date.getMonth() + 1).padStart(2, '0');
-              const day = String(date.getDate()).padStart(2, '0');
-              const dateKey = `${year}-${month}-${day}`;
-              const count = getMatchCountForDate(dateKey);
-              return (
-                <option key={dateKey} value={dateKey}>
-                  {count} Maç, {formatDateDisplay(dateKey)}
-                </option>
-              );
-            })}
-          </select>
-          {/* Calendar Icon */}
-          <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
-          {/* Dropdown Icon */}
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary pointer-events-none" />
+        <div className="flex items-center gap-2 bg-bg-elevated border border-border-color rounded-lg px-3 py-2">
+          <Calendar className="w-4 h-4 text-text-secondary" />
+          <span className="text-sm text-text-secondary font-medium">
+            {getMatchCountForDate(selectedDate)} Maç, {formatDateDisplay(selectedDate)}
+          </span>
         </div>
       ) : (
-        <button className="flex items-center gap-2 text-text-secondary text-sm">
-          <Calendar className="w-4 h-4" />
-          <span>{matchCount} Maç, Bugün</span>
-          <ChevronDown className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2 bg-bg-elevated border border-border-color rounded-lg px-3 py-2">
+          <Calendar className="w-4 h-4 text-text-secondary" />
+          <span className="text-sm text-text-secondary font-medium">{matchCount} Maç, Bugün</span>
+        </div>
       )}
       </div>
     </div>
