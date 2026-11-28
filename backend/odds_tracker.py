@@ -281,22 +281,41 @@ def check_odds_changes():
             print(f"Yeni: {new_changes_count}, Guncellenen: {updated_changes_count}")
             print(f"Guncel oranlar future_matches'te guncellendi")
             
-            # 5. Telegram bildirimi gönder - TEK MESAJ TOPLU ÖZET
+            # 5. Telegram bildirimi gönder - TEK MESAJ BİRLEŞTİRİLMİŞ
             if len(changes_detected) > 0:
                 print(f"\nTelegram bildirimi gonderiliyor...")
                 
                 now = datetime.now().strftime('%d.%m.%Y %H:%M')
+                
+                # Match details durumunu oku (eğer varsa)
+                match_details_section = ""
+                try:
+                    import json
+                    import os
+                    if os.path.exists('match_details_status.json'):
+                        with open('match_details_status.json', 'r', encoding='utf-8') as f:
+                            status = json.load(f)
+                            
+                        # Sadece yeni ekleme varsa veya başarısız varsa göster
+                        if status.get('new_added', 0) > 0 or status.get('failed', 0) > 0:
+                            match_details_section = f"""
+📊 Maç Detayları Durumu:
+  • {status['total']} maçtan {status['ready']} hazır ({status['completion_pct']}%)
+  • {status['new_added']} yeni eklendi bu turda
+  • {status['failed']} başarısız (tekrar denenecek)
+"""
+                except Exception as e:
+                    print(f"   Match details status okunamadı: {e}")
+                
                 message = f"""═══════════════════════════════
-  ORAN DEGISIKLIKLERI TESPIT EDILDI
+  📊 SISTEM GÜNCELLEMESİ
 ═══════════════════════════════
 
->> {len(changes_detected)} macta oran degisti
+🔄 Oran Değişiklikleri: {len(changes_detected)} maç
+{match_details_section}
+🌐 https://betsmart-web-snowy.vercel.app/
 
->> Guncel oranlarla analiz icin:
-   https://betsmart-web.vercel.app/
-
->> Kontrol zamani: {now}
-
+🕐 {now}
 ═══════════════════════════════"""
                 
                 try:

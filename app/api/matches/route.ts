@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// Edge Runtime - CPU limiti sayılmaz! ⚡
+export const runtime = 'edge';
+
 // Cache enabled - Dengeli: Backend 90dk'da günceller, cache 60dk
 export const revalidate = 3600; // 60 dakika cache (3600 saniye)
 

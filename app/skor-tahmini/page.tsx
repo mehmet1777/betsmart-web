@@ -58,6 +58,12 @@ export default function SkorTahminiPage() {
   }
 
   if (isAuthenticated) {
+    // Mock data - gerçek veriler API'den gelecek
+    const totalMatches = 100;
+    const matchesWithDetails = 60;
+    const predictedMatches = 15;
+    const completionPercentage = Math.round((matchesWithDetails / totalMatches) * 100);
+    
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#1a0f2e] via-[#1f1333] to-[#2a1a4a] relative overflow-hidden">
         {/* Purple Gradient Overlay */}
@@ -67,7 +73,7 @@ export default function SkorTahminiPage() {
         <div className="relative z-10 max-w-md mx-auto px-4 py-6">
           
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6">
             {/* Logo */}
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/50">
@@ -91,11 +97,60 @@ export default function SkorTahminiPage() {
             </div>
           </div>
 
+          {/* Status Info Box */}
+          <div className="mb-6 p-4 bg-gradient-to-br from-purple-900/40 to-purple-800/20 backdrop-blur-sm border border-purple-700/30 rounded-2xl">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 bg-purple-600/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-white font-semibold mb-1">Analiz Durumu</h3>
+                <p className="text-purple-200 text-sm leading-relaxed">
+                  Bugünkü bültende <span className="font-bold text-white">{totalMatches} maç</span> var. 
+                  Şu an <span className="font-bold text-purple-300">{matchesWithDetails} maçın</span> detaylı istatistikleri mevcut.
+                </p>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-3">
+              <div className="flex items-center justify-between text-sm mb-2">
+                <span className="text-purple-300">İstatistik Yüklemesi</span>
+                <span className="text-purple-400 font-bold">%{completionPercentage}</span>
+              </div>
+              <div className="h-2 bg-purple-950/50 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-full transition-all duration-500"
+                  style={{ width: `${completionPercentage}%` }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Result Count */}
+            <div className="p-3 bg-purple-600/20 border border-purple-600/30 rounded-xl">
+              <div className="flex items-center justify-between">
+                <span className="text-purple-200 text-sm">Bulunan Tahmin:</span>
+                <span className="text-purple-300 font-bold text-lg">{predictedMatches} maç</span>
+              </div>
+            </div>
+
+            {/* Info Text */}
+            <div className="mt-3 flex items-start gap-2">
+              <div className="text-lg flex-shrink-0">⏱️</div>
+              <p className="text-purple-300 text-xs leading-relaxed">
+                Her 10 dakikada bir yeni istatistikler ekleniyor. 
+                <span className="text-purple-200 font-semibold"> ~1 saat içinde</span> tüm maç detayları yüklenecek ve daha fazla skor tahmini göreceksiniz.
+              </p>
+            </div>
+          </div>
+
           {/* Matches List */}
           <div className="space-y-3">
             
             {/* Match Card 1 */}
-            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all">
+            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all cursor-pointer">
               <div className="flex items-center gap-4">
                 {/* Time */}
                 <div className="flex flex-col items-start min-w-[70px]">
@@ -120,11 +175,19 @@ export default function SkorTahminiPage() {
                     <span className="text-white font-medium text-sm truncate">Fenerbahçe</span>
                   </div>
                 </div>
+
+                {/* Probability Badge */}
+                <div className="flex flex-col items-end flex-shrink-0">
+                  <div className="px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-lg">
+                    <span className="text-green-400 font-bold text-sm">%85</span>
+                  </div>
+                  <span className="text-purple-300 text-xs mt-1">2-1 / 1-2</span>
+                </div>
               </div>
             </div>
 
             {/* Match Card 2 */}
-            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all">
+            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all cursor-pointer">
               <div className="flex items-center gap-4">
                 <div className="flex flex-col items-start min-w-[70px]">
                   <span className="text-white text-xl font-bold">19:00</span>
@@ -143,11 +206,17 @@ export default function SkorTahminiPage() {
                     <span className="text-white font-medium text-sm truncate">Trabzonspor</span>
                   </div>
                 </div>
+                <div className="flex flex-col items-end flex-shrink-0">
+                  <div className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/40 rounded-lg">
+                    <span className="text-yellow-400 font-bold text-sm">%78</span>
+                  </div>
+                  <span className="text-purple-300 text-xs mt-1">2-1 / 1-2</span>
+                </div>
               </div>
             </div>
 
             {/* Match Card 3 */}
-            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all">
+            <div className="bg-gradient-to-br from-[#2a1f3f]/80 to-[#1f1833]/80 backdrop-blur-sm border border-purple-900/30 rounded-2xl p-4 hover:border-purple-700/50 transition-all cursor-pointer">
               <div className="flex items-center gap-4">
                 <div className="flex flex-col items-start min-w-[70px]">
                   <span className="text-white text-xl font-bold">21:45</span>
@@ -166,19 +235,25 @@ export default function SkorTahminiPage() {
                     <span className="text-white font-medium text-sm truncate">Barcelona</span>
                   </div>
                 </div>
+                <div className="flex flex-col items-end flex-shrink-0">
+                  <div className="px-3 py-1 bg-green-500/20 border border-green-500/40 rounded-lg">
+                    <span className="text-green-400 font-bold text-sm">%92</span>
+                  </div>
+                  <span className="text-purple-300 text-xs mt-1">2-1 / 1-2</span>
+                </div>
               </div>
             </div>
 
           </div>
 
           {/* Footer Message */}
-          <div className="text-center mt-12">
-            <div className="inline-flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-full bg-purple-900/30 border border-purple-700/30 flex items-center justify-center">
-                <span className="text-3xl">⚽</span>
+          <div className="text-center mt-8 mb-6">
+            <div className="inline-flex flex-col items-center gap-3 p-4 bg-purple-900/20 backdrop-blur-sm border border-purple-700/20 rounded-2xl">
+              <div className="w-14 h-14 rounded-full bg-purple-600/20 border border-purple-600/30 flex items-center justify-center">
+                <span className="text-3xl">📊</span>
               </div>
-              <p className="text-purple-300 text-sm">
-                Daha fazla maç yakında eklenecek...
+              <p className="text-purple-300 text-sm max-w-xs">
+                İstatistikler yüklendikçe bu liste otomatik güncellenecek
               </p>
             </div>
           </div>

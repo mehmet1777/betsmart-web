@@ -1,5 +1,6 @@
 import asyncio
 import threading
+import requests  # Cache revalidation için
 from telegram import Bot, Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
 from database import Database
@@ -531,19 +532,32 @@ class TelegramBotManager:
                 except Exception as e:
                     odds_status = f"⚠️ Oran kayıt hatası: {str(e)}"
                 
+                # Vercel cache'i temizle (yeni maçlar anında gözüksün)
+                try:
+                    revalidate_url = f"https://betsmart-web-snowy.vercel.app/api/revalidate?secret={os.getenv('REVALIDATE_SECRET', 'default-secret-123')}"
+                    revalidate_response = requests.post(revalidate_url, timeout=10)
+                    if revalidate_response.status_code == 200:
+                        cache_status = "🔄 Cache temizlendi"
+                    else:
+                        cache_status = "⚠️ Cache temizlenemedi"
+                except Exception as e:
+                    cache_status = "⚠️ Cache temizleme hatası"
+                    print(f"Cache revalidation error: {e}")
+                
                 await status_msg.edit_text(
                     f"✅ <b>İşlem Tamamlandı!</b>\n\n"
                     f"{cleanup_msg}"
                     f"📊 <b>{success_count}</b> maç kaydedildi\n"
                     f"☁️ Supabase'e yüklendi\n"
                     f"🌐 Web sitesinde görünür\n"
+                    f"{cache_status}\n"
                     f"{odds_status}\n"
                     f"{details_status}\n"
                     f"📅 <b>Tarih Dağılımı:</b>\n"
                     f"   • Bugün: {today_matches} maç\n"
                     f"   • Yarın: {tomorrow_matches} maç\n"
                     f"   • Diğer: {success_count - today_matches - tomorrow_matches} maç\n\n"
-                    f"🔗 <a href='https://betsmart-web.vercel.app'>Web Sitesi</a>",
+                    f"🔗 <a href='https://betsmart-web-snowy.vercel.app'>Web Sitesi</a>",
                     parse_mode='HTML',
                     disable_web_page_preview=True
                 )
@@ -663,7 +677,7 @@ class TelegramBotManager:
                     f"📊 <b>{match_count}</b> maç işlendi\n"
                     f"☁️ Supabase'e kaydedildi\n"
                     f"🌐 Web sitesinde görünür\n\n"
-                    f"🔗 https://betsmart-web.vercel.app",
+                    f"🔗 https://betsmart-web-snowy.vercel.app",
                     parse_mode='HTML',
                     disable_web_page_preview=True
                 )
@@ -776,7 +790,7 @@ class TelegramBotManager:
                     f"📊 <b>{match_count}</b> maç kaydedildi\n"
                     f"☁️ Supabase'e yüklendi\n"
                     f"🌐 Web sitesinde görünür\n\n"
-                    f"🔗 https://betsmart-web.vercel.app",
+                    f"🔗 https://betsmart-web-snowy.vercel.app",
                     parse_mode='HTML',
                     disable_web_page_preview=True
                 )
@@ -884,7 +898,7 @@ class TelegramBotManager:
                     f"📊 <b>{match_count}</b> maç işlendi\n"
                     f"☁️ Supabase'e kaydedildi\n"
                     f"🌐 Web sitesinde görünür\n\n"
-                    f"🔗 https://betsmart-web.vercel.app",
+                    f"🔗 https://betsmart-web-snowy.vercel.app",
                     parse_mode='HTML',
                     disable_web_page_preview=True
                 )

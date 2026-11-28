@@ -73,7 +73,7 @@ message = f"""
    • Yarın: {tomorrow_matches} maç
    • Diğer: {success_count - today_matches - tomorrow_matches} maç
 
-🔗 <a href='https://betsmart-web.vercel.app'>Web Sitesi</a>
+🔗 <a href='https://betsmart-web-snowy.vercel.app'>Web Sitesi</a>
 """
 
 print(message)

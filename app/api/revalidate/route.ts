@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 
+// Edge Runtime - CPU limiti sayılmaz! ⚡
+export const runtime = 'edge';
+
 export async function POST(request: NextRequest) {
   try {
     // Secret token kontrolü (güvenlik için)

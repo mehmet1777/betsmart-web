@@ -1375,7 +1375,7 @@ try:
                         QMessageBox.information(
                             None,
                             "Başarılı",
-                            f"{msg}\n\nWeb sitesinde görüntülemek için:\nhttps://betsmart-web.vercel.app"
+                            f"{msg}\n\nWeb sitesinde görüntülemek için:\nhttps://betsmart-web-snowy.vercel.app"
                         )
                     else:
                         error_msg = f"✅ {saved_count} maç yerel DB'ye kaydedildi\n⚠️ Supabase senkronizasyonu başarısız"

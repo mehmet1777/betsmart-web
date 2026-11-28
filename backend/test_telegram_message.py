@@ -1,5 +1,5 @@
 """
-Yeni Telegram mesaj formatını test et
+Yeni birleştirilmiş Telegram mesaj formatını test et
 """
 import os
 from dotenv import load_dotenv
@@ -13,17 +13,21 @@ chat_id = os.getenv('TELEGRAM_CHAT_ID')
 
 now = datetime.now().strftime('%d.%m.%Y %H:%M')
 
+# Test mesajı - her iki bölüm de dahil
 message = f"""═══════════════════════════════
-  ORAN DEGISIKLIKLERI TESPIT EDILDI
+  📊 SISTEM GÜNCELLEMESİ
 ═══════════════════════════════
 
->> 12 macta oran degisti
+🔄 Oran Değişiklikleri: 2 maç
 
->> Tum detaylar ve analizler icin:
-   https://betsmart-web.vercel.app/
+📊 Maç Detayları Durumu:
+  • 650 maçtan 544 hazır (%84)
+  • 86 yeni eklendi bu turda
+  • 20 başarısız (tekrar denenecek)
 
->> Kontrol zamani: {now}
+🌐 https://betsmart-web-snowy.vercel.app/
 
+🕐 {now}
 ═══════════════════════════════"""
 
 print("Test mesaji gonderiliyor...")
@@ -39,7 +43,7 @@ data = {
 response = requests.post(url, data=data, timeout=10)
 
 if response.status_code == 200:
-    print("BASARILI! Telegram'i kontrol et")
+    print("✅ BASARILI! Telegram'i kontrol et")
 else:
-    print(f"HATA: {response.status_code}")
+    print(f"❌ HATA: {response.status_code}")
     print(response.text)
