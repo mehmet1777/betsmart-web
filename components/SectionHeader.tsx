@@ -106,16 +106,20 @@ export default function SectionHeader({ title, matchCount, selectedDate, onDateC
         )}
       
       {selectedDate && onDateChange ? (
-        <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#8B5CF6]/10 to-[#6366F1]/10 border border-[#8B5CF6]/30 rounded-lg p-1.5">
-          <Calendar className="w-4 h-4 text-[#8B5CF6]" />
-          <span className="text-sm text-[#A78BFA] font-semibold whitespace-nowrap px-1.5">
-            {getMatchCountForDate(selectedDate)} Maç
-          </span>
+        <div className="bg-gradient-to-r from-[#8B5CF6]/10 to-[#6366F1]/10 border border-[#8B5CF6]/30 rounded-lg p-1">
+          <div className="flex items-center gap-1.5 px-2 py-1.5">
+            <Calendar className="w-4 h-4 text-[#8B5CF6]" />
+            <span className="text-sm text-[#A78BFA] font-semibold whitespace-nowrap">
+              {getMatchCountForDate(selectedDate)} Maç
+            </span>
+          </div>
         </div>
       ) : (
-        <div className="flex items-center gap-1.5 bg-gradient-to-r from-[#8B5CF6]/10 to-[#6366F1]/10 border border-[#8B5CF6]/30 rounded-lg p-1.5">
-          <Calendar className="w-4 h-4 text-[#8B5CF6]" />
-          <span className="text-sm text-[#A78BFA] font-semibold whitespace-nowrap px-1.5">{matchCount} Maç</span>
+        <div className="bg-gradient-to-r from-[#8B5CF6]/10 to-[#6366F1]/10 border border-[#8B5CF6]/30 rounded-lg p-1">
+          <div className="flex items-center gap-1.5 px-2 py-1.5">
+            <Calendar className="w-4 h-4 text-[#8B5CF6]" />
+            <span className="text-sm text-[#A78BFA] font-semibold whitespace-nowrap">{matchCount} Maç</span>
+          </div>
         </div>
       )}
       </div>
